@@ -365,12 +365,26 @@ exports.main = async (event, context) => {
         const { role } = event;
         if (!role) return paramError('缺少role参数');
 
-        const countRes = await db.collection('shipments')
-          .where({
+        let countQuery;
+        if (role === 'warehouse') {
+          // 仓管员：与 workflowList 逻辑一致，统计待处理(pickup) + 已入库(yiwu_entry)
+          countQuery = {
+            timeline: _.elemMatch({
+              status: 'active',
+              nodeCode: _.in(['pickup', 'yiwu_entry'])
+            }),
+            isDeleted: _.neq(true)
+          };
+        } else {
+          countQuery = {
             oaStatus: _.neq('completed'),
             oaAssignedTo: role,
             isDeleted: _.neq(true)
-          })
+          };
+        }
+
+        const countRes = await db.collection('shipments')
+          .where(countQuery)
           .count();
 
         return success({ count: countRes.total });
