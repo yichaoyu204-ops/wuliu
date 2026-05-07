@@ -1,0 +1,204 @@
+.container {
+  background: #f5f7fa;
+  min-height: 100vh;
+}
+
+/* Tab 栏 */
+.tab-bar {
+  display: flex;
+  background: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+}
+
+.tab-active {
+  color: #FF6B00;
+  font-weight: 600;
+}
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 30%;
+  right: 30%;
+  height: 4rpx;
+  background: #FF6B00;
+  border-radius: 2rpx;
+}
+
+/* 账单卡片 */
+.bill-list {
+  padding: 20rpx 24rpx;
+}
+
+.bill-card {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.bill-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.bill-id {
+  font-size: 26rpx;
+  color: #1a1a1a;
+  font-weight: 500;
+  font-family: monospace;
+}
+
+.bill-status {
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-weight: 500;
+}
+
+.bill-status.unpaid {
+  color: #e53935;
+  background: #ffebee;
+}
+
+.bill-status.paid {
+  color: #07c160;
+  background: #e8f5e9;
+}
+
+.bill-factory {
+  font-size: 26rpx;
+  color: #555;
+  margin-bottom: 16rpx;
+}
+
+/* 费用明细 */
+.fee-detail {
+  background: #fafafa;
+  border-radius: 12rpx;
+  padding: 16rpx 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.fee-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 8rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.fee-row:last-child {
+  border-bottom: none;
+}
+
+.fee-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fee-name {
+  font-size: 26rpx;
+  color: #333;
+}
+
+.fee-calc {
+  font-size: 22rpx;
+  color: #999;
+  margin-top: 2rpx;
+}
+
+.fee-amount {
+  font-size: 26rpx;
+  color: #1a1a1a;
+  font-weight: 500;
+  flex-shrink: 0;
+  margin-left: 16rpx;
+}
+
+.fee-excluded {
+  color: #999;
+  font-weight: normal;
+  text-decoration: line-through;
+}
+
+.fee-total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12rpx;
+  margin-top: 8rpx;
+  border-top: 2rpx dashed #e0e0e0;
+}
+
+.fee-total-label {
+  font-size: 28rpx;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.fee-total-amount {
+  font-size: 32rpx;
+  color: #e53935;
+  font-weight: bold;
+}
+
+.bill-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f8f8f8;
+}
+
+.bill-type {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.bill-amount {
+  font-size: 34rpx;
+  color: #1a1a1a;
+  font-weight: bold;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 0;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 120rpx 0;
+  font-size: 28rpx;
+  color: #999;
+}

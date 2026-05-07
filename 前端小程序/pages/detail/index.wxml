@@ -1,0 +1,341 @@
+<view class="container">
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+
+  <block wx:if="{{!loading && shipment}}">
+    <!-- 头部状态卡片 -->
+    <view class="status-card">
+      <view class="status-icon">{{statusIcon}}</view>
+      <view class="status-info">
+        <text class="status-name">{{statusMainTitle || shipment.currentNodeName || '运输中'}}</text>
+        <text class="status-desc">{{statusSubTitle || statusDesc}}</text>
+      </view>
+    </view>
+
+    <!-- 货物信息 -->
+    <view class="section">
+      <view class="section-title">
+        <text>货物信息</text>
+        <view wx:if="{{canEdit && !isEditing}}" class="edit-btn" bindtap="toggleEdit">编辑</view>
+        <view wx:if="{{canEdit && isEditing}}" class="edit-actions">
+          <text class="edit-action cancel" bindtap="toggleEdit">取消</text>
+          <text class="edit-action save" bindtap="saveEdit">保存</text>
+        </view>
+      </view>
+
+      <view class="info-card">
+        <!-- 业务编号 -->
+        <view class="info-row">
+          <text class="info-label">业务编号</text>
+          <block wx:if="{{isEditing}}">
+            <input class="edit-input" type="text" value="{{editForm.waybillNo}}" data-field="waybillNo" bindinput="onEditInput" />
+          </block>
+          <block wx:else>
+            <text class="info-value mono" wx:if="{{shipment.cargoInfo.waybillNo}}">{{shipment.cargoInfo.waybillNo}}</text>
+            <text class="info-value hint" wx:else>——</text>
+          </block>
+        </view>
+
+        <!-- 货物明细 -->
+        <view class="info-row">
+          <text class="info-label">货物明细</text>
+          <block wx:if="{{isEditing}}">
+            <view class="edit-input-group">
+              <input class="edit-input small" type="number" value="{{editForm.pieces}}" data-field="pieces" bindinput="onEditInput" placeholder="件数" />
+              <text class="edit-unit">件 /</text>
+              <input class="edit-input small" type="digit" value="{{editForm.grossWeight}}" data-field="grossWeight" bindinput="onEditInput" placeholder="重量" />
+              <text class="edit-unit">{{editForm.weightUnit}} /</text>
+              <input class="edit-input small" type="digit" value="{{editForm.volume}}" data-field="volume" bindinput="onEditInput" placeholder="体积" />
+              <text class="edit-unit">{{editForm.volumeUnit}}</text>
+            </view>
+          </block>
+          <block wx:else>
+            <text class="info-value">
+              {{shipment.cargoInfo.pieces || '-'}} {{shipment.cargoInfo.piecesUnit || '件'}} / {{shipment.cargoInfo.grossWeight || '-'}} {{shipment.cargoInfo.weightUnit || 'KGS'}} / {{shipment.cargoInfo.volume || '-'}} {{shipment.cargoInfo.volumeUnit || 'CBM'}}
+            </text>
+          </block>
+        </view>
+
+        <!-- 唛头 -->
+        <view class="info-row">
+          <text class="info-label">唛头</text>
+          <block wx:if="{{isEditing}}">
+            <input class="edit-input" type="text" value="{{editForm.marks}}" data-field="marks" bindinput="onEditInput" placeholder="唛头" />
+          </block>
+          <block wx:else>
+            <text class="info-value">{{shipment.cargoInfo.marks || '——'}}</text>
+          </block>
+        </view>
+
+        <!-- 目的港 -->
+        <view class="info-row">
+          <text class="info-label">目的港</text>
+          <block wx:if="{{isEditing}}">
+            <input class="edit-input" type="text" value="{{editForm.destinationPort}}" data-field="destinationPort" bindinput="onEditInput" placeholder="目的港" />
+          </block>
+          <block wx:else>
+            <text class="info-value">{{shipment.routing.destinationPort || '——'}}</text>
+          </block>
+        </view>
+
+        <!-- 开航时间 -->
+        <view class="info-row">
+          <text class="info-label">开航时间</text>
+          <text class="info-value">{{shipment.routing.departureTime || '——'}}</text>
+        </view>
+
+        <!-- 仓库名称 -->
+        <view class="info-row">
+          <text class="info-label">仓库名称</text>
+          <block wx:if="{{isEditing}}">
+            <input class="edit-input" type="text" value="{{editForm.warehouseName}}" data-field="warehouseName" bindinput="onEditInput" placeholder="仓库名称" />
+          </block>
+          <block wx:else>
+            <text class="info-value">{{shipment.routing.warehouseName || '——'}}</text>
+          </block>
+        </view>
+
+        <!-- 联系人1 -->
+        <view class="info-row">
+          <text class="info-label">联系人1</text>
+          <block wx:if="{{isEditing}}">
+            <view class="edit-input-group">
+              <input class="edit-input" type="text" value="{{editForm.contact1Name}}" data-field="contact1Name" bindinput="onEditInput" placeholder="姓名" />
+              <input class="edit-input" type="number" value="{{editForm.contact1Phone}}" data-field="contact1Phone" bindinput="onEditInput" placeholder="电话" />
+            </view>
+          </block>
+          <block wx:else>
+            <text class="info-value" wx:if="{{shipment.contacts.contact1Name}}">{{shipment.contacts.contact1Name}} {{shipment.contacts.contact1Phone}}</text>
+            <text class="info-value hint" wx:else>——</text>
+          </block>
+        </view>
+
+        <!-- 联系人2 -->
+        <view class="info-row">
+          <text class="info-label">联系人2</text>
+          <block wx:if="{{isEditing}}">
+            <view class="edit-input-group">
+              <input class="edit-input" type="text" value="{{editForm.contact2Name}}" data-field="contact2Name" bindinput="onEditInput" placeholder="姓名" />
+              <input class="edit-input" type="text" value="{{editForm.contact2Phone}}" data-field="contact2Phone" bindinput="onEditInput" placeholder="电话" />
+            </view>
+          </block>
+          <block wx:else>
+            <text class="info-value" wx:if="{{shipment.contacts.contact2Name}}">{{shipment.contacts.contact2Name}} {{shipment.contacts.contact2Phone}}</text>
+            <text class="info-value hint" wx:else>——</text>
+          </block>
+        </view>
+
+        <!-- 付款方式 -->
+        <view class="info-row">
+          <text class="info-label">付款方式</text>
+          <block wx:if="{{isEditing}}">
+            <radio-group bindchange="onPaymentTypeChange">
+              <label class="radio-label">
+                <radio value="monthly" checked="{{editForm.paymentType === 'monthly'}}" color="#FF6B00" />萌恒月结
+              </label>
+              <label class="radio-label">
+                <radio value="spot" checked="{{editForm.paymentType === 'spot'}}" color="#FF6B00" />仓库现结
+              </label>
+            </radio-group>
+          </block>
+          <block wx:else>
+            <text class="info-value">{{shipment.billing.paymentType === 'spot' ? '仓库现结' : '萌恒月结'}}</text>
+          </block>
+        </view>
+      </view>
+    </view>
+
+    <!-- 进仓单原件 -->
+    <view class="section" wx:if="{{shipment.attachmentFileId}}">
+      <view class="section-title">进仓单原件</view>
+      <view class="attachment-card" bindtap="previewAttachment">
+        <image class="attachment-thumb" src="{{shipment.attachmentFileId}}" mode="aspectFill" />
+        <text class="attachment-hint">点击查看大图</text>
+      </view>
+    </view>
+
+    <!-- 路线信息 -->
+    <view class="section">
+      <view class="section-title">
+        <text>运输路线</text>
+        <view wx:if="{{canEdit && !isEditingRoute}}" class="edit-btn" bindtap="toggleRouteEdit">编辑</view>
+        <view wx:if="{{canEdit && isEditingRoute}}" class="edit-actions">
+          <text class="edit-action cancel" bindtap="toggleRouteEdit">取消</text>
+          <text class="edit-action save" bindtap="saveRouteEdit">保存</text>
+        </view>
+      </view>
+      <view class="route-card">
+        <!-- 编辑模式下可选择路线 -->
+        <block wx:if="{{isEditingRoute}}">
+          <view class="route-name">{{routes[routeEditForm.routeIndex].name}}</view>
+          <view class="form-row" style="padding:12rpx 0;margin-top:8rpx;">
+            <text class="warehouse-label">选择路线</text>
+            <picker class="form-picker-wide" bindchange="onRouteChange" value="{{routeEditForm.routeIndex}}" range="{{routes}}" range-key="name">
+              <view class="date-picker-text">{{routes[routeEditForm.routeIndex].name}}</view>
+            </picker>
+          </view>
+          <view class="warehouse-info">
+            <text class="warehouse-label">目的仓库</text>
+            <input class="edit-input" type="text" value="{{routeEditForm.warehouseName}}" data-field="warehouseName" bindinput="onRouteInput" placeholder="目的仓库" />
+          </view>
+        </block>
+        <block wx:else>
+          <view class="route-name">{{shipment.routeSnapshot.name || '——'}}</view>
+          <view class="route-desc">{{shipment.routeSnapshot.description || ''}}</view>
+          <view class="warehouse-info">
+            <text class="warehouse-label">目的仓库</text>
+            <text class="warehouse-value">{{shipment.routing.warehouseName || '——'}}</text>
+            <text class="warehouse-address" wx:if="{{shipment.routing.warehouseAddress}}">{{shipment.routing.warehouseAddress}}</text>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 时间线 -->
+    <view class="section">
+      <view class="section-title">物流进度</view>
+      <view class="timeline">
+        <view
+          class="timeline-item {{item.status}}"
+          wx:for="{{shipment.timeline}}"
+          wx:key="nodeCode"
+        >
+          <view class="timeline-dot {{item.status}}"></view>
+          <view class="timeline-line" wx:if="{{index < shipment.timeline.length - 1}}"></view>
+          <view class="timeline-content">
+            <view class="timeline-header">
+              <text class="timeline-name">{{item.displayName || item.nodeName}}</text>
+              <text class="timeline-status {{item.status}}">{{item.displayStatus}}</text>
+            </view>
+            <view class="timeline-time" wx:if="{{item.timestamp}}">{{item.timestamp}}</view>
+            <view class="timeline-operator" wx:if="{{item.operator}}">操作人：{{item.operator}}</view>
+            <view class="timeline-remark" wx:if="{{item.remark}}">备注：{{item.remark}}</view>
+            <view class="timeline-photos" wx:if="{{item.photos && item.photos.length > 0}}">
+              <image
+                wx:for="{{item.photos}}"
+                wx:for-item="photo"
+                wx:key="*this"
+                class="timeline-photo"
+                src="{{photo}}"
+                mode="aspectFill"
+                bindtap="previewPhoto"
+                data-url="{{photo}}"
+              />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 费用信息 -->
+    <view class="section" wx:if="{{shipment.fees && shipment.fees.length > 0}}">
+      <view class="section-title">费用明细</view>
+      <view class="fee-card">
+        <view class="fee-row" wx:for="{{shipment.fees}}" wx:key="addedAt">
+          <text class="fee-name">{{item.name}}</text>
+          <text class="fee-amount">¥{{item.amount}}</text>
+        </view>
+        <view class="fee-divider"></view>
+        <view class="fee-total">
+          <text class="fee-total-label">合计</text>
+          <text class="fee-total-amount">¥{{shipment.totalAmount || 0}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 实测数据 -->
+    <view class="section" wx:if="{{shipment.measurement.status === 'measured'}}">
+      <view class="section-title">
+        <text>仓库实测</text>
+        <view wx:if="{{canEdit && !isEditingMeasurement}}" class="edit-btn" bindtap="toggleMeasurementEdit">编辑</view>
+        <view wx:if="{{canEdit && isEditingMeasurement}}" class="edit-actions">
+          <text class="edit-action cancel" bindtap="toggleMeasurementEdit">取消</text>
+          <text class="edit-action save" bindtap="saveMeasurementEdit">保存</text>
+        </view>
+      </view>
+      <view class="measure-card">
+        <block wx:if="{{!isEditingMeasurement}}">
+          <view class="measure-row">
+            <text class="measure-label">件数</text>
+            <text class="measure-value">{{shipment.measurement.actual.pieces || '——'}}</text>
+          </view>
+          <view class="measure-row">
+            <text class="measure-label">重量</text>
+            <text class="measure-value">{{shipment.measurement.actual.weight || '——'}} {{shipment.measurement.actual.weightUnit || 'KGS'}}</text>
+          </view>
+          <view class="measure-row">
+            <text class="measure-label">体积</text>
+            <text class="measure-value">{{shipment.measurement.actual.volume || '——'}} {{shipment.measurement.actual.volumeUnit || 'CBM'}}</text>
+          </view>
+          <view class="measure-row" wx:if="{{shipment.measurement.note}}">
+            <text class="measure-label">备注</text>
+            <text class="measure-value">{{shipment.measurement.note}}</text>
+          </view>
+        </block>
+        <block wx:else>
+          <view class="measure-row">
+            <text class="measure-label">件数</text>
+            <input class="edit-input small" type="number" value="{{measurementEditForm.pieces}}" data-field="pieces" bindinput="onMeasurementInput" placeholder="件数" />
+          </view>
+          <view class="measure-row">
+            <text class="measure-label">重量</text>
+            <view class="edit-input-group">
+              <input class="edit-input small" type="digit" value="{{measurementEditForm.weight}}" data-field="weight" bindinput="onMeasurementInput" placeholder="重量" />
+              <text class="edit-unit">{{measurementEditForm.weightUnit}}</text>
+            </view>
+          </view>
+          <view class="measure-row">
+            <text class="measure-label">体积</text>
+            <view class="edit-input-group">
+              <input class="edit-input small" type="digit" value="{{measurementEditForm.volume}}" data-field="volume" bindinput="onMeasurementInput" placeholder="体积" />
+              <text class="edit-unit">{{measurementEditForm.volumeUnit}}</text>
+            </view>
+          </view>
+          <view class="measure-row">
+            <text class="measure-label">备注</text>
+            <input class="edit-input" type="text" value="{{measurementEditForm.note}}" data-field="note" bindinput="onMeasurementInput" placeholder="备注" maxlength="50" />
+          </view>
+        </block>
+        <view class="measure-photos" wx:if="{{shipment.measurement.photos && shipment.measurement.photos.length > 0}}">
+          <text class="measure-photo-title">实测照片</text>
+          <scroll-view scroll-x class="photo-scroll">
+            <image
+              wx:for="{{shipment.measurement.photos}}"
+              wx:key="*this"
+              class="photo-thumb"
+              src="{{item}}"
+              mode="aspectFill"
+              bindtap="previewPhoto"
+              data-url="{{item}}"
+            />
+          </scroll-view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 底部操作 -->
+    <!-- 客户确认报价（仅当报价已发送且未确认时显示） -->
+    <view class="action-bar" wx:if="{{shipment.quote.status === 'sent'}}">
+      <view class="btn-primary" bindtap="goConfirm">确认报价</view>
+    </view>
+    <!-- 仓管员确认入库 -->
+    <view class="action-bar" wx:elif="{{showConfirmInbound}}">
+      <view class="btn-primary" bindtap="advanceNode">确认入库</view>
+    </view>
+    <!-- 仓管员确认出库 -->
+    <view class="action-bar" wx:elif="{{showConfirmOutbound}}">
+      <view class="btn-primary" bindtap="advanceNode">确认出库</view>
+    </view>
+    <!-- 仓管员确认信息 -->
+    <view class="action-bar" wx:elif="{{canEdit && shipment.oaStatus === 'created'}}">
+      <view class="btn-primary" bindtap="confirmInfo">确认信息</view>
+    </view>
+  </block>
+
+  <view class="empty-state" wx:if="{{!loading && !shipment}}">
+    <text class="empty-icon">📦</text>
+    <text class="empty-text">运单不存在或已失效</text>
+    <text class="empty-hint">请检查单号是否正确</text>
+  </view>
+</view>

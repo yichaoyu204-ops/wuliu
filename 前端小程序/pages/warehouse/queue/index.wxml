@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="header">
+    <text class="header-title">待测量队列</text>
+    <text class="header-desc">{{pendingCount}} 票货物待测量</text>
+  </view>
+
+  <view class="list" wx:if="{{shipments.length > 0}}">
+    <view class="card" wx:for="{{shipments}}" wx:key="_id" bindtap="goMeasure" data-id="{{item._id}}">
+      <view class="card-header">
+        <text class="card-id">{{item.cargoInfo.waybillNo || item._id}}</text>
+        <text class="card-status">待测量</text>
+      </view>
+      <view class="card-body">
+        <text class="card-factory">{{item.contacts.contact1Name || '——'}}</text>
+        <text class="card-info">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit || 'CTNS'}} / {{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit || 'KGS'}} / {{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit || 'CBM'}}</text>
+      </view>
+      <view class="card-footer">
+        <text class="card-time">{{item.createdAt}}</text>
+        <view class="btn-measure">去测量</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="empty" wx:if="{{!loading && shipments.length === 0}}">
+    <text class="empty-icon">📦</text>
+    <text class="empty-text">暂无需测量的货物</text>
+  </view>
+</view>

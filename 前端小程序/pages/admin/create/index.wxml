@@ -1,0 +1,147 @@
+<view class="container">
+  <!-- AI 识别入口 -->
+  <view class="ai-section" wx:if="{{!aiResult}}">
+    <view class="ai-card" bindtap="chooseImage">
+      <text class="ai-icon">📷</text>
+      <text class="ai-title">拍照识别进仓单</text>
+      <text class="ai-desc">自动提取件数/重量/体积/工厂等信息</text>
+    </view>
+    <view class="ai-hint" wx:if="{{aiLoading}}">
+      <text class="ai-loading">AI 识别中，请稍候...</text>
+    </view>
+  </view>
+
+  <!-- AI 识别结果提示 -->
+  <view class="ai-result-section" wx:if="{{aiResult}}">
+    <view class="ai-result-card {{aiResult.handwritingDetected ? 'ai-warning' : 'ai-success'}}">
+      <text class="ai-result-icon">{{aiResult.handwritingDetected ? '⚠️' : '✅'}}</text>
+      <view class="ai-result-info">
+        <text class="ai-result-title">{{aiResult.handwritingDetected ? '检测到手写/涂改，请仔细复核' : 'AI 识别完成'}}</text>
+        <text class="ai-result-desc" wx:if="{{aiResult.handwritingDetected}}">以下字段可能存在人工修改，请以实际单据为准</text>
+      </view>
+      <view class="ai-result-actions">
+        <text class="ai-retry" bindtap="chooseImage">重新识别</text>
+        <text class="ai-clear" bindtap="clearAIResult">手动录入</text>
+      </view>
+    </view>
+
+    <!-- 手写标记列表 -->
+    <view class="manual-review-list" wx:if="{{aiResult.handwritingDetected && aiResult.handwrittenFields.length > 0}}">
+      <text class="manual-review-title">需复核字段：</text>
+      <text class="manual-review-tag" wx:for="{{aiResult.handwrittenFields}}" wx:key="*this">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 货物信息 -->
+  <view class="section">
+    <view class="section-title">货物信息</view>
+    <view class="form-row {{manualReview.waybillNo ? 'row-warning' : ''}}">
+      <text class="form-label">业务编号</text>
+      <input class="form-input" type="text" placeholder="如 26MH642064" value="{{cargoInfo.waybillNo}}" bindinput="onWaybillNoChange" />
+    </view>
+    <view class="form-row {{manualReview.pieces ? 'row-warning' : ''}}">
+      <text class="form-label">件数</text>
+      <input class="form-input" type="number" placeholder="请输入件数" value="{{cargoInfo.pieces}}" bindinput="onPiecesChange" />
+      <picker class="form-picker" bindchange="onPiecesUnitChange" value="{{piecesUnitIndex}}" range="{{unitOptions.pieces}}">
+        <view>{{cargoInfo.piecesUnit || '件'}}</view>
+      </picker>
+    </view>
+    <view class="form-row {{manualReview.weight ? 'row-warning' : ''}}">
+      <text class="form-label">毛重</text>
+      <input class="form-input" type="digit" placeholder="请输入毛重" value="{{cargoInfo.grossWeight}}" bindinput="onWeightChange" />
+      <picker class="form-picker" bindchange="onWeightUnitChange" value="{{weightUnitIndex}}" range="{{unitOptions.weight}}">
+        <view>{{cargoInfo.weightUnit || 'KGS'}}</view>
+      </picker>
+    </view>
+    <view class="form-row {{manualReview.volume ? 'row-warning' : ''}}">
+      <text class="form-label">体积</text>
+      <input class="form-input" type="digit" placeholder="请输入体积" value="{{cargoInfo.volume}}" bindinput="onVolumeChange" />
+      <picker class="form-picker" bindchange="onVolumeUnitChange" value="{{volumeUnitIndex}}" range="{{unitOptions.volume}}">
+        <view>{{cargoInfo.volumeUnit || 'CBM'}}</view>
+      </picker>
+    </view>
+    <view class="form-row {{manualReview.marks ? 'row-warning' : ''}}">
+      <text class="form-label">唛头</text>
+      <input class="form-input" type="text" placeholder="请输入唛头" value="{{cargoInfo.marks}}" bindinput="onMarksChange" />
+    </view>
+    <view class="form-row">
+      <text class="form-label">目的港</text>
+      <input class="form-input" type="text" placeholder="" value="{{routing.destinationPort}}" bindinput="onDestinationPortChange" />
+    </view>
+    <view class="form-row">
+      <text class="form-label">开航时间</text>
+      <view class="form-picker-with-clear">
+        <picker mode="date" class="form-picker-wide" bindchange="onDepartureTimeChange" value="{{routing.departureTime}}">
+          <view class="date-picker-text {{routing.departureTime ? '' : 'placeholder'}}">{{routing.departureTime || '请选择开航日期'}}</view>
+        </picker>
+        <text class="clear-btn" wx:if="{{routing.departureTime}}" bindtap="clearDepartureTime">清空</text>
+      </view>
+    </view>
+    <view class="form-row">
+      <text class="form-label">最晚进仓</text>
+      <picker mode="date" class="form-picker-date" bindchange="onLatestDeliveryDateChange" value="{{latestDeliveryDate}}">
+        <view class="date-picker-text">{{latestDeliveryDate || '请选择日期'}}</view>
+      </picker>
+      <picker mode="time" class="form-picker-time" bindchange="onLatestDeliveryTimeChange" value="{{latestDeliveryTime}}">
+        <view class="date-picker-text">{{latestDeliveryTime || '请选择时间'}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 联系人 -->
+  <view class="section">
+    <view class="section-title">联系人1</view>
+    <view class="form-row">
+      <text class="form-label">姓名</text>
+      <input class="form-input" type="text" placeholder="请输入姓名" value="{{contacts.contact1Name}}" bindinput="onContact1NameChange" />
+    </view>
+    <view class="form-row">
+      <text class="form-label">手机号</text>
+      <input class="form-input" type="number" placeholder="请输入手机号" value="{{contacts.contact1Phone}}" bindinput="onContact1PhoneChange" />
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-title">联系人2</view>
+    <view class="form-row">
+      <text class="form-label">姓名</text>
+      <input class="form-input" type="text" placeholder="请输入姓名" value="{{contacts.contact2Name}}" bindinput="onContact2NameChange" />
+    </view>
+    <view class="form-row">
+      <text class="form-label">电话</text>
+      <input class="form-input" type="text" placeholder="请输入电话/座机" value="{{contacts.contact2Phone}}" bindinput="onContact2PhoneChange" />
+    </view>
+  </view>
+
+  <!-- 路线选择 -->
+  <view class="section">
+    <view class="section-title">路线选择</view>
+    <view class="form-row">
+      <text class="form-label">路线</text>
+      <picker class="form-picker-wide" bindchange="onRouteChange" value="{{routeIndex}}" range="{{routes}}" range-key="name">
+        <view>{{routeName}}</view>
+      </picker>
+    </view>
+    <view class="form-row">
+      <text class="form-label">目的仓库</text>
+      <input class="form-input" type="text" placeholder="请输入仓库名称" value="{{routing.warehouseName}}" bindinput="onWarehouseChange" />
+    </view>
+  </view>
+
+  <!-- 结算方式 -->
+  <view class="section">
+    <view class="section-title">结算方式</view>
+    <view class="form-row">
+      <text class="form-label">付款方式</text>
+      <picker class="form-picker-wide" bindchange="onPaymentTypeChange" value="{{paymentTypeIndex}}" range="{{paymentTypeOptions}}">
+        <view>{{paymentTypeLabel}}</view>
+      </picker>
+    </view>
+  </view>
+
+  <view class="footer">
+    <view class="btn-submit {{submitting ? 'btn-disabled' : ''}}" bindtap="onSubmit">
+      {{submitting ? '创建中...' : '创建运单'}}
+    </view>
+  </view>
+</view>

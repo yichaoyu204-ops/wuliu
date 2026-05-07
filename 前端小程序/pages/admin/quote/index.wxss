@@ -1,0 +1,336 @@
+.container {
+  padding: 24rpx;
+  background: #f5f7fa;
+  min-height: 100vh;
+  padding-bottom: 200rpx;
+}
+
+/* 浮动信息栏 */
+.sticky-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: #FF6B00;
+  border-radius: 16rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 20rpx;
+  color: #fff;
+}
+
+.sticky-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+
+.sticky-row:last-child {
+  margin-bottom: 0;
+}
+
+.sticky-id {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.sticky-factory {
+  font-size: 24rpx;
+  opacity: 0.9;
+}
+
+.sticky-measure {
+  font-size: 24rpx;
+  opacity: 0.85;
+}
+
+.sticky-warning {
+  margin-top: 10rpx;
+  padding: 8rpx 12rpx;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8rpx;
+}
+
+.warning-text {
+  font-size: 22rpx;
+  color: #ffe082;
+}
+
+/* 分区 */
+.section {
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.section-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  display: block;
+  margin-bottom: 6rpx;
+}
+
+.section-hint {
+  font-size: 22rpx;
+  color: #aaa;
+  display: block;
+  margin-bottom: 24rpx;
+}
+
+/* 费用行 */
+.fee-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.fee-row:last-child {
+  border-bottom: none;
+}
+
+.fee-excluded {
+  opacity: 0.5;
+}
+
+.fee-excluded .fee-input {
+  background: #eee;
+}
+
+.fee-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.checkbox-wrap {
+  padding: 10rpx;
+  margin-right: 8rpx;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #ccc;
+  border-radius: 8rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #fff;
+}
+
+.checkbox.checked {
+  background: #FF6B00;
+  border-color: #FF6B00;
+}
+
+.fee-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.fee-name {
+  font-size: 28rpx;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.fee-detail {
+  font-size: 22rpx;
+  color: #888;
+  margin-top: 4rpx;
+}
+
+.fee-right {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  margin-left: 16rpx;
+}
+
+.fee-input {
+  width: 140rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  padding: 10rpx 14rpx;
+  font-size: 28rpx;
+  color: #1a1a1a;
+  text-align: right;
+  background: #fafafa;
+}
+
+.fee-unit {
+  font-size: 24rpx;
+  color: #888;
+}
+
+/* 其他费用区域 */
+.other-fees-section {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 2rpx dashed #e0e0e0;
+}
+
+.other-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.other-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.other-hint {
+  font-size: 22rpx;
+  color: #aaa;
+}
+
+.other-row {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 16rpx;
+}
+
+.other-name-input {
+  flex: 1;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  padding: 14rpx 16rpx;
+  font-size: 26rpx;
+  background: #fafafa;
+}
+
+.other-amount-input {
+  width: 160rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 8rpx;
+  padding: 14rpx 16rpx;
+  font-size: 26rpx;
+  text-align: right;
+  background: #fafafa;
+}
+
+.other-unit {
+  font-size: 24rpx;
+  color: #888;
+}
+
+.other-del {
+  width: 44rpx;
+  height: 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e53935;
+  font-size: 28rpx;
+}
+
+.add-other-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  padding: 20rpx;
+  border: 2rpx dashed #FF6B00;
+  border-radius: 12rpx;
+  margin-top: 8rpx;
+}
+
+.add-icon {
+  font-size: 32rpx;
+  color: #FF6B00;
+  font-weight: 600;
+}
+
+.add-text {
+  font-size: 26rpx;
+  color: #FF6B00;
+}
+
+/* 备注 */
+.field {
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.label {
+  font-size: 26rpx;
+  color: #555;
+  display: block;
+  margin-bottom: 10rpx;
+}
+
+.input {
+  border: 1rpx solid #e0e0e0;
+  border-radius: 12rpx;
+  padding: 18rpx 20rpx;
+  font-size: 28rpx;
+  color: #1a1a1a;
+  background: #fafafa;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 底部提交栏 */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 20rpx 32rpx;
+  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1rpx solid #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.footer-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-label {
+  font-size: 22rpx;
+  color: #888;
+}
+
+.footer-amount {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: #e53935;
+}
+
+.submit-btn {
+  flex: 1;
+  max-width: 400rpx;
+  background: #FF6B00;
+  color: #fff;
+  text-align: center;
+  padding: 28rpx;
+  border-radius: 50rpx;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.btn-disabled {
+  background: #aac4f0;
+}
+
+.mono {
+  font-family: monospace;
+}

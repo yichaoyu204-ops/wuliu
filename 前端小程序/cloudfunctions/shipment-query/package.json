@@ -1,0 +1,9 @@
+{
+  "name": "shipment-query",
+  "version": "1.0.0",
+  "description": "货物查询、仓库队列、详情获取",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

@@ -1,0 +1,106 @@
+<wxs module="fmt">
+module.exports.money = function(n) {
+  return parseFloat(n || 0).toFixed(2);
+};
+</wxs>
+
+<view class="container">
+  <view class="header">
+    <text class="header-title">请确认运费报价</text>
+    <text class="header-subtitle">确认后将生成账单，无法撤销</text>
+  </view>
+
+  <!-- 货物信息 -->
+  <view class="card cargo-card" wx:if="{{shipment}}">
+    <view class="card-title">货物信息</view>
+    <view class="cargo-row">
+      <text class="cargo-label">业务编号</text>
+      <text class="cargo-value mono">{{shipment.cargoInfo.waybillNo || '——'}}</text>
+    </view>
+    <view class="cargo-row">
+      <text class="cargo-label">工厂</text>
+      <text class="cargo-value">{{shipment.contacts.contact1Name || '——'}}</text>
+    </view>
+    <view class="cargo-row">
+      <text class="cargo-label">实测</text>
+      <text class="cargo-value">
+        {{shipment.measurement.actual.pieces || '-'}} 件 / {{shipment.measurement.actual.weight || '-'}} {{shipment.measurement.actual.weightUnit || 'KGS'}} / {{shipment.measurement.actual.volume || '-'}} {{shipment.measurement.actual.volumeUnit || 'CBM'}}
+      </text>
+    </view>
+  </view>
+
+  <!-- 实测照片存证 -->
+  <view class="card photo-card" wx:if="{{shipment.measurement.photos.length > 0}}">
+    <view class="card-title">实测存证</view>
+    <scroll-view scroll-x class="photo-scroll" enable-flex>
+      <image
+        wx:for="{{shipment.measurement.photos}}"
+        wx:key="*this"
+        class="photo-thumb"
+        src="{{item}}"
+        mode="aspectFill"
+        bindtap="previewImage"
+        data-url="{{item}}"
+      />
+    </scroll-view>
+    <view class="photo-hint">点击图片放大查看称重/量方仪表盘</view>
+  </view>
+
+  <!-- 费用明细 -->
+  <view class="card quote-card" wx:if="{{quote}}">
+    <view class="card-title">费用明细</view>
+    <block wx:for="{{quote.items}}" wx:key="index">
+      <view class="quote-row" wx:if="{{item.isIncluded}}">
+        <view class="quote-left">
+          <text class="quote-name">{{item.name}}</text>
+          <text class="quote-detail" wx:if="{{item.calculationDetail}}">{{item.calculationDetail}}</text>
+        </view>
+        <text class="quote-amount">¥{{fmt.money(item.amount)}}</text>
+      </view>
+    </block>
+
+    <view class="quote-divider"></view>
+
+    <view class="quote-total-box">
+      <text class="quote-total-label">合计应付</text>
+      <text class="quote-total-amount">¥{{fmt.money(quote.subtotal)}}</text>
+    </view>
+
+    <view class="quote-note" wx:if="{{quote.note}}">
+      <text>备注：{{quote.note}}</text>
+    </view>
+  </view>
+
+  <!-- 支付方式 -->
+  <view class="card payment-card">
+    <view class="card-title">结算方式</view>
+    <radio-group class="payment-group" bindchange="onPaymentChange">
+      <label class="payment-option">
+        <radio value="spot" checked="{{paymentType === 'spot'}}" color="#FF6B00" />
+        <view class="payment-content">
+          <text class="payment-title">现结支付</text>
+          <text class="payment-desc">现场扫码，货走账清</text>
+        </view>
+      </label>
+      <label class="payment-option">
+        <radio value="monthly" checked="{{paymentType === 'monthly'}}" color="#FF6B00" />
+        <view class="payment-content">
+          <text class="payment-title">月结对账</text>
+          <text class="payment-desc">本月入账，次月统一结算</text>
+        </view>
+      </label>
+    </radio-group>
+
+    <view class="payment-tip" wx:if="{{paymentType === 'spot'}}">
+      <text>⚠️ 请在提货前出示此页面并扫描仓库公示码支付</text>
+    </view>
+  </view>
+
+  <!-- 底部按钮 -->
+  <view class="footer">
+    <view class="btn-contact" bindtap="contactSales">联系业务员</view>
+    <view class="btn-confirm {{loading ? 'btn-disabled' : ''}}" bindtap="onConfirm">
+      {{loading ? '确认中...' : '确认报价并进账'}}
+    </view>
+  </view>
+</view>

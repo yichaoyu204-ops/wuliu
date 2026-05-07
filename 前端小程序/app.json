@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/role-select/index",
+    "pages/index/index",
+    "pages/detail/index",
+    "pages/driver/task/index",
+    "pages/warehouse/queue/index",
+    "pages/admin/create/index",
+    "pages/admin/myshipments/index",
+    "pages/admin/feeconfig/index",
+    "pages/admin/measure/index",
+    "pages/admin/quote/index",
+    "pages/admin/billing/index",
+    "pages/admin/review/index",
+    "pages/confirm/quote/index",
+    "pages/billing/cart/index",
+    "pages/workflow/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FF6B00",
+    "navigationBarTitleText": "一超物流",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "custom": true,
+    "list": [
+      { "pagePath": "pages/index/index", "text": "查单" },
+      { "pagePath": "pages/admin/create/index", "text": "建单" },
+      { "pagePath": "pages/admin/myshipments/index", "text": "全部运单" },
+      { "pagePath": "pages/workflow/index", "text": "流程" },
+      { "pagePath": "pages/billing/cart/index", "text": "账单" }
+    ]
+  },
+  "cloud": true,
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序位置接口的效果展示"
+    }
+  }
+}

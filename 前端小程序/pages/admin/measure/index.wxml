@@ -1,0 +1,235 @@
+<view class="container">
+  <!-- 货物信息卡片 -->
+  <view wx:if="{{shipment}}" class="info-card">
+    <view class="info-row">
+      <text class="info-label">业务编号</text>
+      <text class="info-value mono">{{shipment.cargoInfo.waybillNo || '——'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">业务员</text>
+      <text class="info-value">{{shipment.creatorName || '——'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">进仓申报</text>
+      <text class="info-value hint">{{shipment.cargoInfo.pieces}}{{shipment.cargoInfo.piecesUnit}} / {{shipment.cargoInfo.grossWeight}}{{shipment.cargoInfo.weightUnit}} / {{shipment.cargoInfo.volume}}{{shipment.cargoInfo.volumeUnit}}</text>
+    </view>
+  </view>
+
+  <!-- 实测录入表单 -->
+  <view class="section">
+    <text class="section-title">实际测量数据</text>
+    <text class="section-hint">以下数据将用于自动计算运费，请如实填写</text>
+
+    <view class="field-group">
+      <view class="field">
+        <text class="label">实测件数（整数）</text>
+        <input class="input" type="number" placeholder="与申报不符时请修改" data-field="pieces" bindinput="onFormInput" value="{{form.pieces}}" />
+      </view>
+
+      <view class="field field-with-unit">
+        <text class="label">实测重量 *</text>
+        <view class="input-unit-row">
+          <input class="input flex1" type="digit" placeholder="必填" data-field="weight" bindinput="onFormInput" value="{{form.weight}}" />
+          <text class="unit-tag">{{form.weightUnit}}</text>
+        </view>
+      </view>
+
+      <view class="field field-with-unit">
+        <text class="label">实测体积 *</text>
+        <view class="input-unit-row">
+          <input class="input flex1" type="digit" placeholder="必填，差异大系统会提醒" data-field="volume" bindinput="onFormInput" value="{{form.volume}}" />
+          <text class="unit-tag">{{form.volumeUnit}}</text>
+        </view>
+      </view>
+
+      <view class="field">
+        <text class="label">备注（可选）</text>
+        <input class="input" placeholder="如：货物完好/轻微破损" data-field="note" bindinput="onFormInput" value="{{form.note}}" maxlength="50" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 照片上传 -->
+  <view class="section">
+    <text class="section-title">实测留存照片 *</text>
+    <text class="section-hint">建议拍：地磅屏幕、测量卷尺、货物外观，最多{{maxPhotos}}张</text>
+
+    <view class="photo-grid">
+      <view
+        wx:for="{{photos}}"
+        wx:key="fileID"
+        class="photo-item"
+      >
+        <image
+          class="photo-img"
+          src="{{item.tempUrl || item.fileID}}"
+          mode="aspectFill"
+          bindtap="previewPhoto"
+          data-index="{{index}}"
+        />
+        <view class="photo-del" bindtap="removePhoto" data-index="{{index}}">✕</view>
+      </view>
+
+      <view
+        wx:if="{{photos.length < maxPhotos}}"
+        class="photo-add"
+        bindtap="choosePhoto"
+      >
+        <text class="add-icon">📷</text>
+        <text class="add-text">拍照/上传</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 费用计算 -->
+  <view class="section" wx:if="{{shipment}}">
+    <text class="section-title">费用计算</text>
+
+    <!-- 主体费用（自动计算） -->
+    <view class="fee-group">
+      <view class="fee-group-title">主体费用</view>
+      <view class="fee-row" wx:for="{{mainFees}}" wx:key="name">
+        <view class="fee-left">
+          <text class="fee-name">{{item.name}}</text>
+          <text class="fee-detail" wx:if="{{item.detail}}">{{item.detail}}</text>
+        </view>
+        <text class="fee-amount">¥{{item.amount}}</text>
+      </view>
+    </view>
+
+    <!-- 附加费用 -->
+    <view class="fee-group">
+      <view class="fee-group-title">附加费用</view>
+
+      <!-- 代收款 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="0">
+          <view class="checkbox {{extraFees[0].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[0].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">代收款</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[0].enabled}}">¥{{extraFees[0].amount}}</text>
+        </view>
+        <view class="extra-fee-body" wx:if="{{extraFees[0].enabled}}">
+          <view class="sub-fee-row" wx:for="{{collectionItems}}" wx:key="name">
+            <text class="sub-fee-name">{{item.name}}</text>
+            <view class="sub-fee-inputs">
+              <input class="sub-input price" type="digit" value="{{item.price}}" bindinput="onCollectionPriceChange" data-idx="{{index}}" />
+              <text class="sub-unit">元/{{item.unit}}</text>
+              <text class="sub-multiply">×</text>
+              <input class="sub-input qty" type="digit" value="{{item.qty}}" bindinput="onCollectionQtyChange" data-idx="{{index}}" />
+              <text class="sub-unit">{{item.unit}}</text>
+              <text class="sub-equals">=</text>
+              <text class="sub-amount">¥{{item.amount}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 分拨拼货费 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="1">
+          <view class="checkbox {{extraFees[1].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[1].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">分拨拼货费</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[1].enabled}}">¥{{extraFees[1].amount}}</text>
+        </view>
+        <view class="extra-fee-hint" wx:if="{{extraFees[1].enabled}}">
+          ≤5立方:100元/票 | 5-20立方:200元/票 | 20立方以上:免费
+        </view>
+      </view>
+
+      <!-- 堆存费 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="2">
+          <view class="checkbox {{extraFees[2].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[2].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">堆存费</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[2].enabled}}">¥{{extraFees[2].amount}}</text>
+        </view>
+        <view class="extra-fee-body" wx:if="{{extraFees[2].enabled}}">
+          <view class="inline-input-row">
+            <text>存放天数</text>
+            <input class="inline-input" type="number" value="{{extraFees[2].days}}" bindinput="onStorageDaysChange" placeholder="0" />
+            <text>天（5天内免费，超过部分50元/票/天）</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 贴唛改唛费 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="3">
+          <view class="checkbox {{extraFees[3].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[3].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">贴唛改唛费</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[3].enabled}}">¥{{extraFees[3].amount}}</text>
+        </view>
+        <view class="extra-fee-body" wx:if="{{extraFees[3].enabled}}">
+          <view class="inline-input-row">
+            <text>件数</text>
+            <input class="inline-input" type="number" value="{{extraFees[3].pieces}}" bindinput="onRelabelPiecesChange" placeholder="0" />
+            <text>件 × 2元/件</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 其他杂费 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="4">
+          <view class="checkbox {{extraFees[4].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[4].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">其他杂费</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[4].enabled}}">¥{{extraFees[4].amount}}</text>
+        </view>
+        <view class="extra-fee-body" wx:if="{{extraFees[4].enabled}}">
+          <view class="inline-input-row">
+            <text>费用名称</text>
+            <input class="inline-input wide" type="text" value="{{extraFees[4].customName}}" bindinput="onOtherNameChange" placeholder="如：加急费" />
+          </view>
+          <view class="inline-input-row">
+            <text>金额</text>
+            <input class="inline-input" type="digit" value="{{extraFees[4].customAmount}}" bindinput="onOtherAmountChange" placeholder="0" />
+            <text>元</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 费用总计 -->
+    <view class="fee-total-bar">
+      <text class="fee-total-label">费用合计</text>
+      <text class="fee-total-amount">¥{{totalAmount}}</text>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="footer">
+    <view
+      class="submit-btn {{submitting ? 'btn-disabled' : ''}}"
+      bindtap="submit"
+    >
+      {{submitting ? '提交中...' : '保存并生成报价单'}}
+    </view>
+  </view>
+
+  <!-- 仓库现结支付弹窗 -->
+  <view class="pay-modal" wx:if="{{showPayModal}}">
+    <view class="pay-mask" bindtap="closePayModal"></view>
+    <view class="pay-content">
+      <view class="pay-title">现场扫码收款</view>
+      <view class="pay-amount">¥{{payAmount}}</view>
+      <view class="pay-hint">请向客户展示收款码</view>
+      <view class="pay-qr-placeholder">
+        <text class="pay-qr-text">[收款码占位]</text>
+      </view>
+      <view class="pay-actions">
+        <view class="pay-btn pay-btn-secondary" bindtap="closePayModal">取消</view>
+        <view class="pay-btn pay-btn-primary" bindtap="confirmPaid">确认已收款</view>
+      </view>
+    </view>
+  </view>
+</view>

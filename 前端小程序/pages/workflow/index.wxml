@@ -1,0 +1,223 @@
+<view class="container">
+  <!-- 业务员：我的运单 -->
+  <block wx:if="{{isSalesman}}">
+    <view class="page-title">我的运单</view>
+
+    <view wx:if="{{shipments.length === 0 && !loading}}" class="empty-state">
+      <text class="empty-icon">📦</text>
+      <text class="empty-text">暂无运单</text>
+      <text class="empty-hint">您还没有创建过运单</text>
+    </view>
+
+    <view class="workflow-card" wx:for="{{shipments}}" wx:key="_id">
+      <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
+        <view class="waybill-info">
+          <text class="waybill-no">{{item.cargoInfo.waybillNo || item._id}}</text>
+          <text class="factory-name">{{item.creatorName || '——'}}</text>
+        </view>
+        <view class="status-badge {{item.oaStatus || 'created'}}">
+          {{statusNameMap[item.oaStatus] || item.oaStatusName || '已建单'}}
+        </view>
+      </view>
+
+      <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
+        <view class="cargo-info">
+          <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
+          <text class="cargo-divider">|</text>
+          <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
+          <text class="cargo-divider">|</text>
+          <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+        </view>
+        <view class="route-info">
+          <text>{{item.routeSnapshot.name || '——'}}</text>
+        </view>
+        <view class="payment-type">
+          <text class="pay-tag {{item.billing.paymentType}}">{{item.billing.paymentType === 'spot' ? '仓库现结' : '萌恒月结'}}</text>
+        </view>
+      </view>
+
+      <view class="card-actions">
+        <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
+        <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 仓管/管理员：流程待办 -->
+  <block wx:else>
+    <!-- 角色提示 -->
+    <view class="role-bar">
+      <text class="role-text">当前身份：{{roleName}}</text>
+    </view>
+
+    <!-- Tab 切换 -->
+    <view class="tab-bar">
+      <view class="tab-item {{activeTab === 'pending' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="pending">
+        待处理
+        <text class="tab-count" wx:if="{{shipments.length > 0}}">{{shipments.length}}</text>
+      </view>
+      <view class="tab-item {{activeTab === 'stored' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="stored">
+        已入库
+        <text class="tab-count" wx:if="{{storedShipments.length > 0}}">{{storedShipments.length}}</text>
+      </view>
+      <view class="tab-item {{activeTab === 'completed' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="completed">
+        已完结
+      </view>
+    </view>
+
+    <!-- 待处理列表 -->
+    <view class="list-section" wx:if="{{activeTab === 'pending'}}">
+      <view wx:if="{{shipments.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">✅</text>
+        <text class="empty-text">暂无待处理流程</text>
+        <text class="empty-hint">当前没有需要您处理的运单</text>
+      </view>
+
+      <view class="workflow-card" wx:for="{{shipments}}" wx:key="_id">
+        <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="waybill-info">
+            <text class="waybill-no">{{item.cargoInfo.waybillNo || item._id}}</text>
+            <text class="factory-name">{{item.creatorName || '——'}}</text>
+          </view>
+          <view class="status-badge {{item.oaStatus}}">
+            {{item.oaStatusName}}
+          </view>
+        </view>
+
+        <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="cargo-info">
+            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+          </view>
+          <view class="route-info">
+            <text>{{item.routeSnapshot.name || '——'}}</text>
+          </view>
+          <view class="payment-type">
+            <text class="pay-tag {{item.billing.paymentType}}">{{item.billing.paymentType === 'spot' ? '仓库现结' : '萌恒月结'}}</text>
+          </view>
+        </view>
+
+        <view class="card-actions">
+          <!-- 仓管实测定价流程：先查看详情 → 后实测定价 -->
+          <block wx:if="{{role === 'warehouse' && item.oaStatus === 'created'}}">
+            <view class="action-btn btn-secondary step-first" bindtap="goToDetail" data-id="{{item._id}}">
+              <text class="step-num">1</text>
+              <text>查看详情</text>
+            </view>
+            <view class="action-arrow">→</view>
+            <view class="action-btn btn-primary step-second" bindtap="advanceOA" data-id="{{item._id}}" data-action="measure_price">
+              <text class="step-num">2</text>
+              <text>实测定价</text>
+            </view>
+          </block>
+
+          <!-- 管理员确认 -->
+          <view wx:if="{{role === 'admin' && item.oaStatus === 'measured_priced'}}" class="action-btn btn-primary" bindtap="advanceOA" data-id="{{item._id}}" data-action="admin_confirm">
+            确认价格
+          </view>
+
+          <!-- 仓管标记现结收款 -->
+          <view wx:if="{{role === 'warehouse' && item.oaStatus === 'admin_confirmed' && item.billing.paymentType === 'spot' && item.billing.paymentStatus !== 'paid'}}" class="action-btn btn-warn" bindtap="advanceOA" data-id="{{item._id}}" data-action="mark_spot_paid">
+            标记已收款
+          </view>
+
+          <!-- 仓管确认送达（仅萌恒月结需要） -->
+          <view wx:if="{{role === 'warehouse' && item.oaStatus === 'admin_confirmed' && item.billing.paymentType === 'monthly'}}" class="action-btn btn-primary" bindtap="advanceOA" data-id="{{item._id}}" data-action="mark_delivered">
+            确认送达
+          </view>
+
+          <!-- 仓管员确认入库（仅待处理且 active=pickup） -->
+          <view wx:if="{{role === 'warehouse' && item.currentNodeCode === 'pickup' && item.oaStatus !== 'created'}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}">
+            确认入库
+          </view>
+
+          <view class="action-btn btn-secondary" wx:if="{{role !== 'warehouse' || item.oaStatus !== 'created'}}" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
+          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 已入库列表 -->
+    <view class="list-section" wx:if="{{activeTab === 'stored'}}">
+      <view wx:if="{{storedShipments.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">📦</text>
+        <text class="empty-text">暂无已入库流程</text>
+        <text class="empty-hint">已确认入库的运单将显示在这里</text>
+      </view>
+
+      <view class="workflow-card stored" wx:for="{{storedShipments}}" wx:key="_id">
+        <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="waybill-info">
+            <text class="waybill-no">{{item.cargoInfo.waybillNo || item._id}}</text>
+            <text class="factory-name">{{item.creatorName || '——'}}</text>
+          </view>
+          <view class="status-badge {{item.oaStatus}}">
+            {{item.oaStatusName}}
+          </view>
+        </view>
+        <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="cargo-info">
+            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+          </view>
+          <view class="route-info">
+            <text>{{item.routeSnapshot.name || '——'}}</text>
+          </view>
+          <view class="payment-type">
+            <text class="pay-tag {{item.billing.paymentType}}">{{item.billing.paymentType === 'spot' ? '仓库现结' : '萌恒月结'}}</text>
+          </view>
+        </view>
+        <view class="card-actions">
+          <!-- 仓管员：已入库状态可确认出库（不需要等管理员确认） -->
+          <view wx:if="{{role === 'warehouse' && item.currentNodeCode === 'yiwu_entry' && item.oaStatus !== 'created'}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}">
+            确认出库
+          </view>
+          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
+          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 已完结列表 -->
+    <view class="list-section" wx:if="{{activeTab === 'completed'}}">
+      <view wx:if="{{completedShipments.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">暂无已完结流程</text>
+      </view>
+
+      <view class="workflow-card completed" wx:for="{{completedShipments}}" wx:key="_id">
+        <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="waybill-info">
+            <text class="waybill-no">{{item.cargoInfo.waybillNo || item._id}}</text>
+            <text class="factory-name">{{item.creatorName || '——'}}</text>
+          </view>
+          <view class="status-badge {{item.currentNodeCode === 'mainline' ? 'mainline' : 'completed'}}">
+            {{item.currentNodeCode === 'mainline' ? '已出库，干线运输中' : '流程已完结'}}
+          </view>
+        </view>
+        <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="cargo-info">
+            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+          </view>
+          <view class="route-info">
+            <text>{{item.routeSnapshot.name || '——'}}</text>
+          </view>
+          <view class="card-actions">
+            <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
+            <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

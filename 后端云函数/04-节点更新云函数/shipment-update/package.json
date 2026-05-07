@@ -1,0 +1,9 @@
+{
+  "name": "shipment-update",
+  "version": "1.0.0",
+  "description": "节点更新、实测录入、报价管理、现结标记",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

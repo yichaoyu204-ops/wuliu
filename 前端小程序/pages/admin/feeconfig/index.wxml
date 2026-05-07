@@ -1,0 +1,146 @@
+<view class="container">
+  <view class="header">
+    <text class="title">费用类目配置</text>
+    <text class="subtitle">修改后立即生效，不影响历史报价</text>
+  </view>
+
+  <!-- 加载中 -->
+  <view wx:if="{{loading}}" class="loading-wrap">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 类目列表 -->
+  <view wx:else class="list">
+    <view
+      wx:for="{{categories}}"
+      wx:key="_id"
+      class="card {{item.isEnabled ? '' : 'card-disabled'}}"
+    >
+      <!-- 类目标题行 -->
+      <view class="card-header">
+        <view class="name-row">
+          <text class="cat-name">{{item.name}}</text>
+          <view class="tag {{item.isRequired ? 'tag-required' : 'tag-optional'}}">
+            {{item.isRequired ? '必收' : '可选'}}
+          </view>
+          <view wx:if="{{!item.isEnabled}}" class="tag tag-disabled">已禁用</view>
+        </view>
+        <switch
+          checked="{{item.isEnabled}}"
+          bindchange="toggleEnabled"
+          data-id="{{item._id}}"
+          data-enabled="{{item.isEnabled}}"
+          color="#FF6B00"
+        />
+      </view>
+
+      <!-- 类目详情 -->
+      <view class="card-body">
+        <text class="detail-row">
+          类型标识：<text class="mono">{{item.type}}</text>
+        </text>
+        <text class="detail-row">
+          计费方式：{{item.calculationType}}
+          {{item.basePrice != null ? '  固定 ¥' + item.basePrice : ''}}
+          {{item.unitPrice != null ? '  单价 ¥' + item.unitPrice + '/' + item.unit : ''}}
+          {{item.freeDays != null ? '  免费 ' + item.freeDays + ' 天' : ''}}
+        </text>
+        <text wx:if="{{item.description}}" class="detail-row desc">{{item.description}}</text>
+
+        <!-- 排序权重 -->
+        <view class="sort-row">
+          <text class="sort-label">排序权重：</text>
+          <input
+            class="sort-input"
+            type="number"
+            value="{{item.sortOrder}}"
+            data-id="{{item._id}}"
+            bindblur="updateSort"
+          />
+          <text class="sort-hint">越小越靠前</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 新增按钮 -->
+    <view class="add-btn" bindtap="openAddModal">
+      <text class="add-icon">＋</text>
+      <text>新增费用类目</text>
+    </view>
+  </view>
+
+  <!-- 新增弹窗 -->
+  <view wx:if="{{showAddModal}}" class="modal-mask">
+    <view class="modal">
+      <view class="modal-header">
+        <text class="modal-title">新增费用类目</text>
+        <text class="modal-close" bindtap="closeModal">✕</text>
+      </view>
+
+      <scroll-view scroll-y class="modal-body">
+        <view class="field">
+          <text class="label">类目名称 *</text>
+          <input class="input" placeholder="如：装卸费" data-field="name" bindinput="onFormInput" value="{{form.name}}" maxlength="20" />
+        </view>
+
+        <view class="field">
+          <text class="label">类型标识 *</text>
+          <input class="input mono" placeholder="英文，如：loading（内部识别用）" data-field="type" bindinput="onFormInput" value="{{form.type}}" maxlength="30" />
+        </view>
+
+        <view class="field">
+          <text class="label">计费方式</text>
+          <picker mode="selector" range="{{calcTypeOptions}}" range-key="label" bindchange="onCalcTypeChange">
+            <view class="picker-view">
+              {{calcTypeLabel}}
+              <text class="picker-arrow">▾</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="field" wx:if="{{form.calculationType === 'fixed'}}">
+          <text class="label">固定金额（元）</text>
+          <input class="input" type="digit" placeholder="如：100" data-field="basePrice" bindinput="onFormInput" value="{{form.basePrice}}" />
+        </view>
+
+        <view class="field" wx:if="{{form.calculationType !== 'fixed' && form.calculationType !== 'manual'}}">
+          <text class="label">单价</text>
+          <input class="input" type="digit" placeholder="如：2" data-field="unitPrice" bindinput="onFormInput" value="{{form.unitPrice}}" />
+        </view>
+
+        <view class="field">
+          <text class="label">单位显示文字</text>
+          <input class="input" placeholder="如：元/件" data-field="unit" bindinput="onFormInput" value="{{form.unit}}" maxlength="10" />
+        </view>
+
+        <view class="field" wx:if="{{form.calculationType === 'per_volume_per_day'}}">
+          <text class="label">免费天数</text>
+          <input class="input" type="number" placeholder="如：3" data-field="freeDays" bindinput="onFormInput" value="{{form.freeDays}}" />
+        </view>
+
+        <view class="field">
+          <text class="label">排序权重</text>
+          <input class="input" type="number" placeholder="越小越靠前，默认50" data-field="sortOrder" bindinput="onFormInput" value="{{form.sortOrder}}" />
+        </view>
+
+        <view class="field">
+          <text class="label">说明（给操作员看）</text>
+          <input class="input" placeholder="可选，最多50字" data-field="description" bindinput="onFormInput" value="{{form.description}}" maxlength="50" />
+        </view>
+
+        <view class="field field-row">
+          <text class="label">是否必收</text>
+          <switch checked="{{form.isRequired}}" bindchange="onRequiredChange" color="#FF6B00" />
+        </view>
+      </scroll-view>
+
+      <view class="modal-footer">
+        <view class="btn-cancel" bindtap="closeModal">取消</view>
+        <view class="btn-submit {{submitting ? 'btn-disabled' : ''}}" bindtap="submitAdd">
+          {{submitting ? '创建中...' : '创建类目'}}
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,132 @@
+<view class="container">
+  <!-- 顶部搜索区 -->
+  <view class="search-section">
+    <view class="top-bar">
+      <view class="logout-btn" bindtap="onLogout">退出登录</view>
+    </view>
+    <view class="search-box">
+      <input
+        class="search-input"
+        type="text"
+        placeholder="输入业务编号/手机号/名字查询"
+        value="{{keyword}}"
+        bindinput="onInputChange"
+        confirm-type="search"
+        bindconfirm="onSearch"
+      />
+      <view class="search-btn" bindtap="onSearch">查询</view>
+    </view>
+  </view>
+
+  <!-- 待办流程提醒 -->
+  <view class="pending-banner" wx:if="{{pendingCount > 0 && userRole}}" bindtap="goToWorkflow">
+    <view class="pending-content">
+      <text class="pending-icon">⚡</text>
+      <view class="pending-text">
+        <text class="pending-count">{{pendingCount}} 条</text>
+        <text class="pending-desc">流程待推进</text>
+      </view>
+      <text class="pending-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 功能入口 -->
+  <view class="feature-grid">
+    <view class="feature-item" bindtap="goToMyShipments">
+      <view class="feature-icon" style="background: #FFF3E0;">📋</view>
+      <text class="feature-text">所有运单</text>
+    </view>
+    <view class="feature-item" bindtap="scanCode">
+      <view class="feature-icon" style="background: #e8f5e9;">📷</view>
+      <text class="feature-text">扫码查单</text>
+    </view>
+    <view class="feature-item" bindtap="contactService">
+      <view class="feature-icon" style="background: #e3f2fd;">📞</view>
+      <text class="feature-text">联系客服</text>
+    </view>
+  </view>
+
+  <!-- 查询结果 -->
+  <view class="result-section" wx:if="{{hasSearched}}">
+    <view class="section-title">查询结果</view>
+
+    <view class="shipment-card" wx:for="{{shipments}}" wx:key="_id" bindtap="goToDetail" data-id="{{item._id}}">
+      <view class="shipment-header">
+        <text class="shipment-id">{{item.cargoInfo.waybillNo || item._id}}</text>
+        <view class="status-tag {{item.status}}">{{item.currentNodeName || '运输中'}}</view>
+      </view>
+      <view class="shipment-info">
+        <text class="factory-name">{{item.contacts.contact1Name || '——'}}</text>
+        <text class="cargo-desc" wx:if="{{item.cargoInfo}}">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit || '件'}} / {{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit || 'KGS'}} / {{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit || 'CBM'}}</text>
+      </view>
+      <view class="shipment-footer">
+        <text class="route-name">{{item.routeSnapshot.name || '——'}}</text>
+        <text class="create-time">{{item.createdAt}}</text>
+      </view>
+    </view>
+
+    <view class="empty-result" wx:if="{{shipments.length === 0}}">
+      <text class="empty-icon">🔍</text>
+      <text class="empty-text">未找到相关运单</text>
+      <text class="empty-hint">请检查单号是否正确，或联系业务员确认</text>
+    </view>
+  </view>
+
+  <!-- 最近查询 -->
+  <view class="history-section" wx:if="{{!hasSearched && history.length > 0}}">
+    <view class="section-title">
+      最近查询
+      <text class="clear-btn" bindtap="clearHistory">清空</text>
+    </view>
+    <view
+      class="history-item"
+      wx:for="{{history}}"
+      wx:key="*this"
+      bindtap="searchByHistory"
+      data-keyword="{{item}}"
+    >
+      <text class="history-text">{{item}}</text>
+      <text class="history-arrow">></text>
+    </view>
+  </view>
+
+  <!-- 空状态引导 -->
+  <view class="empty-section" wx:if="{{!hasSearched && history.length === 0}}">
+    <view class="empty-box">
+      <text class="empty-icon-large">🚛</text>
+      <text class="empty-title">欢迎使用一超物流</text>
+      <text class="empty-desc">输入业务编号或手机号，实时查询货物状态</text>
+      <view class="empty-tip">
+        <text>💡 首次使用？点击下方"建单"创建运单</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 联系人弹窗 -->
+  <view class="contact-mask" wx:if="{{showContactPopup}}" bindtap="hideContactPopup">
+    <view class="contact-popup" catchtap="preventBubble">
+      <view class="contact-header">
+        <text class="contact-title">选择联系人</text>
+        <text class="contact-close" bindtap="hideContactPopup">✕</text>
+      </view>
+      <view class="contact-list">
+        <view class="contact-item" bindtap="makePhoneCall" data-phone="{{contact1.phone}}">
+          <view class="contact-avatar" style="background: #FFF3E0;">蒋</view>
+          <view class="contact-info">
+            <text class="contact-name">蒋</text>
+            <text class="contact-phone">{{contact1.phone}}</text>
+          </view>
+          <text class="contact-arrow">📞</text>
+        </view>
+        <view class="contact-item" bindtap="makePhoneCall" data-phone="{{contact2.phone}}">
+          <view class="contact-avatar" style="background: #e3f2fd;">姚</view>
+          <view class="contact-info">
+            <text class="contact-name">姚</text>
+            <text class="contact-phone">{{contact2.phone}}</text>
+          </view>
+          <text class="contact-arrow">📞</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

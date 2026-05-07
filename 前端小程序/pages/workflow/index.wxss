@@ -1,0 +1,290 @@
+.container {
+  background: #f7f8fa;
+  min-height: 100vh;
+  padding-bottom: calc(88rpx + env(safe-area-inset-bottom) + 20rpx);
+}
+
+.page-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1a1a1a;
+  padding: 32rpx;
+  background: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.role-bar {
+  background: #fff;
+  padding: 20rpx 32rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.role-text {
+  font-size: 26rpx;
+  color: #999;
+}
+
+/* Tab 切换 */
+.tab-bar {
+  display: flex;
+  background: #fff;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: 24rpx 0;
+  font-size: 28rpx;
+  color: #666;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+}
+
+.tab-active {
+  color: #FF6B00;
+  font-weight: 600;
+}
+
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rpx;
+  height: 4rpx;
+  background: #FF6B00;
+  border-radius: 2rpx;
+}
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rpx 12rpx;
+  background: #FF6B00;
+  color: #fff;
+  font-size: 22rpx;
+  border-radius: 20rpx;
+  min-width: 32rpx;
+}
+
+/* 列表 */
+.list-section {
+  padding: 20rpx;
+}
+
+.workflow-card {
+  background: #fff;
+  border-radius: 16rpx;
+  margin-bottom: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+}
+
+.workflow-card.completed {
+  opacity: 0.7;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.waybill-info {
+  flex: 1;
+}
+
+.waybill-no {
+  display: block;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.factory-name {
+  display: block;
+  font-size: 26rpx;
+  color: #666;
+  margin-top: 4rpx;
+}
+
+.status-badge {
+  padding: 6rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.status-badge.created {
+  background: #E3F2FD;
+  color: #1976D2;
+}
+
+.status-badge.factory_confirmed {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.status-badge.measured_priced {
+  background: #F3E5F5;
+  color: #7B1FA2;
+}
+
+.status-badge.admin_confirmed {
+  background: #E8F5E9;
+  color: #388E3C;
+}
+
+.status-badge.warehouse_delivered {
+  background: #E0F7FA;
+  color: #00838F;
+}
+
+.status-badge.completed {
+  background: #F5F5F5;
+  color: #999;
+}
+
+.status-badge.mainline {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.card-body {
+  padding-bottom: 16rpx;
+  border-bottom: 1rpx solid #f5f5f5;
+  margin-bottom: 16rpx;
+}
+
+.cargo-info {
+  display: flex;
+  align-items: center;
+  font-size: 26rpx;
+  color: #333;
+  margin-bottom: 8rpx;
+}
+
+.cargo-divider {
+  margin: 0 12rpx;
+  color: #ddd;
+}
+
+.route-info {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 8rpx;
+}
+
+.payment-type {
+  margin-top: 8rpx;
+}
+
+.pay-tag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+  font-size: 22rpx;
+}
+
+.pay-tag.monthly {
+  background: #E3F2FD;
+  color: #1976D2;
+}
+
+.pay-tag.spot {
+  background: #FFF8E1;
+  color: #F57F17;
+}
+
+.card-actions {
+  display: flex;
+  gap: 16rpx;
+  align-items: center;
+}
+
+.action-btn {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx 0;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+}
+
+.step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  font-size: 22rpx;
+  font-weight: 600;
+  background: rgba(255,255,255,0.3);
+}
+
+.btn-secondary .step-num {
+  background: #ddd;
+  color: #666;
+}
+
+.btn-primary .step-num {
+  background: rgba(255,255,255,0.3);
+  color: #fff;
+}
+
+.action-arrow {
+  font-size: 32rpx;
+  color: #ccc;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #FF6B00;
+  color: #fff;
+}
+
+.btn-warn {
+  background: #FF9800;
+  color: #fff;
+}
+
+.btn-secondary {
+  background: #f5f5f5;
+  color: #666;
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 120rpx 40rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 24rpx;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #666;
+  margin-bottom: 12rpx;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #999;
+}

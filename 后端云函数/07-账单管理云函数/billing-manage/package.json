@@ -1,0 +1,6 @@
+{
+  "name": "billing-manage",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

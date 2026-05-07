@@ -1,0 +1,9 @@
+{
+  "name": "shipment-create",
+  "version": "1.0.0",
+  "description": "创建货物云函数",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

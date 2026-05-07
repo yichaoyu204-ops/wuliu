@@ -1,0 +1,155 @@
+<view class="container">
+  <view class="role-header">
+    <text class="role-title">选择您的身份</text>
+    <text class="role-subtitle">首次使用请选择，后续自动记住</text>
+  </view>
+
+  <!-- 角色选择 -->
+  <view class="role-list" wx:if="{{!showLoginForm}}">
+    <view class="role-card" bindtap="selectRole" data-role="salesman">
+      <text class="role-icon">📋</text>
+      <view class="role-info">
+        <text class="role-name">业务员 / 工厂</text>
+      </view>
+      <text class="role-arrow">›</text>
+    </view>
+
+    <!-- 司机角色暂时冻结，代码保留 -->
+    <view class="role-card" wx:if="{{false}}" bindtap="selectRole" data-role="driver">
+      <text class="role-icon">🚚</text>
+      <view class="role-info">
+        <text class="role-name">司机</text>
+      </view>
+      <text class="role-arrow">›</text>
+    </view>
+
+    <view class="role-card" bindtap="selectRole" data-role="warehouse">
+      <text class="role-icon">📦</text>
+      <view class="role-info">
+        <text class="role-name">仓管员</text>
+      </view>
+      <text class="role-arrow">›</text>
+    </view>
+
+    <view class="role-card" bindtap="selectRole" data-role="admin">
+      <text class="role-icon">⚙️</text>
+      <view class="role-info">
+        <text class="role-name">管理员</text>
+      </view>
+      <text class="role-arrow">›</text>
+    </view>
+  </view>
+
+  <!-- 登录表单 -->
+  <view class="login-form" wx:if="{{showLoginForm}}">
+    <view class="login-back" bindtap="goBack">
+      <text class="back-arrow">‹</text>
+      <text>返回选择</text>
+    </view>
+
+    <view class="login-title">
+      <text>{{selectedRoleName}}</text>
+      <text class="login-subtitle">{{isAdmin ? '请输入手机号和密码' : (useManualInput ? '请输入手机号登录' : '微信一键登录')}}</text>
+    </view>
+
+    <!-- 管理员：手动输入 -->
+    <view wx:if="{{isAdmin}}">
+      <view class="input-group">
+        <text class="input-label">姓名</text>
+        <input
+          class="login-input"
+          type="text"
+          placeholder="请输入您的真实姓名"
+          value="{{name}}"
+          bindinput="onNameInput"
+        />
+      </view>
+
+      <view class="input-group">
+        <text class="input-label">手机号</text>
+        <input
+          class="login-input"
+          type="number"
+          placeholder="请输入手机号"
+          value="{{phone}}"
+          maxlength="11"
+          bindinput="onPhoneInput"
+        />
+      </view>
+
+      <view class="input-group">
+        <text class="input-label">密码</text>
+        <input
+          class="login-input"
+          type="text"
+          password="true"
+          placeholder="请输入密码"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+        />
+      </view>
+
+      <view class="btn-login {{loggingIn ? 'btn-disabled' : ''}}" bindtap="doLogin">
+        {{loggingIn ? '登录中...' : '进入系统'}}
+      </view>
+    </view>
+
+    <!-- 非管理员：微信一键登录 / 手动输入切换 -->
+    <view wx:if="{{!isAdmin}}">
+      <block wx:if="{{!useManualInput}}">
+        <view class="input-group">
+          <text class="input-label">姓名</text>
+          <input
+            class="login-input"
+            type="text"
+            placeholder="请输入您的真实姓名"
+            value="{{name}}"
+            bindinput="onNameInput"
+          />
+        </view>
+
+        <button
+          class="btn-wechat-login {{loggingIn ? 'btn-disabled' : ''}}"
+          open-type="getPhoneNumber"
+          bind:getphonenumber="onGetPhoneNumber"
+        >
+          <text class="wechat-icon">💬</text>
+          {{loggingIn ? '登录中...' : '微信一键登录'}}
+        </button>
+
+        <view class="manual-login-link" bindtap="switchToManual">使用手机号登录</view>
+      </block>
+
+      <block wx:if="{{useManualInput}}">
+        <view class="input-group">
+          <text class="input-label">姓名</text>
+          <input
+            class="login-input"
+            type="text"
+            placeholder="请输入您的真实姓名"
+            value="{{name}}"
+            bindinput="onNameInput"
+          />
+        </view>
+
+        <view class="input-group">
+          <text class="input-label">手机号</text>
+          <input
+            class="login-input"
+            type="number"
+            placeholder="请输入手机号"
+            value="{{phone}}"
+            maxlength="11"
+            bindinput="onPhoneInput"
+          />
+        </view>
+
+        <view class="btn-login {{loggingIn ? 'btn-disabled' : ''}}" bindtap="doLoginManual">
+          {{loggingIn ? '登录中...' : '进入系统'}}
+        </view>
+
+        <view class="manual-login-link" bindtap="switchToWechat">返回微信一键登录</view>
+      </block>
+    </view>
+  </view>
+</view>

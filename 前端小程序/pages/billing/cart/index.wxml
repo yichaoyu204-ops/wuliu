@@ -1,0 +1,60 @@
+<view class="container">
+  <!-- Tab 切换 -->
+  <view class="tab-bar">
+    <view
+      wx:for="{{tabs}}"
+      wx:key="key"
+      class="tab-item {{activeTab === item.key ? 'tab-active' : ''}}"
+      bindtap="switchTab"
+      data-key="{{item.key}}"
+    >
+      {{item.label}}
+    </view>
+  </view>
+
+  <!-- 账单列表 -->
+  <view class="bill-list" wx:if="{{!loading}}">
+    <view
+      wx:for="{{filteredBills}}"
+      wx:key="_id"
+      class="bill-card"
+    >
+      <view class="bill-header">
+        <text class="bill-id">{{item._id}}</text>
+        <text class="bill-status {{item.status}}">{{item.status === 'unpaid' ? '待付' : '已付'}}</text>
+      </view>
+      <view class="bill-factory">{{item.contacts.contact1Name || '——'}}</view>
+
+      <!-- 费用明细 -->
+      <view class="fee-detail" wx:if="{{item.items && item.items.length > 0}}">
+        <view class="fee-row" wx:for="{{item.items}}" wx:for-item="fee" wx:key="index">
+          <view class="fee-info">
+            <text class="fee-name">{{fee.name}}</text>
+            <text class="fee-calc" wx:if="{{fee.calculationDetail}}">{{fee.calculationDetail}}</text>
+          </view>
+          <text class="fee-amount {{fee.isIncluded === false ? 'fee-excluded' : ''}}">
+            {{fee.isIncluded === false ? '未计入 ' : ''}}¥{{fee.amount != null ? fee.amount.toFixed(2) : '0.00'}}
+          </text>
+        </view>
+        <view class="fee-total-row">
+          <text class="fee-total-label">合计</text>
+          <text class="fee-total-amount">¥{{item.totalAmount != null ? item.totalAmount.toFixed(2) : '0.00'}}</text>
+        </view>
+      </view>
+
+      <view class="bill-footer">
+        <text class="bill-type">{{item.paymentType === 'spot' ? '现结' : '月结'}}</text>
+        <text class="bill-amount">¥{{item.totalAmount != null ? item.totalAmount.toFixed(2) : '0.00'}}</text>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{filteredBills.length === 0}}">
+      <text class="empty-icon">📋</text>
+      <text class="empty-text">暂无{{activeTab === 'unpaid' ? '待付' : (activeTab === 'paid' ? '已付' : '')}}账单</text>
+    </view>
+  </view>
+
+  <view class="loading-state" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

@@ -1,0 +1,61 @@
+<view class="bar {{isAdmin ? 'is-admin' : ''}}">
+  <view class="bg"></view>
+
+  <view class="inner">
+    <!-- 查单 -->
+    <view class="item t0" data-index="0" bindtap="switchTab">
+      <view class="icon">
+        <view class="home-roof {{activeIndex === 0 ? 'on' : ''}}"></view>
+        <view class="home-body {{activeIndex === 0 ? 'on' : ''}}"></view>
+      </view>
+      <view class="label {{activeIndex === 0 ? 'on' : ''}}">主页</view>
+      <view class="dot {{activeIndex === 0 ? 'on' : ''}}"></view>
+    </view>
+
+    <!-- 建单 -->
+    <view class="item t1" data-index="1" bindtap="switchTab">
+      <view class="icon">
+        <view class="plus-h {{activeIndex === 1 ? 'on' : ''}}"></view>
+        <view class="plus-v {{activeIndex === 1 ? 'on' : ''}}"></view>
+      </view>
+      <view class="label {{activeIndex === 1 ? 'on' : ''}}">建单</view>
+      <view class="dot {{activeIndex === 1 ? 'on' : ''}}"></view>
+    </view>
+
+    <!-- 全部运单（仅管理员） -->
+    <view class="item t2" wx:if="{{isAdmin}}" data-index="2" bindtap="switchTab">
+      <view class="icon">
+        <view class="doc-line {{activeIndex === 2 ? 'on' : ''}}" style="top:5rpx"></view>
+        <view class="doc-line {{activeIndex === 2 ? 'on' : ''}}" style="top:11rpx"></view>
+        <view class="doc-line {{activeIndex === 2 ? 'on' : ''}}" style="top:17rpx"></view>
+        <view class="doc-dot {{activeIndex === 2 ? 'on' : ''}}"></view>
+      </view>
+      <view class="label {{activeIndex === 2 ? 'on' : ''}}">全部运单</view>
+      <view class="dot {{activeIndex === 2 ? 'on' : ''}}"></view>
+    </view>
+
+    <!-- 流程 / 我的运单 -->
+    <view class="item t3" data-index="{{isAdmin ? 3 : 2}}" bindtap="switchTab">
+      <view class="icon">
+        <view class="flow-line {{activeIndex === (isAdmin ? 3 : 2) ? 'on' : ''}}" style="top:6rpx"></view>
+        <view class="flow-line {{activeIndex === (isAdmin ? 3 : 2) ? 'on' : ''}}" style="top:14rpx"></view>
+        <view class="flow-dot {{activeIndex === (isAdmin ? 3 : 2) ? 'on' : ''}}" style="top:5rpx;left:18rpx"></view>
+        <view class="flow-dot {{activeIndex === (isAdmin ? 3 : 2) ? 'on' : ''}}" style="top:13rpx;left:6rpx"></view>
+        <view class="badge" wx:if="{{badgeValue > 0}}">{{badgeValue}}</view>
+      </view>
+      <view class="label {{activeIndex === (isAdmin ? 3 : 2) ? 'on' : ''}}">{{role === 'salesman' ? '我的运单' : '流程'}}</view>
+      <view class="dot {{activeIndex === (isAdmin ? 3 : 2) ? 'on' : ''}}"></view>
+    </view>
+
+    <!-- 账单 -->
+    <view class="item t4" data-index="{{isAdmin ? 4 : 3}}" bindtap="switchTab">
+      <view class="icon">
+        <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:5rpx"></view>
+        <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:11rpx"></view>
+        <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:17rpx"></view>
+      </view>
+      <view class="label {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}">账单</view>
+      <view class="dot {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}"></view>
+    </view>
+  </view>
+</view>

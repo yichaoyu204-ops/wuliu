@@ -1,0 +1,110 @@
+<view class="container">
+  <!-- 浮动信息栏：实测数据快照 -->
+  <view class="sticky-bar" wx:if="{{shipment}}">
+    <view class="sticky-row">
+      <text class="sticky-id mono">{{shipment._id}}</text>
+      <text class="sticky-factory">{{shipment.contacts.contact1Name || '——'}}</text>
+    </view>
+    <view class="sticky-row">
+      <text class="sticky-measure">
+        实测：{{shipment.measurement.actual.pieces || '-'}} 件 / {{shipment.measurement.actual.weight || '-'}} {{shipment.measurement.actual.weightUnit || 'KGS'}} / {{shipment.measurement.actual.volume || '-'}} {{shipment.measurement.actual.volumeUnit || 'CBM'}}
+      </text>
+    </view>
+    <view class="sticky-warning" wx:if="{{unitWarning}}">
+      <text class="warning-text">⚠ {{unitWarning}}</text>
+    </view>
+  </view>
+
+  <!-- 费用明细列表 -->
+  <view class="section" wx:if="{{!loading}}">
+    <text class="section-title">费用明细</text>
+    <text class="section-hint">勾选包含的费用，可修改金额</text>
+
+    <view
+      wx:for="{{quoteItems}}"
+      wx:key="categoryId"
+      class="fee-row {{item.isIncluded ? '' : 'fee-excluded'}}"
+    >
+      <view class="fee-left">
+        <view class="checkbox-wrap" bindtap="toggleIncluded" data-index="{{index}}">
+          <view class="checkbox {{item.isIncluded ? 'checked' : ''}}">
+            <text wx:if="{{item.isIncluded}}">✓</text>
+          </view>
+        </view>
+        <view class="fee-info">
+          <text class="fee-name">{{item.name}}</text>
+          <text class="fee-detail">{{item.calculationDetail}}</text>
+        </view>
+      </view>
+      <view class="fee-right">
+        <input
+          class="fee-input"
+          type="digit"
+          value="{{item.amount != null ? item.amount : ''}}"
+          bindinput="onAmountInput"
+          data-index="{{index}}"
+          placeholder="待填"
+        />
+        <text class="fee-unit">元</text>
+      </view>
+    </view>
+
+    <!-- 其他费用：动态多行 -->
+    <view class="other-fees-section" wx:if="{{otherFees.length > 0 || categories.length > 0}}">
+      <view class="other-header">
+        <text class="other-title">其他费用</text>
+        <text class="other-hint">可添加多行自定义费用</text>
+      </view>
+
+      <view
+        wx:for="{{otherFees}}"
+        wx:key="index"
+        class="other-row"
+      >
+        <input
+          class="other-name-input"
+          placeholder="费用名称"
+          value="{{item.name}}"
+          bindinput="onOtherNameInput"
+          data-index="{{index}}"
+          maxlength="20"
+        />
+        <input
+          class="other-amount-input"
+          type="digit"
+          placeholder="金额"
+          value="{{item.amount}}"
+          bindinput="onOtherAmountInput"
+          data-index="{{index}}"
+        />
+        <text class="other-unit">元</text>
+        <view class="other-del" bindtap="removeOtherFee" data-index="{{index}}">✕</view>
+      </view>
+
+      <view class="add-other-btn" bindtap="addOtherFee">
+        <text class="add-icon">+</text>
+        <text class="add-text">添加其他费用</text>
+      </view>
+    </view>
+
+    <!-- 备注 -->
+    <view class="field">
+      <text class="label">备注（可选）</text>
+      <input class="input" placeholder="如：客户要求加急" value="{{note}}" bindinput="onNoteInput" maxlength="100" />
+    </view>
+  </view>
+
+  <!-- 底部提交栏 -->
+  <view class="footer">
+    <view class="footer-info">
+      <text class="footer-label">小计</text>
+      <text class="footer-amount">¥{{subtotal.toFixed(2)}}</text>
+    </view>
+    <view
+      class="submit-btn {{submitting || sending ? 'btn-disabled' : ''}}"
+      bindtap="saveDraft"
+    >
+      <text>{{submitting ? '保存中...' : (sending ? '发送中...' : '保存并发送报价')}}</text>
+    </view>
+  </view>
+</view>

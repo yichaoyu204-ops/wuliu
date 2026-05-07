@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+miniprogram_npm/
+
+# WeChat DevTool
+.project.config.json
+sitemap.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# Build
+*.zip
+*.tar.gz
