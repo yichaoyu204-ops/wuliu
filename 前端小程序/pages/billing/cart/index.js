@@ -49,51 +49,20 @@ Page({
   },
 
   async loadBills() {
-    const { phone, isAdmin, role } = this.data;
+    const { phone, role } = this.data;
     this.setData({ loading: true });
-    try {
-      const res = await wx.cloud.callFunction({
-        name: 'billing-manage',
-        data: isAdmin
-          ? { action: 'pendingBills' }
-          : { action: 'billList', phone }
-      });
-
-      if (res.result.code === 0) {
-        const bills = (res.result.data || []).map(item => this.normalizeBill(item));
-        this.setData({ bills });
-        this.filterBills(this.data.activeTab);
-      } else {
-        if (isAdmin) {
-          await this.loadAdminBillsFallback(role);
-        } else {
-          wx.showToast({ title: res.result.message || '加载失败', icon: 'none' });
-        }
-      }
-    } catch (e) {
-      console.error('加载账单失败:', e);
-      if (isAdmin) {
-        await this.loadAdminBillsFallback(role);
-      } else {
-        wx.showToast({ title: '网络错误', icon: 'none' });
-      }
-    }
-    this.setData({ loading: false });
-  },
-
-  async loadAdminBillsFallback(role) {
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
         data: {
-          action: 'workflowList',
-          role: role || 'admin',
-          includeCompleted: false
+          action: 'billList',
+          role,
+          phone
         }
       });
 
       if (res.result.code === 0) {
-        const shipments = res.result.data?.billing || [];
+        const shipments = res.result.data?.list || [];
         const bills = shipments.map(item => this.shipmentToBill(item)).map(item => this.normalizeBill(item));
         this.setData({ bills });
         this.filterBills(this.data.activeTab);
@@ -101,9 +70,10 @@ Page({
         wx.showToast({ title: res.result.message || '加载失败', icon: 'none' });
       }
     } catch (e) {
-      console.error('账单兜底加载失败:', e);
+      console.error('加载账单失败:', e);
       wx.showToast({ title: '网络错误', icon: 'none' });
     }
+    this.setData({ loading: false });
   },
 
   shipmentToBill(item) {

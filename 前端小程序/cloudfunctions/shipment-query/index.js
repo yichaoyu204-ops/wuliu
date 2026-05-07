@@ -279,6 +279,34 @@ exports.main = async (event, context) => {
         return success({ list: myList, total: myList.length });
       }
 
+      case 'billList': {
+        const { role, phone, status } = event;
+        const query = {
+          oaStatus: 'billed',
+          isDeleted: _.neq(true)
+        };
+
+        if (status) {
+          query['billing.paymentStatus'] = status;
+        }
+
+        if (role !== 'admin') {
+          if (!phone) return paramError('缺少phone参数');
+          query.managerPhone = phone;
+        }
+
+        const billRes = await db.collection('shipments')
+          .where(query)
+          .orderBy('updatedAt', 'desc')
+          .limit(100)
+          .get();
+
+        return success({
+          list: billRes.data,
+          total: billRes.data.length
+        });
+      }
+
       case 'workflowList': {
         const { role, includeCompleted = false } = event;
         if (!role) return paramError('缺少role参数');
