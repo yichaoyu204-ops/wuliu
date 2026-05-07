@@ -49,7 +49,7 @@ Page({
   },
 
   async loadBills() {
-    const { phone, isAdmin } = this.data;
+    const { phone, isAdmin, role } = this.data;
     this.setData({ loading: true });
     try {
       const res = await wx.cloud.callFunction({
@@ -64,12 +64,67 @@ Page({
         this.setData({ bills });
         this.filterBills(this.data.activeTab);
       } else {
+        if (isAdmin) {
+          await this.loadAdminBillsFallback(role);
+        } else {
+          wx.showToast({ title: res.result.message || '加载失败', icon: 'none' });
+        }
+      }
+    } catch (e) {
+      console.error('加载账单失败:', e);
+      if (isAdmin) {
+        await this.loadAdminBillsFallback(role);
+      } else {
+        wx.showToast({ title: '网络错误', icon: 'none' });
+      }
+    }
+    this.setData({ loading: false });
+  },
+
+  async loadAdminBillsFallback(role) {
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'shipment-query',
+        data: {
+          action: 'workflowList',
+          role: role || 'admin',
+          includeCompleted: false
+        }
+      });
+
+      if (res.result.code === 0) {
+        const shipments = res.result.data?.billing || [];
+        const bills = shipments.map(item => this.shipmentToBill(item)).map(item => this.normalizeBill(item));
+        this.setData({ bills });
+        this.filterBills(this.data.activeTab);
+      } else {
         wx.showToast({ title: res.result.message || '加载失败', icon: 'none' });
       }
     } catch (e) {
+      console.error('账单兜底加载失败:', e);
       wx.showToast({ title: '网络错误', icon: 'none' });
     }
-    this.setData({ loading: false });
+  },
+
+  shipmentToBill(item) {
+    const amount = item.pricing?.finalPrice || item.quote?.subtotal || item.totalAmount || 0;
+    return {
+      _id: item.billing?.billId || `SHIP-${item._id}`,
+      shipmentId: item._id,
+      clientPhone: item.managerPhone || item.contacts?.contact1Phone || '',
+      clientName: item.clientName || item.contacts?.contact1Name || '',
+      factoryName: item.factoryName || item.creatorName || '',
+      contacts: item.contacts || {},
+      totalAmount: amount,
+      paidAmount: item.billing?.paidAmount || 0,
+      status: item.billing?.paymentStatus === 'paid' ? 'paid' : 'unpaid',
+      paymentType: item.billing?.paymentType || 'monthly',
+      items: item.quote?.items || (item.pricing ? [{
+        name: '运费',
+        calculationDetail: `重量价:${item.pricing.weightPrice || 0} / 体积价:${item.pricing.volumePrice || 0}`,
+        amount
+      }] : [])
+    };
   },
 
   normalizeBill(item) {
