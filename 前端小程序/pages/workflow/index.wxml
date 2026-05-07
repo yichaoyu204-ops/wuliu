@@ -71,7 +71,7 @@
         <text class="tab-count" wx:if="{{storedShipments.length > 0}}">{{storedShipments.length}}</text>
       </view>
       <view class="tab-item {{activeTab === 'billing' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="billing" wx:if="{{isAdmin}}">
-        账单
+        已发账单
         <text class="tab-count" wx:if="{{billShipments.length > 0}}">{{billShipments.length}}</text>
       </view>
       <view class="tab-item {{activeTab === 'completed' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="completed">
@@ -206,7 +206,7 @@
     <view class="list-section" wx:if="{{activeTab === 'billing'}}">
       <view wx:if="{{billShipments.length === 0 && !loading}}" class="empty-state">
         <text class="empty-icon">📋</text>
-        <text class="empty-text">暂无账单</text>
+        <text class="empty-text">暂无已发账单</text>
         <text class="empty-hint">已发送账单的运单将显示在这里</text>
       </view>
 

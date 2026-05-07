@@ -384,9 +384,9 @@ exports.main = async (event, context) => {
             isDeleted: _.neq(true)
           };
         } else if (role === 'admin') {
-          // 管理员：只统计待处理(measured_priced)
+          // 管理员：统计所有有气泡的tab（待处理+已入库+已发账单）
           countQuery = {
-            oaStatus: 'measured_priced',
+            oaStatus: _.in(['measured_priced', 'admin_confirmed', 'billed']),
             isDeleted: _.neq(true)
           };
         } else {
