@@ -83,7 +83,30 @@ Page({
       wx.showToast({ title: '加载失败', icon: 'none' });
     }
 
+    // 同步更新 tabBar badge（业务员模式）
+    this.updateBadge();
+
     this.setData({ loading: false });
+  },
+
+  // 统一更新 tabBar badge（所有角色共用）
+  async updateBadge() {
+    const role = wx.getStorageSync('userRole') || '';
+    if (!role) return;
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'shipment-query',
+        data: { action: 'pendingCount', role }
+      });
+      if (res.result.code === 0) {
+        const count = res.result.data.count;
+        if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+          this.getTabBar().setData({ badgeValue: count });
+        }
+      }
+    } catch (e) {
+      console.error('更新badge失败:', e);
+    }
   },
 
   // 仓管/管理员：加载流程待办
@@ -121,14 +144,8 @@ Page({
           completedShipments: completedList
         });
 
-        // badge：统计仓管员当前有权限操作的订单（待处理+已入库）
-        const actionablePending = pendingList.filter(item => item.oaStatus !== 'created').length;
-        const actionableStored = storedList.filter(item => item.oaStatus !== 'created').length;
-        const badgeValue = actionablePending + actionableStored;
-
-        if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-          this.getTabBar().setData({ badgeValue });
-        }
+        // 同步更新 tabBar badge（统一用 pendingCount）
+        this.updateBadge();
       } else {
         wx.showToast({ title: res.result.message || '加载失败', icon: 'none' });
       }

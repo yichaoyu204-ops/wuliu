@@ -37,7 +37,12 @@ Page({
         data: { action: 'pendingCount', role }
       });
       if (res.result.code === 0) {
-        this.setData({ pendingCount: res.result.data.count });
+        const count = res.result.data.count;
+        this.setData({ pendingCount: count });
+        // 同步更新 tabBar badge
+        if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+          this.getTabBar().setData({ badgeValue: count });
+        }
       }
     } catch (e) {
       console.error('加载待办数失败:', e);
