@@ -105,7 +105,7 @@ Page({
 
       const year = date.getFullYear();
       const month = date.getMonth() + 1;
-      const label = year === currentYear ? `${month}月` : `${year}年${month}月`;
+      const label = `${year}年${month}月`;
       const sortKey = `${year}-${month.toString().padStart(2, '0')}`;
 
       if (!monthMap[sortKey]) {

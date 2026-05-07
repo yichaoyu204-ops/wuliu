@@ -375,6 +375,12 @@ exports.main = async (event, context) => {
             }),
             isDeleted: _.neq(true)
           };
+        } else if (role === 'admin') {
+          // 管理员：只统计待处理(measured_priced)
+          countQuery = {
+            oaStatus: 'measured_priced',
+            isDeleted: _.neq(true)
+          };
         } else {
           countQuery = {
             oaStatus: _.neq('completed'),

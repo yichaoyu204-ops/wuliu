@@ -68,7 +68,7 @@
       </view>
       <view class="tab-item {{activeTab === 'stored' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="stored">
         已入库
-        <text class="tab-count" wx:if="{{storedShipments.length > 0}}">{{storedShipments.length}}</text>
+        <text class="tab-count" wx:if="{{storedShipments.length > 0 && !isAdmin}}">{{storedShipments.length}}</text>
       </view>
       <view class="tab-item {{activeTab === 'completed' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="completed">
         已完结
