@@ -6,6 +6,7 @@ Page({
     roleName: '',
     shipments: [],
     storedShipments: [],
+    billShipments: [],
     completedShipments: [],
     loading: false,
     activeTab: 'pending',
@@ -15,6 +16,7 @@ Page({
       created: '已建单，待仓管员实测定价',
       measured_priced: '已实测定价，管理员同步确认中',
       admin_confirmed: '管理员已确认，待送达',
+      billed: '账单已发送，待支付',
       completed: '流程已结'
     }
   },
@@ -162,7 +164,7 @@ Page({
       });
 
       if (res.result.code === 0) {
-        const { pending = [], stored = [], completed = [] } = res.result.data || {};
+        const { pending = [], stored = [], billing = [], completed = [] } = res.result.data || {};
 
         const processList = (list) => list.map(item => {
           const timeline = item.timeline || [];
@@ -174,11 +176,13 @@ Page({
 
         const pendingList = processList(pending);
         const storedList = processList(stored);
+        const billList = processList(billing);
         const completedList = processList(completed);
 
         this.setData({
           shipments: pendingList,
           storedShipments: storedList,
+          billShipments: billList,
           completedShipments: completedList
         });
 
@@ -338,6 +342,45 @@ Page({
     } catch (e) {
       wx.hideLoading();
       wx.showToast({ title: '推进失败', icon: 'none' });
+    }
+  },
+
+  // 管理员发送账单
+  async sendBill(e) {
+    const id = e.currentTarget.dataset.id;
+    wx.showModal({
+      title: '发送账单',
+      content: '确认发送账单给客户？',
+      success: (res) => {
+        if (res.confirm) this.doSendBill(id);
+      }
+    });
+  },
+
+  async doSendBill(shipmentId) {
+    wx.showLoading({ title: '发送中...', mask: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'shipment-update',
+        data: {
+          action: 'advanceOa',
+          shipmentId,
+          data: { oaAction: 'sendBill' }
+        }
+      });
+
+      wx.hideLoading();
+
+      if (res.result.code === 0) {
+        wx.showToast({ title: '账单已发送', icon: 'success' });
+        this.loadWorkflows();
+      } else {
+        wx.showToast({ title: res.result.message || '发送失败', icon: 'none' });
+      }
+    } catch (e) {
+      wx.hideLoading();
+      wx.showToast({ title: '发送失败', icon: 'none' });
     }
   },
 

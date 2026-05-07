@@ -287,27 +287,27 @@ exports.main = async (event, context) => {
         let storedQuery = {};
         let completedQuery = {};
 
+        let billingQuery = {};
+
         if (role === 'warehouse') {
           // 仓管员分类基于物流节点状态
-          // 待处理：active 节点是 pickup
           pendingQuery = {
             timeline: _.elemMatch({ status: 'active', nodeCode: 'pickup' }),
             isDeleted: _.neq(true)
           };
-          // 已入库：active 节点是 yiwu_entry
           storedQuery = {
             timeline: _.elemMatch({ status: 'active', nodeCode: 'yiwu_entry' }),
             isDeleted: _.neq(true)
           };
-          // 已完结：active 节点是 mainline/nb_entry 或 status 为 completed
           completedQuery = _.or([
             { timeline: _.elemMatch({ status: 'active', nodeCode: _.in(['mainline', 'nb_entry']) }), isDeleted: _.neq(true) },
             { status: 'completed', isDeleted: _.neq(true) }
           ]);
         } else if (role === 'admin') {
-          // 管理员分类基于 oaStatus
+          // 管理员四分类：待处理 / 已入库 / 账单 / 已完结
           pendingQuery = { oaStatus: 'measured_priced', isDeleted: _.neq(true) };
           storedQuery = { oaStatus: 'admin_confirmed', isDeleted: _.neq(true) };
+          billingQuery = { oaStatus: 'billed', isDeleted: _.neq(true) };
           completedQuery = { oaStatus: 'completed', isDeleted: _.neq(true) };
         } else {
           pendingQuery = { oaStatus: _.neq('completed'), oaAssignedTo: role, isDeleted: _.neq(true) };
@@ -327,10 +327,18 @@ exports.main = async (event, context) => {
           .limit(100)
           .get();
 
+        let billingRes = { data: [] };
+        if (role === 'admin') {
+          billingRes = await db.collection('shipments')
+            .where(billingQuery)
+            .orderBy('updatedAt', 'desc')
+            .limit(100)
+            .get();
+        }
+
         let completed = [];
         if (includeCompleted) {
           if (role === 'warehouse') {
-            // 仓管员已完结：按 completedQuery 查询
             const res = await db.collection('shipments')
               .where(completedQuery)
               .orderBy('updatedAt', 'desc')
@@ -338,7 +346,6 @@ exports.main = async (event, context) => {
               .get();
             completed = res.data;
           } else {
-            // 其他角色：最近7天完成的
             const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
             const res = await db.collection('shipments')
               .where({
@@ -356,6 +363,7 @@ exports.main = async (event, context) => {
         return success({
           pending: pendingRes.data,
           stored: storedRes.data,
+          billing: billingRes.data,
           completed,
           totalPending: pendingRes.data.length
         });

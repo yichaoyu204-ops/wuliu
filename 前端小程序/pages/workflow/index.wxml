@@ -68,7 +68,11 @@
       </view>
       <view class="tab-item {{activeTab === 'stored' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="stored">
         已入库
-        <text class="tab-count" wx:if="{{storedShipments.length > 0 && !isAdmin}}">{{storedShipments.length}}</text>
+        <text class="tab-count" wx:if="{{storedShipments.length > 0}}">{{storedShipments.length}}</text>
+      </view>
+      <view class="tab-item {{activeTab === 'billing' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="billing" wx:if="{{isAdmin}}">
+        账单
+        <text class="tab-count" wx:if="{{billShipments.length > 0}}">{{billShipments.length}}</text>
       </view>
       <view class="tab-item {{activeTab === 'completed' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="completed">
         已完结
@@ -188,6 +192,50 @@
           <view wx:if="{{role === 'warehouse' && item.currentNodeCode === 'yiwu_entry' && item.oaStatus === 'admin_confirmed'}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}">
             确认出库
           </view>
+          <!-- 管理员：发送账单 -->
+          <view wx:if="{{role === 'admin' && item.oaStatus === 'admin_confirmed'}}" class="action-btn btn-primary" bindtap="sendBill" data-id="{{item._id}}">
+            发送账单
+          </view>
+          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
+          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 账单列表 -->
+    <view class="list-section" wx:if="{{activeTab === 'billing'}}">
+      <view wx:if="{{billShipments.length === 0 && !loading}}" class="empty-state">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">暂无账单</text>
+        <text class="empty-hint">已发送账单的运单将显示在这里</text>
+      </view>
+
+      <view class="workflow-card billed" wx:for="{{billShipments}}" wx:key="_id">
+        <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="waybill-info">
+            <text class="waybill-no">{{item.cargoInfo.waybillNo || item._id}}</text>
+            <text class="factory-name">{{item.creatorName || '——'}}</text>
+          </view>
+          <view class="status-badge {{item.oaStatus}}">
+            {{item.oaStatusName}}
+          </view>
+        </view>
+        <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
+          <view class="cargo-info">
+            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
+            <text class="cargo-divider">|</text>
+            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+          </view>
+          <view class="route-info">
+            <text>{{item.routeSnapshot.name || '——'}}</text>
+          </view>
+          <view class="payment-type">
+            <text class="pay-tag {{item.billing.paymentType}}">{{item.billing.paymentType === 'spot' ? '仓库现结' : '萌恒月结'}}</text>
+          </view>
+        </view>
+        <view class="card-actions">
           <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
           <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
         </view>

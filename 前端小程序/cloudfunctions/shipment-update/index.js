@@ -839,8 +839,24 @@ async function advanceOa(shipmentId, data, operatorOpenId) {
       return { oaStatus: 'completed', oaStatusName: '流程已结' };
     }
 
+    // 5. 管理员发送账单
+    case 'sendBill': {
+      if (shipment.oaStatus !== 'admin_confirmed') throw new Error('当前状态不支持发送账单');
+
+      await db.collection('shipments').doc(shipmentId).update({
+        data: {
+          oaStatus: 'billed',
+          oaStatusName: '账单已发送，待支付',
+          oaAssignedTo: '',
+          oaHistory: _.push([oaHistoryEntry('billed', '账单已发送，待支付', 'admin')]),
+          updatedAt: now
+        }
+      });
+      return { oaStatus: 'billed', oaStatusName: '账单已发送，待支付' };
+    }
+
     default:
-      throw new Error('未知的 oaAction，支持：adminConfirm / markSpotPaid / markDelivered');
+      throw new Error('未知的 oaAction，支持：adminConfirm / markSpotPaid / markDelivered / sendBill');
   }
 }
 
@@ -957,6 +973,10 @@ exports.main = async (event, context) => {
         // markSpotPaid / markDelivered 仅限仓管员或管理员
         if (['markSpotPaid', 'markDelivered'].includes(data.oaAction) && !isWarehouseOrAdmin(OPENID)) {
           return error('权限不足：仅仓管员或管理员可操作');
+        }
+        // sendBill 仅限管理员
+        if (data.oaAction === 'sendBill' && !isAdmin(OPENID)) {
+          return error('权限不足：仅管理员可发送账单');
         }
         return success(await advanceOa(shipmentId, data, OPENID), '流程推进成功');
 
