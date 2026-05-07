@@ -30,9 +30,9 @@ Component({
 
       const userInfo = getApp().globalData.userInfo || wx.getStorageSync('userInfo') || {};
       wx.cloud.callFunction({
-        name: 'billing-manage',
+        name: 'shipment-query',
         data: {
-          action: 'unpaidCount',
+          action: 'billCount',
           role,
           phone: userInfo.phone || ''
         }

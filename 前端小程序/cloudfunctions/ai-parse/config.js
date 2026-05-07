@@ -13,7 +13,7 @@ module.exports = {
     apiKey: process.env.KIMI_API_KEY || '',
     baseUrl: 'https://api.moonshot.cn/v1',
     model: 'moonshot-v1-8k-vision-preview',
-    timeout: 20000, // 20秒超时
+    timeout: 45000, // 45秒超时
 
     // AI识别提示词
     prompt: `你是物流单证识别专家。请从进仓通知单图片中提取信息，输出JSON。
@@ -88,7 +88,7 @@ module.exports = {
 
   // 云函数超时配置
   functionConfig: {
-    timeout: 20,      // 秒
+    timeout: 60,      // 秒
     memorySize: 512   // MB
   },
 

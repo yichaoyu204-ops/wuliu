@@ -2,6 +2,6 @@
   "permissions": {
     "openapi": ["storage.getTempFileURL"]
   },
-  "timeout": 20,
+  "timeout": 60,
   "memorySize": 512
 }

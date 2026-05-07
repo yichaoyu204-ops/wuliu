@@ -307,6 +307,26 @@ exports.main = async (event, context) => {
         });
       }
 
+      case 'billCount': {
+        const { role, phone } = event;
+        const query = {
+          oaStatus: 'billed',
+          'billing.paymentStatus': _.neq('paid'),
+          isDeleted: _.neq(true)
+        };
+
+        if (role !== 'admin') {
+          if (!phone) return paramError('缺少phone参数');
+          query.managerPhone = phone;
+        }
+
+        const countRes = await db.collection('shipments')
+          .where(query)
+          .count();
+
+        return success({ count: countRes.total });
+      }
+
       case 'workflowList': {
         const { role, includeCompleted = false } = event;
         if (!role) return paramError('缺少role参数');

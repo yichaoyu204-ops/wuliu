@@ -3,8 +3,13 @@
  * 可修改以适配不同的API规范
  */
 
-const config = require('../config');
-const { codes } = config;
+const codes = {
+  SUCCESS: 0,
+  ERROR: 1,
+  NOT_FOUND: 404,
+  UNAUTHORIZED: 401,
+  PARAM_ERROR: 400
+};
 
 function success(data = null, message = 'success') {
   return { code: codes.SUCCESS, message, data, timestamp: new Date().toISOString() };

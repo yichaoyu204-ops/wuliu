@@ -64,8 +64,8 @@ Page({
     this.setData({ phone });
     try {
       const res = await wx.cloud.callFunction({
-        name: 'billing-manage',
-        data: { action: 'unpaidCount', role, phone }
+        name: 'shipment-query',
+        data: { action: 'billCount', role, phone }
       });
       if (res.result.code === 0) {
         const count = res.result.data.count;
