@@ -74,7 +74,8 @@ Page({
 
       if (res.result.code === 0) {
         const list = res.result.data?.list || [];
-        this.setData({ shipments: list });
+        const grouped = this.groupShipmentsByDate(list);
+        this.setData({ groupedShipments: grouped });
       } else {
         wx.showToast({ title: res.result.message || '加载失败', icon: 'none' });
       }
@@ -87,6 +88,70 @@ Page({
     this.updateBadge();
 
     this.setData({ loading: false });
+  },
+
+  // 按时间分组：本周、上周、本月、更早（按月）
+  groupShipmentsByDate(list) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dayOfWeek = today.getDay() || 7;
+    const thisMonday = new Date(today.getTime() - (dayOfWeek - 1) * 24 * 60 * 60 * 1000);
+    const lastMonday = new Date(thisMonday.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    const groups = [];
+    const thisWeek = { label: '本周', items: [] };
+    const lastWeek = { label: '上周', items: [] };
+    const thisMonth = { label: '本月', items: [] };
+    const earlier = {};
+
+    list.forEach(item => {
+      const ts = item._createTime || item.createdAt || item.createTime;
+      if (!ts) return;
+      const date = new Date(typeof ts === 'number' ? ts : Date.parse(ts));
+      const itemDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+      const itemStr = this.formatDate(date);
+
+      const enriched = { ...item, _createTimeStr: itemStr };
+
+      if (itemDate >= thisMonday) {
+        thisWeek.items.push(enriched);
+      } else if (itemDate >= lastMonday) {
+        lastWeek.items.push(enriched);
+      } else if (itemDate >= thisMonthStart) {
+        thisMonth.items.push(enriched);
+      } else {
+        const key = `${date.getFullYear()}年${date.getMonth() + 1}月`;
+        if (!earlier[key]) earlier[key] = { label: key, items: [] };
+        earlier[key].items.push(enriched);
+      }
+    });
+
+    if (thisWeek.items.length) groups.push(thisWeek);
+    if (lastWeek.items.length) groups.push(lastWeek);
+    if (thisMonth.items.length) groups.push(thisMonth);
+
+    // 更早的按月份倒序排列
+    const earlierKeys = Object.keys(earlier).sort((a, b) => {
+      const ma = a.match(/(\d+)年(\d+)月/);
+      const mb = b.match(/(\d+)年(\d+)月/);
+      if (!ma || !mb) return 0;
+      const da = new Date(parseInt(ma[1]), parseInt(ma[2]) - 1);
+      const db = new Date(parseInt(mb[1]), parseInt(mb[2]) - 1);
+      return db - da;
+    });
+    earlierKeys.forEach(k => groups.push(earlier[k]));
+
+    return groups;
+  },
+
+  formatDate(date) {
+    const d = new Date(date);
+    const MM = (d.getMonth() + 1).toString().padStart(2, '0');
+    const DD = d.getDate().toString().padStart(2, '0');
+    const hh = d.getHours().toString().padStart(2, '0');
+    const mm = d.getMinutes().toString().padStart(2, '0');
+    return `${MM}-${DD} ${hh}:${mm}`;
   },
 
   // 统一更新 tabBar badge（所有角色共用）
