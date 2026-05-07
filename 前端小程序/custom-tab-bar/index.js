@@ -10,10 +10,24 @@ Component({
     attached() {
       const role = wx.getStorageSync('userRole') || '';
       this.setData({ role, isAdmin: role === 'admin' });
+      this.loadBadge();
     }
   },
 
   methods: {
+    loadBadge() {
+      const role = wx.getStorageSync('userRole') || '';
+      if (!role) return;
+      wx.cloud.callFunction({
+        name: 'shipment-query',
+        data: { action: 'pendingCount', role }
+      }).then(res => {
+        if (res.result.code === 0) {
+          this.setData({ badgeValue: res.result.data.count });
+        }
+      }).catch(() => {});
+    },
+
     switchTab(e) {
       const idx = Number(e.currentTarget.dataset.index);
       const isAdmin = this.data.isAdmin;
