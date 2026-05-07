@@ -142,6 +142,9 @@ Page({
         const count = res.result.data.count;
         if (typeof this.getTabBar === 'function' && this.getTabBar()) {
           this.getTabBar().setData({ badgeValue: count });
+          if (this.getTabBar().loadBadge) {
+            this.getTabBar().loadBadge();
+          }
         }
       }
     } catch (e) {
@@ -375,6 +378,9 @@ Page({
       if (res.result.code === 0) {
         wx.showToast({ title: '账单已发送', icon: 'success' });
         this.loadWorkflows();
+        if (typeof this.getTabBar === 'function' && this.getTabBar() && this.getTabBar().loadBadge) {
+          this.getTabBar().loadBadge();
+        }
       } else {
         wx.showToast({ title: res.result.message || '发送失败', icon: 'none' });
       }

@@ -53,6 +53,7 @@
         <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:5rpx"></view>
         <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:11rpx"></view>
         <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:17rpx"></view>
+        <view class="badge" wx:if="{{billingBadgeValue > 0}}">{{billingBadgeValue}}</view>
       </view>
       <view class="label {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}">账单</view>
       <view class="dot {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}"></view>

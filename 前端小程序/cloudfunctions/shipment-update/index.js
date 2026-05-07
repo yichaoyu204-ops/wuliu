@@ -843,16 +843,61 @@ async function advanceOa(shipmentId, data, operatorOpenId) {
     case 'sendBill': {
       if (shipment.oaStatus !== 'admin_confirmed') throw new Error('当前状态不支持发送账单');
 
-      await db.collection('shipments').doc(shipmentId).update({
-        data: {
-          oaStatus: 'billed',
-          oaStatusName: '账单已发送，待支付',
-          oaAssignedTo: '',
-          oaHistory: _.push([oaHistoryEntry('billed', '账单已发送，待支付', 'admin')]),
-          updatedAt: now
+      const result = await db.runTransaction(async transaction => {
+        let billId = shipment.billing?.billId || '';
+        const billAmount = shipment.pricing?.finalPrice || shipment.quote?.subtotal || shipment.totalAmount || 0;
+
+        if (!billId) {
+          billId = await generateBillId(transaction);
+          await transaction.collection('bills').add({
+            data: {
+              _id: billId,
+              billType: shipment.billing?.paymentType === 'spot' ? 'spot' : 'monthly',
+              shipmentId,
+              clientPhone: shipment.managerPhone || shipment.contacts?.contact1Phone || '',
+              clientName: shipment.clientName || shipment.contacts?.contact1Name || '',
+              factoryName: shipment.factoryName || shipment.creatorName || '',
+              contacts: shipment.contacts || {},
+              totalAmount: formatMoney(billAmount),
+              paidAmount: 0,
+              status: 'unpaid',
+              paymentType: shipment.billing?.paymentType || 'monthly',
+              items: shipment.quote?.items || (shipment.pricing ? [{
+                name: '运费',
+                calculationDetail: `重量价:${shipment.pricing.weightPrice || 0} / 体积价:${shipment.pricing.volumePrice || 0}`,
+                amount: formatMoney(billAmount)
+              }] : []),
+              payments: [],
+              sentAt: db.serverDate(),
+              createdAt: db.serverDate(),
+              updatedAt: db.serverDate()
+            }
+          });
+        } else {
+          await transaction.collection('bills').doc(billId).update({
+            data: {
+              status: 'unpaid',
+              sentAt: db.serverDate(),
+              updatedAt: db.serverDate()
+            }
+          });
         }
+
+        await transaction.collection('shipments').doc(shipmentId).update({
+          data: {
+            oaStatus: 'billed',
+            oaStatusName: '账单已发送，待支付',
+            oaAssignedTo: '',
+            'billing.billId': billId,
+            'billing.paymentStatus': 'unpaid',
+            oaHistory: _.push([oaHistoryEntry('billed', '账单已发送，待支付', 'admin')]),
+            updatedAt: now
+          }
+        });
+
+        return { billId };
       });
-      return { oaStatus: 'billed', oaStatusName: '账单已发送，待支付' };
+      return { oaStatus: 'billed', oaStatusName: '账单已发送，待支付', billId: result.billId };
     }
 
     default:

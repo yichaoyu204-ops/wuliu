@@ -3,7 +3,8 @@ Component({
     role: '',
     isAdmin: false,
     activeIndex: 0,
-    badgeValue: 0
+    badgeValue: 0,
+    billingBadgeValue: 0
   },
 
   lifetimes: {
@@ -24,6 +25,20 @@ Component({
       }).then(res => {
         if (res.result.code === 0) {
           this.setData({ badgeValue: res.result.data.count });
+        }
+      }).catch(() => {});
+
+      const userInfo = getApp().globalData.userInfo || wx.getStorageSync('userInfo') || {};
+      wx.cloud.callFunction({
+        name: 'billing-manage',
+        data: {
+          action: 'unpaidCount',
+          role,
+          phone: userInfo.phone || ''
+        }
+      }).then(res => {
+        if (res.result.code === 0) {
+          this.setData({ billingBadgeValue: res.result.data.count });
         }
       }).catch(() => {});
     },

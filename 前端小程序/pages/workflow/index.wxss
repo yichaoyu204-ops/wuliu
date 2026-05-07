@@ -66,7 +66,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rpx 12rpx;
-  background: #FF6B00;
+  background: #E53935;
   color: #fff;
   font-size: 22rpx;
   border-radius: 20rpx;

@@ -6,6 +6,8 @@ Page({
     loading: false,
     history: [],
     pendingCount: 0,
+    unpaidCount: 0,
+    phone: '',
     userRole: '',
     showContactPopup: false,
     contact1: { name: '蒋先生', phone: '13857488715' },
@@ -21,6 +23,8 @@ Page({
     this.loadHistory();
     // 加载待办流程数
     this.loadPendingCount();
+    // 加载待支付账单数
+    this.loadUnpaidCount();
     // 设置自定义tabBar选中状态
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       this.getTabBar().setData({ activeIndex: 0 });
@@ -42,10 +46,36 @@ Page({
         // 同步更新 tabBar badge
         if (typeof this.getTabBar === 'function' && this.getTabBar()) {
           this.getTabBar().setData({ badgeValue: count });
+          if (this.getTabBar().loadBadge) {
+            this.getTabBar().loadBadge();
+          }
         }
       }
     } catch (e) {
       console.error('加载待办数失败:', e);
+    }
+  },
+
+  async loadUnpaidCount() {
+    const role = wx.getStorageSync('userRole') || '';
+    const userInfo = getApp().globalData.userInfo || wx.getStorageSync('userInfo') || {};
+    const phone = userInfo.phone || '';
+    if (!role || (role !== 'admin' && !phone)) return;
+    this.setData({ phone });
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'billing-manage',
+        data: { action: 'unpaidCount', role, phone }
+      });
+      if (res.result.code === 0) {
+        const count = res.result.data.count;
+        this.setData({ unpaidCount: count });
+        if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+          this.getTabBar().setData({ billingBadgeValue: count });
+        }
+      }
+    } catch (e) {
+      console.error('加载待支付账单数失败:', e);
     }
   },
 

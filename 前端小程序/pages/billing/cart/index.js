@@ -6,7 +6,9 @@ Page({
     filteredBills: [],
     activeTab: 'all',
     loading: false,
-    phone: ''
+    phone: '',
+    role: '',
+    isAdmin: false
   },
 
   tabs: [
@@ -17,10 +19,12 @@ Page({
 
   onLoad() {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
+    const role = wx.getStorageSync('userRole') || '';
     const phone = userInfo.phone || '';
-    this.setData({ phone });
-    if (phone) {
-      this.loadBills(phone);
+    const isAdmin = role === 'admin';
+    this.setData({ phone, role, isAdmin });
+    if (phone || isAdmin) {
+      this.loadBills();
     } else {
       wx.showModal({
         title: '提示',
@@ -36,15 +40,24 @@ Page({
       const role = wx.getStorageSync('userRole') || '';
       const isAdmin = role === 'admin';
       this.getTabBar().setData({ activeIndex: isAdmin ? 4 : 3 });
+      if (this.getTabBar().loadBadge) {
+        this.getTabBar().loadBadge();
+      }
+    }
+    if (this.data.phone || this.data.isAdmin) {
+      this.loadBills();
     }
   },
 
-  async loadBills(phone) {
+  async loadBills() {
+    const { phone, isAdmin } = this.data;
     this.setData({ loading: true });
     try {
       const res = await wx.cloud.callFunction({
         name: 'billing-manage',
-        data: { action: 'billList', phone }
+        data: isAdmin
+          ? { action: 'pendingBills' }
+          : { action: 'billList', phone }
       });
 
       if (res.result.code === 0) {
@@ -76,8 +89,8 @@ Page({
   },
 
   onRefresh() {
-    if (this.data.phone) {
-      this.loadBills(this.data.phone);
+    if (this.data.phone || this.data.isAdmin) {
+      this.loadBills();
     }
   }
 });
