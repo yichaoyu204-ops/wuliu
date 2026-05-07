@@ -49,6 +49,20 @@ function extractNumberAndUnit(str) {
   return { val: s, unit: null };
 }
 
+function normalizeWaybillNo(value) {
+  if (value === null || value === undefined) {
+    return { val: null, valid: false };
+  }
+
+  const raw = String(value).trim().toUpperCase().replace(/\s+/g, '');
+  const match = raw.match(/\d{2}MH[A-Z0-9]+/);
+  if (!match) {
+    return { val: null, valid: false };
+  }
+
+  return { val: match[0], valid: true };
+}
+
 /**
  * 转换AI返回为内部数据结构
  * 可修改以适配不同的字段映射
@@ -76,8 +90,13 @@ function normalizeShipmentData(aiData) {
   const volumeRaw = checkField(info.volume, '体积');
   const volumeExtracted = extractNumberAndUnit(volumeRaw);
 
+  const waybillResult = normalizeWaybillNo(checkField(info.waybillNo, '业务编号'));
+  if (!waybillResult.valid) {
+    reviewFields.push('业务编号');
+  }
+
   let cargoInfo = {
-    waybillNo: checkField(info.waybillNo, '业务编号'),
+    waybillNo: waybillResult.val,
     pieces: piecesExtracted.val || piecesRaw,
     piecesUnit: info.pieces?.unit || piecesExtracted.unit || 'CTNS',
     grossWeight: weightExtracted.val || weightRaw,
@@ -131,9 +150,10 @@ function normalizeShipmentData(aiData) {
     }
   }
 
-  // 业务编号必须含有连续大写字母"MH"
+  // 业务编号必须是两位年份+MH开头，不符合则清空，避免错误建单
   const waybillNoStr = cargoInfo.waybillNo ? String(cargoInfo.waybillNo) : '';
-  if (waybillNoStr && !waybillNoStr.includes('MH')) {
+  if (waybillNoStr && !/^\d{2}MH[A-Z0-9]+$/.test(waybillNoStr)) {
+    cargoInfo.waybillNo = null;
     reviewFields.push('业务编号');
   }
 
@@ -161,8 +181,8 @@ function normalizeShipmentData(aiData) {
  * 1. marks是纯数字且volume为空 → marks应为volume
  * 2. volume是文字且marks为空 → volume应为marks
  * 3. marks含CBM等单位 → 应归入volume
- * 4. waybillNo不含数字 → 可能识别错误
- * 5. waybillNo不含连续大写字母"MH" → 可能识别错误
+ * 4. waybillNo必须是两位年份+MH开头，否则清空并复核
+ * 5. 防止把DSCGL、货号、客户编码、条码号误填为业务编号
  */
 function validateAndFixFields(cargoInfo) {
   const isPureNumber = (v) => v !== null && v !== undefined && /^[\d.]+$/.test(String(v).trim());
