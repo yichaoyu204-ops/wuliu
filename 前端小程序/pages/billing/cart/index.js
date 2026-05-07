@@ -8,14 +8,13 @@ Page({
     loading: false,
     phone: '',
     role: '',
-    isAdmin: false
+    isAdmin: false,
+    tabs: [
+      { key: 'all', label: '全部' },
+      { key: 'unpaid', label: '待付' },
+      { key: 'paid', label: '已付' }
+    ]
   },
-
-  tabs: [
-    { key: 'all', label: '全部' },
-    { key: 'unpaid', label: '待付' },
-    { key: 'paid', label: '已付' }
-  ],
 
   onLoad() {
     const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
@@ -61,7 +60,7 @@ Page({
       });
 
       if (res.result.code === 0) {
-        const bills = res.result.data || [];
+        const bills = (res.result.data || []).map(item => this.normalizeBill(item));
         this.setData({ bills });
         this.filterBills(this.data.activeTab);
       } else {
@@ -71,6 +70,19 @@ Page({
       wx.showToast({ title: '网络错误', icon: 'none' });
     }
     this.setData({ loading: false });
+  },
+
+  normalizeBill(item) {
+    const totalAmount = Number(item.totalAmount || 0);
+    return {
+      ...item,
+      _factoryName: item.contacts?.contact1Name || item.clientName || item.factoryName || '——',
+      _totalAmountText: totalAmount.toFixed(2),
+      _items: (item.items || []).map(fee => ({
+        ...fee,
+        _amountText: Number(fee.amount || 0).toFixed(2)
+      }))
+    };
   },
 
   switchTab(e) {

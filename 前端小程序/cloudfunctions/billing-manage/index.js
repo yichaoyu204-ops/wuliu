@@ -93,7 +93,46 @@ async function pendingBills(page = 1, pageSize = 20) {
     .limit(pageSize)
     .get();
 
-  return res.data;
+  const bills = res.data || [];
+  const billShipmentIds = bills.map(item => item.shipmentId).filter(Boolean);
+
+  const billedShipmentsRes = await db.collection('shipments')
+    .where({
+      oaStatus: 'billed',
+      isDeleted: _.neq(true)
+    })
+    .orderBy('updatedAt', 'desc')
+    .limit(100)
+    .get();
+
+  const orphanBills = (billedShipmentsRes.data || [])
+    .filter(item => !item.billing?.billId || !billShipmentIds.includes(item._id))
+    .map(item => {
+      const amount = item.pricing?.finalPrice || item.quote?.subtotal || item.totalAmount || 0;
+      return {
+        _id: item.billing?.billId || `SHIP-${item._id}`,
+        billType: item.billing?.paymentType === 'spot' ? 'spot' : 'monthly',
+        shipmentId: item._id,
+        clientPhone: item.managerPhone || item.contacts?.contact1Phone || '',
+        clientName: item.clientName || item.contacts?.contact1Name || '',
+        factoryName: item.factoryName || item.creatorName || '',
+        contacts: item.contacts || {},
+        totalAmount: formatMoney(amount) || 0,
+        paidAmount: item.billing?.paidAmount || 0,
+        status: item.billing?.paymentStatus === 'paid' ? 'paid' : 'unpaid',
+        paymentType: item.billing?.paymentType || 'monthly',
+        items: item.quote?.items || (item.pricing ? [{
+          name: '运费',
+          calculationDetail: `重量价:${item.pricing.weightPrice || 0} / 体积价:${item.pricing.volumePrice || 0}`,
+          amount: formatMoney(amount) || 0
+        }] : []),
+        payments: [],
+        createdAt: item.billing?.sentAt || item.updatedAt || item._createTime || db.serverDate(),
+        updatedAt: item.updatedAt || db.serverDate()
+      };
+    });
+
+  return bills.concat(orphanBills);
 }
 
 // ── 月结合并（事务）──

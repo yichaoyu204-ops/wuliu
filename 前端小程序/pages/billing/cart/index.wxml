@@ -23,28 +23,28 @@
         <text class="bill-id">{{item._id}}</text>
         <text class="bill-status {{item.status}}">{{item.status === 'unpaid' ? '待付' : '已付'}}</text>
       </view>
-      <view class="bill-factory">{{item.contacts.contact1Name || '——'}}</view>
+      <view class="bill-factory">{{item._factoryName}}</view>
 
       <!-- 费用明细 -->
-      <view class="fee-detail" wx:if="{{item.items && item.items.length > 0}}">
-        <view class="fee-row" wx:for="{{item.items}}" wx:for-item="fee" wx:key="index">
+      <view class="fee-detail" wx:if="{{item._items && item._items.length > 0}}">
+        <view class="fee-row" wx:for="{{item._items}}" wx:for-item="fee" wx:key="index">
           <view class="fee-info">
             <text class="fee-name">{{fee.name}}</text>
             <text class="fee-calc" wx:if="{{fee.calculationDetail}}">{{fee.calculationDetail}}</text>
           </view>
           <text class="fee-amount {{fee.isIncluded === false ? 'fee-excluded' : ''}}">
-            {{fee.isIncluded === false ? '未计入 ' : ''}}¥{{fee.amount != null ? fee.amount.toFixed(2) : '0.00'}}
+            {{fee.isIncluded === false ? '未计入 ' : ''}}¥{{fee._amountText}}
           </text>
         </view>
         <view class="fee-total-row">
           <text class="fee-total-label">合计</text>
-          <text class="fee-total-amount">¥{{item.totalAmount != null ? item.totalAmount.toFixed(2) : '0.00'}}</text>
+          <text class="fee-total-amount">¥{{item._totalAmountText}}</text>
         </view>
       </view>
 
       <view class="bill-footer">
         <text class="bill-type">{{item.paymentType === 'spot' ? '现结' : '月结'}}</text>
-        <text class="bill-amount">¥{{item.totalAmount != null ? item.totalAmount.toFixed(2) : '0.00'}}</text>
+        <text class="bill-amount">¥{{item._totalAmountText}}</text>
       </view>
     </view>
 
