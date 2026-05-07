@@ -174,8 +174,8 @@
           </view>
         </view>
         <view class="card-actions">
-          <!-- 仓管员：已入库状态可确认出库（不需要等管理员确认） -->
-          <view wx:if="{{role === 'warehouse' && item.currentNodeCode === 'yiwu_entry' && item.oaStatus !== 'created'}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}">
+          <!-- 仓管员：已入库且管理员确认后才可确认出库 -->
+          <view wx:if="{{role === 'warehouse' && item.currentNodeCode === 'yiwu_entry' && item.oaStatus === 'admin_confirmed'}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}">
             确认出库
           </view>
           <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
