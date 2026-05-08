@@ -193,7 +193,7 @@
             确认出库
           </view>
           <!-- 管理员：发送账单 -->
-          <view wx:if="{{role === 'admin' && item.oaStatus === 'admin_confirmed'}}" class="action-btn btn-primary" bindtap="sendBill" data-id="{{item._id}}">
+          <view wx:if="{{role === 'admin' && item.oaStatus === 'admin_confirmed' && item.billing.paymentType !== 'spot'}}" class="action-btn btn-primary" bindtap="sendBill" data-id="{{item._id}}">
             发送账单
           </view>
           <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>

@@ -842,6 +842,7 @@ async function advanceOa(shipmentId, data, operatorOpenId) {
     // 5. 管理员发送账单
     case 'sendBill': {
       if (shipment.oaStatus !== 'admin_confirmed') throw new Error('当前状态不支持发送账单');
+      if (shipment.billing?.paymentType === 'spot') throw new Error('仓库现结货物无需发送账单');
 
       const result = await db.runTransaction(async transaction => {
         let billId = shipment.billing?.billId || '';

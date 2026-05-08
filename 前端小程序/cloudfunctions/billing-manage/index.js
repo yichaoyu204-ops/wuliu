@@ -93,12 +93,13 @@ async function pendingBills(page = 1, pageSize = 20) {
     .limit(pageSize)
     .get();
 
-  const bills = res.data || [];
+  const bills = (res.data || []).filter(item => item.paymentType !== 'spot');
   const billShipmentIds = bills.map(item => item.shipmentId).filter(Boolean);
 
   const billedShipmentsRes = await db.collection('shipments')
     .where({
       oaStatus: 'billed',
+      'billing.paymentType': _.neq('spot'),
       isDeleted: _.neq(true)
     })
     .orderBy('updatedAt', 'desc')

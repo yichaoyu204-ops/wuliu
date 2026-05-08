@@ -283,6 +283,7 @@ exports.main = async (event, context) => {
         const { role, phone, status } = event;
         const query = {
           oaStatus: 'billed',
+          'billing.paymentType': _.neq('spot'),
           isDeleted: _.neq(true)
         };
 
@@ -311,6 +312,7 @@ exports.main = async (event, context) => {
         const { role, phone } = event;
         const query = {
           oaStatus: 'billed',
+          'billing.paymentType': _.neq('spot'),
           'billing.paymentStatus': _.neq('paid'),
           isDeleted: _.neq(true)
         };
@@ -355,7 +357,7 @@ exports.main = async (event, context) => {
           // 管理员四分类：待处理 / 已入库 / 账单 / 已完结
           pendingQuery = { oaStatus: 'measured_priced', isDeleted: _.neq(true) };
           storedQuery = { oaStatus: 'admin_confirmed', isDeleted: _.neq(true) };
-          billingQuery = { oaStatus: 'billed', isDeleted: _.neq(true) };
+          billingQuery = { oaStatus: 'billed', 'billing.paymentType': _.neq('spot'), isDeleted: _.neq(true) };
           completedQuery = { oaStatus: 'completed', isDeleted: _.neq(true) };
         } else {
           pendingQuery = { oaStatus: _.neq('completed'), oaAssignedTo: role, isDeleted: _.neq(true) };
