@@ -2,15 +2,10 @@
   <!-- 顶部搜索区 -->
   <view class="search-section">
     <view class="top-bar">
-      <view class="brand-block">
-        <text class="brand-kicker">YICHAO LOGISTICS</text>
-        <text class="brand-title">一超物流</text>
-      </view>
       <view class="logout-btn" bindtap="onLogout">退出登录</view>
     </view>
     <view class="search-title">
       <text class="search-heading">运单追踪</text>
-      <text class="search-subheading">义乌到宁波干线货物状态查询</text>
     </view>
     <view class="search-box">
       <input
@@ -41,15 +36,31 @@
   <!-- 功能入口 -->
   <view class="feature-grid">
     <view class="feature-item feature-waybill" bindtap="goToMyShipments">
-      <view class="feature-icon">单</view>
+      <view class="feature-icon feature-icon-waybill">
+        <view class="icon-waybill-line line-1"></view>
+        <view class="icon-waybill-line line-2"></view>
+        <view class="icon-waybill-line line-3"></view>
+        <view class="icon-waybill-arrow"></view>
+      </view>
       <text class="feature-text">所有运单</text>
     </view>
     <view class="feature-item feature-scan" bindtap="scanCode">
-      <view class="feature-icon">扫</view>
+      <view class="feature-icon feature-icon-scan">
+        <view class="scan-corner scan-tl"></view>
+        <view class="scan-corner scan-tr"></view>
+        <view class="scan-corner scan-bl"></view>
+        <view class="scan-corner scan-br"></view>
+        <view class="scan-dot"></view>
+      </view>
       <text class="feature-text">扫码查单</text>
     </view>
     <view class="feature-item feature-service" bindtap="contactService">
-      <view class="feature-icon">客</view>
+      <view class="feature-icon feature-icon-service">
+        <view class="service-headset"></view>
+        <view class="service-ear left"></view>
+        <view class="service-ear right"></view>
+        <view class="service-mic"></view>
+      </view>
       <text class="feature-text">联系客服</text>
     </view>
   </view>
