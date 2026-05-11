@@ -447,3 +447,92 @@
 }
 
 /* === End Yiwu Line UI Polish v2 === */
+
+/* === Role Select Page Fix === */
+.container {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  padding: 0 32rpx 64rpx;
+  background: #f8f7f4;
+}
+
+.container::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 360rpx;
+  background: linear-gradient(135deg, #ff6b00 0%, #ff8a1f 100%);
+  border-radius: 0 0 36rpx 36rpx;
+}
+
+.role-header {
+  position: relative;
+  z-index: 1;
+  margin: 0 -32rpx 30rpx;
+  padding: 64rpx 64rpx 56rpx;
+}
+
+.brand-mark {
+  width: 76rpx;
+  height: 76rpx;
+  margin-bottom: 28rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.96);
+  color: #ff6b00;
+  text-align: center;
+  line-height: 76rpx;
+  font-size: 34rpx;
+  font-weight: 900;
+  box-shadow: 0 12rpx 24rpx rgba(142, 57, 0, 0.18);
+}
+
+.role-title {
+  display: block;
+  max-width: 620rpx;
+  color: #fff;
+  font-size: 44rpx;
+  font-weight: 900;
+  line-height: 1.22;
+  text-shadow: 0 4rpx 12rpx rgba(120, 48, 0, 0.18);
+}
+
+.role-subtitle {
+  display: block;
+  margin-top: 14rpx;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 28rpx;
+  line-height: 1.45;
+}
+
+.role-list {
+  position: relative;
+  z-index: 2;
+  gap: 20rpx;
+}
+
+.role-card {
+  background: #fffefa;
+  border-color: #eadfd2;
+  border-radius: 18rpx;
+  padding: 34rpx 30rpx;
+  box-shadow: 0 14rpx 34rpx rgba(20, 33, 61, 0.08);
+}
+
+.role-icon {
+  border-radius: 16rpx;
+}
+
+.role-arrow {
+  color: #c7cdd8;
+  font-size: 44rpx;
+}
+
+.login-form {
+  position: relative;
+  z-index: 2;
+}
+
+/* === End Role Select Page Fix === */
