@@ -1,7 +1,7 @@
 .container {
   background: #f5f7fa;
   min-height: 100vh;
-  padding-bottom: 220rpx;
+  padding-bottom: calc(170rpx + env(safe-area-inset-bottom));
 }
 
 .loading-state {
@@ -13,13 +13,14 @@
 
 /* 状态卡片 */
 .status-card {
-  background: linear-gradient(135deg, #FF6B00 0%, #FF8F00 100%);
+  background: linear-gradient(135deg, #ff6b00 0%, #ff8f00 100%);
   margin: 24rpx;
   border-radius: 20rpx;
-  padding: 40rpx 32rpx;
+  padding: 36rpx 32rpx;
   display: flex;
   align-items: center;
   color: #fff;
+  box-shadow: 0 10rpx 26rpx rgba(255, 107, 0, 0.2);
 }
 
 .status-icon {
@@ -29,6 +30,7 @@
 
 .status-info {
   flex: 1;
+  min-width: 0;
 }
 
 .status-name {
@@ -36,11 +38,15 @@
   font-size: 36rpx;
   font-weight: 600;
   margin-bottom: 8rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .status-desc {
   font-size: 26rpx;
   opacity: 0.85;
+  line-height: 1.45;
 }
 
 /* 区块 */
@@ -63,15 +69,17 @@
   background: #fff;
   border-radius: 16rpx;
   padding: 24rpx 28rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
+  border: 1rpx solid #eef1f5;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   padding: 16rpx 0;
   border-bottom: 1rpx solid #f8f8f8;
+  gap: 18rpx;
 }
 
 .info-row:last-child {
@@ -81,10 +89,11 @@
 .info-label {
   font-size: 26rpx;
   color: #888;
+  width: 150rpx;
   flex-shrink: 0;
-  margin-right: 24rpx;
+  margin-right: 0;
   display: block;
-  line-height: 26rpx;
+  line-height: 1.45;
 }
 
 .info-value {
@@ -92,10 +101,11 @@
   color: #1a1a1a;
   text-align: right;
   flex: 1;
+  min-width: 0;
   word-break: break-all;
-  margin-left: 24rpx;
+  margin-left: 0;
   display: block;
-  line-height: 26rpx;
+  line-height: 1.45;
 }
 
 .info-value.hint {
@@ -105,15 +115,17 @@
 /* 编辑模式 */
 .edit-btn {
   font-size: 26rpx;
-  color: #FF6B00;
+  color: #ff6b00;
   padding: 4rpx 16rpx;
-  border: 1rpx solid #FF6B00;
+  border: 1rpx solid #ff6b00;
   border-radius: 8rpx;
+  flex-shrink: 0;
 }
 
 .edit-actions {
   display: flex;
   gap: 16rpx;
+  flex-shrink: 0;
 }
 
 .edit-action {
@@ -129,7 +141,7 @@
 
 .edit-action.save {
   color: #fff;
-  background: #FF6B00;
+  background: #ff6b00;
 }
 
 .edit-input {
@@ -141,7 +153,8 @@
   color: #1a1a1a;
   background: #fafafa;
   text-align: right;
-  margin-left: 24rpx;
+  margin-left: 0;
+  min-width: 0;
 }
 
 .edit-input-group {
@@ -149,12 +162,14 @@
   align-items: center;
   flex: 1;
   justify-content: flex-end;
-  margin-left: 24rpx;
+  margin-left: 0;
   gap: 8rpx;
+  min-width: 0;
+  flex-wrap: wrap;
 }
 
 .edit-input.small {
-  width: 100rpx;
+  width: 112rpx;
   flex: none;
   margin-left: 0;
   text-align: center;
@@ -196,6 +211,7 @@
   background: #f8f9fa;
   border-radius: 12rpx;
   padding: 20rpx 24rpx;
+  line-height: 1.45;
 }
 
 .warehouse-label {
@@ -222,7 +238,8 @@
   background: #fff;
   border-radius: 16rpx;
   padding: 32rpx 28rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
+  border: 1rpx solid #eef1f5;
 }
 
 .timeline-item {
@@ -272,14 +289,18 @@
 .timeline-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 8rpx;
+  gap: 16rpx;
 }
 
 .timeline-name {
   font-size: 28rpx;
   color: #1a1a1a;
   font-weight: 500;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
 }
 
 .timeline-status {
@@ -288,6 +309,7 @@
   border-radius: 8rpx;
   background: #f5f5f5;
   color: #999;
+  flex-shrink: 0;
 }
 
 .timeline-status.completed {
@@ -325,6 +347,7 @@
   display: flex;
   gap: 12rpx;
   margin-top: 12rpx;
+  flex-wrap: wrap;
 }
 
 .timeline-photo {
@@ -340,17 +363,22 @@
   justify-content: space-between;
   padding: 14rpx 0;
   border-bottom: 1rpx solid #f8f8f8;
+  gap: 24rpx;
 }
 
 .fee-name {
   font-size: 26rpx;
   color: #555;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
 }
 
 .fee-amount {
   font-size: 26rpx;
   color: #1a1a1a;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .fee-divider {
@@ -383,6 +411,7 @@
   justify-content: space-between;
   padding: 16rpx 0;
   border-bottom: 1rpx solid #f8f8f8;
+  gap: 24rpx;
 }
 
 .measure-row:last-child {
@@ -398,6 +427,7 @@
   font-size: 26rpx;
   color: #1a1a1a;
   font-weight: 500;
+  text-align: right;
 }
 
 .measure-photos {
@@ -457,11 +487,13 @@
   align-items: flex-start;
   padding: 16rpx 0;
   border-bottom: 1rpx solid #f8f8f8;
+  gap: 24rpx;
 }
 
 .quote-left {
   flex: 1;
-  margin-right: 24rpx;
+  min-width: 0;
+  margin-right: 0;
 }
 
 .quote-name {
@@ -473,12 +505,14 @@
   font-size: 22rpx;
   color: #888;
   margin-top: 4rpx;
+  line-height: 1.4;
 }
 
 .quote-amount {
   font-size: 28rpx;
   color: #1a1a1a;
   font-weight: 500;
+  flex-shrink: 0;
 }
 
 .quote-divider {
@@ -519,7 +553,8 @@
   background: #fff;
   border-radius: 16rpx;
   padding: 24rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
+  border: 1rpx solid #eef1f5;
   text-align: center;
 }
 
@@ -548,16 +583,18 @@
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   background: #fff;
   border-top: 1rpx solid #f0f0f0;
+  box-shadow: 0 -6rpx 20rpx rgba(31, 41, 55, 0.06);
 }
 
 .btn-primary {
-  background: #FF6B00;
+  background: #ff6b00;
   color: #fff;
   text-align: center;
   padding: 28rpx;
-  border-radius: 50rpx;
+  border-radius: 14rpx;
   font-size: 32rpx;
   font-weight: 600;
+  box-shadow: 0 8rpx 18rpx rgba(255, 107, 0, 0.22);
 }
 
 /* 空状态 */

@@ -1,0 +1,27 @@
+page {
+  min-height: 100%;
+  background: #f5f7fa;
+  color: #1f2933;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+view,
+text,
+input,
+button,
+image {
+  box-sizing: border-box;
+}
+
+button {
+  margin: 0;
+}
+
+.tap-scale {
+  transition: transform 0.16s ease, opacity 0.16s ease;
+}
+
+.tap-scale:active {
+  transform: scale(0.98);
+  opacity: 0.86;
+}

@@ -1,37 +1,38 @@
 .container {
-  background: #f5f7fa;
   min-height: 100vh;
+  background: #f5f7fa;
+  padding-bottom: calc(112rpx + env(safe-area-inset-bottom));
 }
 
 /* 搜索区 */
 .search-section {
-  background: linear-gradient(180deg, #FF6B00 0%, #FF6B00 70%, #f5f7fa 70%);
-  padding: 30rpx 32rpx 60rpx;
+  background: linear-gradient(180deg, #ff6b00 0%, #ff7f1a 76%, #f5f7fa 76%);
+  padding: 28rpx 28rpx 58rpx;
 }
 
 .top-bar {
   display: flex;
-  justify-content: flex-start;
-  padding-top: 8rpx;
-  padding-bottom: 16rpx;
+  justify-content: flex-end;
+  padding: 6rpx 0 18rpx;
 }
 
 .logout-btn {
   color: #fff;
   font-size: 24rpx;
-  padding: 2rpx 10rpx;
-  border: 1rpx solid rgba(255,255,255,0.4);
+  line-height: 1;
+  padding: 10rpx 16rpx;
+  border: 1rpx solid rgba(255,255,255,0.42);
   border-radius: 6rpx;
-  opacity: 0.85;
+  background: rgba(255,255,255,0.1);
 }
 
 .search-box {
   display: flex;
   align-items: center;
   background: #fff;
-  border-radius: 50rpx;
-  padding: 16rpx 24rpx;
-  box-shadow: 0 4rpx 20rpx rgba(0,0,0,0.08);
+  border-radius: 16rpx;
+  padding: 14rpx 14rpx 14rpx 24rpx;
+  box-shadow: 0 10rpx 30rpx rgba(120, 58, 8, 0.16);
 }
 
 .search-icon {
@@ -45,8 +46,9 @@
   flex: 1;
   font-size: 30rpx;
   color: #1a1a1a;
-  height: 48rpx;
-  line-height: 48rpx;
+  height: 58rpx;
+  line-height: 58rpx;
+  min-width: 0;
 }
 
 .search-input::placeholder {
@@ -54,37 +56,24 @@
 }
 
 .search-btn {
-  background: #FF6B00;
+  background: #ff6b00;
   color: #fff;
   font-size: 28rpx;
-  padding: 12rpx 32rpx;
-  border-radius: 40rpx;
-  margin-left: 16rpx;
-  font-weight: 500;
-}
-
-.top-bar {
-  display: flex;
-  justify-content: flex-start;
-  margin-bottom: 8rpx;
-}
-
-.logout-btn {
-  color: #fff;
-  font-size: 24rpx;
-  padding: 4rpx 12rpx;
-  border: 1rpx solid rgba(255,255,255,0.4);
-  border-radius: 6rpx;
-  opacity: 0.85;
+  padding: 15rpx 30rpx;
+  border-radius: 12rpx;
+  margin-left: 14rpx;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
 /* 待办流程提醒 */
 .pending-banner {
-  margin: -30rpx 20rpx 20rpx;
-  background: linear-gradient(135deg, #FF6B00 0%, #FF8F00 100%);
+  margin: -28rpx 24rpx 20rpx;
+  background: #fff;
   border-radius: 16rpx;
-  padding: 28rpx 32rpx;
-  box-shadow: 0 8rpx 24rpx rgba(255, 107, 0, 0.25);
+  padding: 24rpx 28rpx;
+  box-shadow: 0 8rpx 24rpx rgba(31, 41, 55, 0.08);
+  border-left: 8rpx solid #ff6b00;
 }
 
 .pending-content {
@@ -93,8 +82,8 @@
 }
 
 .pending-icon {
-  font-size: 44rpx;
-  margin-right: 20rpx;
+  font-size: 38rpx;
+  margin-right: 18rpx;
 }
 
 .pending-text {
@@ -105,28 +94,28 @@
 }
 
 .pending-count {
-  font-size: 36rpx;
+  font-size: 34rpx;
   font-weight: 700;
-  color: #fff;
+  color: #ff6b00;
 }
 
 .pending-desc {
   font-size: 28rpx;
-  color: rgba(255, 255, 255, 0.9);
+  color: #445160;
 }
 
 .pending-arrow {
   font-size: 32rpx;
-  color: rgba(255, 255, 255, 0.8);
+  color: #b8c0cc;
 }
 
-/* 功能入口 - 气泡玻璃态 */
+/* 功能入口 */
 .feature-grid {
   display: flex;
   justify-content: space-around;
-  padding: 24rpx 28rpx;
-  margin: 0 20rpx 24rpx;
-  gap: 20rpx;
+  padding: 0;
+  margin: 0 24rpx 28rpx;
+  gap: 16rpx;
 }
 
 .feature-item {
@@ -134,14 +123,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(20rpx);
-  -webkit-backdrop-filter: blur(20rpx);
-  border-radius: 24rpx;
-  padding: 24rpx 0;
-  box-shadow: 0 8rpx 32rpx rgba(255,107,0,0.08), 0 2rpx 8rpx rgba(0,0,0,0.04);
-  border: 1rpx solid rgba(255,255,255,0.6);
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx 8rpx;
+  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
+  border: 1rpx solid #eef1f5;
   transition: transform 0.2s;
+  min-width: 0;
 }
 
 .feature-item:active {
@@ -149,26 +137,25 @@
 }
 
 .feature-icon {
-  width: 88rpx;
-  height: 88rpx;
-  border-radius: 50%;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 14rpx;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 40rpx;
   margin-bottom: 14rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.08);
 }
 
 .feature-text {
   font-size: 24rpx;
-  color: #444;
-  font-weight: 500;
+  color: #344054;
+  font-weight: 600;
 }
 
 /* 结果区 */
 .result-section {
-  padding: 0 24rpx 24rpx;
+  padding: 0 24rpx 28rpx;
 }
 
 .section-title {
@@ -192,7 +179,8 @@
   border-radius: 16rpx;
   padding: 28rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.04);
+  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
+  border: 1rpx solid #eef1f5;
 }
 
 .shipment-header {
@@ -200,6 +188,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 16rpx;
+  gap: 18rpx;
 }
 
 .shipment-id {
@@ -207,6 +196,11 @@
   color: #1a1a1a;
   font-weight: 600;
   font-family: monospace;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .status-tag {
@@ -214,8 +208,13 @@
   padding: 6rpx 16rpx;
   border-radius: 8rpx;
   font-weight: 500;
-  background: #FFF3E0;
-  color: #FF6B00;
+  background: #fff3e0;
+  color: #ff6b00;
+  max-width: 210rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .status-tag.completed {
@@ -238,6 +237,8 @@
 .cargo-desc {
   font-size: 26rpx;
   color: #888;
+  display: block;
+  line-height: 1.45;
 }
 
 .shipment-footer {
@@ -246,16 +247,23 @@
   align-items: center;
   padding-top: 16rpx;
   border-top: 1rpx solid #f0f0f0;
+  gap: 20rpx;
 }
 
 .route-name {
   font-size: 24rpx;
   color: #999;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .create-time {
   font-size: 24rpx;
   color: #bbb;
+  flex-shrink: 0;
 }
 
 /* 空结果 */
@@ -316,7 +324,7 @@
 
 /* 空状态引导 */
 .empty-section {
-  padding: 60rpx 48rpx;
+  padding: 72rpx 48rpx;
 }
 
 .empty-box {
@@ -324,11 +332,16 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 56rpx 36rpx;
+  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
+  border: 1rpx solid #eef1f5;
 }
 
 .empty-icon-large {
-  font-size: 120rpx;
-  margin-bottom: 32rpx;
+  font-size: 104rpx;
+  margin-bottom: 28rpx;
 }
 
 .empty-title {
@@ -348,6 +361,7 @@
   background: #fff8e1;
   padding: 20rpx 32rpx;
   border-radius: 12rpx;
+  line-height: 1.5;
 }
 
 .empty-tip text {
@@ -372,7 +386,7 @@
 .contact-popup {
   width: 100%;
   background: #fff;
-  border-radius: 32rpx 32rpx 0 0;
+  border-radius: 24rpx 24rpx 0 0;
   padding: 32rpx 0 calc(120rpx + env(safe-area-inset-bottom));
   animation: slideUp 0.25s ease-out;
 }
@@ -408,7 +422,7 @@
   align-items: center;
   padding: 24rpx 32rpx;
   margin: 0 24rpx;
-  border-radius: 16rpx;
+  border-radius: 12rpx;
   transition: background 0.2s;
 }
 
