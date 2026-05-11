@@ -5,14 +5,18 @@
 
 module.exports = {
   // ============================================
-  // AI 识别配置 - 可修改
+  // Kimi AI配置
   // ============================================
   kimi: {
     // API Key从环境变量读取，安全不泄露
-    // 默认使用 OpenAI GPT-4o，如需换模型直接改下面的 model 字段
     apiKey: process.env.KIMI_API_KEY || '',
     baseUrl: 'https://api.moonshot.cn/v1',
-    model: 'moonshot-v1-8k-vision-preview',
+    // 多个视觉模型，按顺序尝试
+    models: [
+      'moonshot-v1-8k-vision-preview',
+      'moonshot-v1-32k-vision-preview',
+      'moonshot-v1-128k-vision-preview'
+    ],
     timeout: 45000, // 45秒超时
 
     // AI识别提示词
@@ -74,6 +78,17 @@ module.exports = {
   "pushSummary": "工厂简称/件数/重量/体积",
   "handwrittenFields": []
 }`
+  },
+
+  // ============================================
+  // 通义千问配置（Kimi 备选）
+  // ============================================
+  dashscope: {
+    // API Key从环境变量读取
+    apiKey: process.env.DASHSCOPE_API_KEY || '',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    model: 'qwen-vl-max',
+    timeout: 45000
   },
 
   // ============================================

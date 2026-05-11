@@ -5,16 +5,21 @@
 
 module.exports = {
   // ============================================
-  // Kimi AI配置 - 可修改
+  // Kimi AI配置
   // ============================================
   kimi: {
     // API Key从环境变量读取，安全不泄露
     apiKey: process.env.KIMI_API_KEY || '',
     baseUrl: 'https://api.moonshot.cn/v1',
-    model: 'moonshot-v1-8k-vision-preview',
+    // 多个视觉模型，按顺序尝试
+    models: [
+      'moonshot-v1-8k-vision-preview',
+      'moonshot-v1-32k-vision-preview',
+      'moonshot-v1-128k-vision-preview'
+    ],
     timeout: 20000, // 20秒超时
 
-    // AI识别提示词 - 可修改以优化识别效果
+    // AI识别提示词
     prompt: `你是一个物流单证识别专家。请从进仓通知单图片中提取信息，并特别检测手写/涂改痕迹。
 
 任务要求：
@@ -54,6 +59,17 @@ module.exports = {
 2. 日期时间格式：YYYY-MM-DD HH:mm，无法识别则val为null
 3. 数字字段必须带unit，不要只返回数字
 4. 全图只要有任何手写/涂改，handwritingDetected必须为true`
+  },
+
+  // ============================================
+  // 通义千问配置（Kimi 备选）
+  // ============================================
+  dashscope: {
+    // API Key从环境变量读取
+    apiKey: process.env.DASHSCOPE_API_KEY || '',
+    baseUrl: 'https://dashscope.aliyuncs.com/compatible-mode/v1',
+    model: 'qwen-vl-max',
+    timeout: 20000
   },
 
   // ============================================
