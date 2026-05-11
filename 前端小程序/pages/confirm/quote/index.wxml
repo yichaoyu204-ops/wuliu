@@ -92,7 +92,7 @@ module.exports.money = function(n) {
     </radio-group>
 
     <view class="payment-tip" wx:if="{{paymentType === 'spot'}}">
-      <text>⚠️ 请在提货前出示此页面并扫描仓库公示码支付</text>
+      <text> 请在提货前出示此页面并扫描仓库公示码支付</text>
     </view>
   </view>
 

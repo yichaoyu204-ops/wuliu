@@ -2,7 +2,7 @@
   <!-- AI 识别入口 -->
   <view class="ai-section" wx:if="{{!aiResult}}">
     <view class="ai-card" bindtap="chooseImage">
-      <text class="ai-icon">📷</text>
+      <view class="ai-icon ai-line-icon"></view>
       <text class="ai-title">拍照识别进仓单</text>
       <text class="ai-desc">自动提取件数/重量/体积/工厂等信息</text>
     </view>
@@ -14,7 +14,7 @@
   <!-- AI 识别结果提示 -->
   <view class="ai-result-section" wx:if="{{aiResult}}">
     <view class="ai-result-card {{aiResult.handwritingDetected ? 'ai-warning' : 'ai-success'}}">
-      <text class="ai-result-icon">{{aiResult.handwritingDetected ? '⚠️' : '✅'}}</text>
+      <text class="ai-result-icon {{aiResult.handwritingDetected ? 'warning' : 'success'}}">{{aiResult.handwritingDetected ? '!' : '✓'}}</text>
       <view class="ai-result-info">
         <text class="ai-result-title">{{aiResult.handwritingDetected ? '检测到手写/涂改，请仔细复核' : 'AI 识别完成'}}</text>
         <text class="ai-result-desc" wx:if="{{aiResult.handwritingDetected}}">以下字段可能存在人工修改，请以实际单据为准</text>

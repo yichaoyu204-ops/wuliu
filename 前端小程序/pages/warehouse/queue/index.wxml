@@ -22,7 +22,7 @@
   </view>
 
   <view class="empty" wx:if="{{!loading && shipments.length === 0}}">
-    <text class="empty-icon">📦</text>
+    <view class="empty-icon empty-line-icon"></view>
     <text class="empty-text">暂无需测量的货物</text>
   </view>
 </view>

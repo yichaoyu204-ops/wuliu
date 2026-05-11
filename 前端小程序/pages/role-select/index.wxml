@@ -117,7 +117,6 @@
           open-type="getPhoneNumber"
           bind:getphonenumber="onGetPhoneNumber"
         >
-          <text class="wechat-icon">💬</text>
           {{loggingIn ? '登录中...' : '微信一键登录'}}
         </button>
 

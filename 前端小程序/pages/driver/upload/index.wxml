@@ -8,7 +8,7 @@
   <!-- 拍照/选图入口 -->
   <view class="upload-section" wx:if="{{!hasImage}}">
     <view class="upload-card" bindtap="chooseImage">
-      <text class="upload-icon">📷</text>
+      <view class="upload-icon upload-line-icon"></view>
       <text class="upload-label">点击拍照或选图</text>
     </view>
   </view>

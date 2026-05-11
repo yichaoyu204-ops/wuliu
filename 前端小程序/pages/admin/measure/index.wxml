@@ -75,7 +75,7 @@
         class="photo-add"
         bindtap="choosePhoto"
       >
-        <text class="add-icon">📷</text>
+        <view class="add-icon add-line-icon"></view>
         <text class="add-text">拍照/上传</text>
       </view>
     </view>

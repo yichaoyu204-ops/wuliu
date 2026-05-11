@@ -49,7 +49,7 @@
     </view>
 
     <view class="empty-state" wx:if="{{filteredBills.length === 0}}">
-      <text class="empty-icon">📋</text>
+      <view class="empty-icon empty-line-icon"></view>
       <text class="empty-text">暂无{{activeTab === 'unpaid' ? '待付' : (activeTab === 'paid' ? '已付' : '')}}账单</text>
     </view>
   </view>

@@ -38,7 +38,7 @@
   </view>
 
   <view class="empty" wx:if="{{!shipment && hasSearched}}">
-    <text class="empty-icon">📦</text>
+    <view class="empty-icon empty-line-icon"></view>
     <text class="empty-text">未找到该运单</text>
   </view>
 

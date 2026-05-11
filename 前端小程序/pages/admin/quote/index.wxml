@@ -11,7 +11,7 @@
       </text>
     </view>
     <view class="sticky-warning" wx:if="{{unitWarning}}">
-      <text class="warning-text">⚠ {{unitWarning}}</text>
+      <text class="warning-text">{{unitWarning}}</text>
     </view>
   </view>
 

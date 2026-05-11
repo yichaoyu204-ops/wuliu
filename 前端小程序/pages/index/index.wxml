@@ -85,7 +85,7 @@
     </view>
 
     <view class="empty-result" wx:if="{{shipments.length === 0}}">
-      <text class="empty-icon">🔍</text>
+      <view class="empty-icon empty-line-icon"></view>
       <text class="empty-text">未找到相关运单</text>
       <text class="empty-hint">请检查单号是否正确，或联系业务员确认</text>
     </view>

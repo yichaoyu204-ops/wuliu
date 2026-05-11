@@ -4,7 +4,7 @@
     <view class="page-title">我的运单</view>
 
     <view wx:if="{{groupedShipments.length === 0 && !loading}}" class="empty-state">
-      <text class="empty-icon">📦</text>
+      <view class="empty-icon empty-line-icon"></view>
       <text class="empty-text">暂无运单</text>
       <text class="empty-hint">您还没有创建过运单</text>
     </view>
@@ -82,7 +82,7 @@
     <!-- 待处理列表 -->
     <view class="list-section" wx:if="{{activeTab === 'pending'}}">
       <view wx:if="{{shipments.length === 0 && !loading}}" class="empty-state">
-        <text class="empty-icon">✅</text>
+        <view class="empty-icon empty-line-icon"></view>
         <text class="empty-text">暂无待处理流程</text>
         <text class="empty-hint">当前没有需要您处理的运单</text>
       </view>
@@ -157,7 +157,7 @@
     <!-- 已入库列表 -->
     <view class="list-section" wx:if="{{activeTab === 'stored'}}">
       <view wx:if="{{storedShipments.length === 0 && !loading}}" class="empty-state">
-        <text class="empty-icon">📦</text>
+        <view class="empty-icon empty-line-icon"></view>
         <text class="empty-text">暂无已入库流程</text>
         <text class="empty-hint">已确认入库的运单将显示在这里</text>
       </view>
@@ -205,7 +205,7 @@
     <!-- 账单列表 -->
     <view class="list-section" wx:if="{{activeTab === 'billing'}}">
       <view wx:if="{{billShipments.length === 0 && !loading}}" class="empty-state">
-        <text class="empty-icon">📋</text>
+        <view class="empty-icon empty-line-icon"></view>
         <text class="empty-text">暂无已发账单</text>
         <text class="empty-hint">已发送账单的运单将显示在这里</text>
       </view>
@@ -245,7 +245,7 @@
     <!-- 已完结列表 -->
     <view class="list-section" wx:if="{{activeTab === 'completed'}}">
       <view wx:if="{{completedShipments.length === 0 && !loading}}" class="empty-state">
-        <text class="empty-icon">📋</text>
+        <view class="empty-icon empty-line-icon"></view>
         <text class="empty-text">暂无已完结流程</text>
       </view>
 

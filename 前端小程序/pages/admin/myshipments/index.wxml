@@ -35,7 +35,7 @@
 
     <!-- 空状态 -->
     <view class="empty-state" wx:if="{{shipments.length === 0}}">
-      <text class="empty-icon">📋</text>
+      <view class="empty-icon empty-line-icon"></view>
       <text class="empty-text">暂无运单</text>
       <text class="empty-hint">在"建单"页面录入订单后会自动显示</text>
       <view class="empty-btn" bindtap="goToCreate">去建单</view>

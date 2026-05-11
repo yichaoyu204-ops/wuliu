@@ -4,7 +4,7 @@ Page({
   data: {
     shipment: null,
     loading: true,
-    statusIcon: '🚛',
+    statusIcon: '',
     statusDesc: '',
     statusMainTitle: '',
     statusSubTitle: '',
@@ -211,7 +211,7 @@ Page({
 
     let mainTitle = shipment.currentNodeName || '运输中';
     let subTitle = '货物运输中，请耐心等待';
-    let icon = '🚛';
+    let icon = '';
 
     switch (activeCode) {
       case 'pickup':
@@ -223,7 +223,7 @@ Page({
         } else if (oaStatus === 'admin_confirmed') {
           subTitle = '管理员已确认，等待入库';
         }
-        icon = '📋';
+        icon = '';
         break;
       case 'yiwu_entry':
         mainTitle = '义乌中转仓入库';
@@ -232,24 +232,24 @@ Page({
         } else if (oaStatus === 'admin_confirmed') {
           subTitle = '管理员已确认，等待出库';
         }
-        icon = '📦';
+        icon = '';
         break;
       case 'mainline':
         mainTitle = '已出库，干线运输中';
         subTitle = '货物已出库，正在运输途中';
-        icon = '🚛';
+        icon = '';
         break;
       case 'nb_entry':
         mainTitle = '入库完成';
         subTitle = '货物已送达，等待报关';
-        icon = '✅';
+        icon = '';
         break;
     }
 
     if (shipment.status === 'completed') {
       mainTitle = '流程已完结';
       subTitle = '货物运输已完成';
-      icon = '✅';
+        icon = '';
     }
 
     return { mainTitle, subTitle, icon };
