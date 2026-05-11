@@ -1,34 +1,35 @@
 .container {
-  background: #f7f8fa;
+  background: #f3f5f8;
   min-height: 100vh;
   padding-bottom: calc(88rpx + env(safe-area-inset-bottom) + 20rpx);
 }
 
 .page-title {
   font-size: 36rpx;
-  font-weight: 700;
-  color: #1a1a1a;
+  font-weight: 800;
+  color: #fff;
   padding: 34rpx 32rpx 28rpx;
-  background: #fff;
-  border-bottom: 1rpx solid #f0f0f0;
+  background: #14213d;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
 }
 
 .role-bar {
-  background: #fff7f0;
+  background: #243655;
   padding: 18rpx 32rpx;
-  border-bottom: 1rpx solid #ffe2c7;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.1);
 }
 
 .role-text {
   font-size: 26rpx;
-  color: #9a4b10;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 /* Tab 切换 */
 .tab-bar {
   display: flex;
   background: #fff;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #e7ecf2;
+  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.04);
   position: sticky;
   top: 0;
   z-index: 10;
@@ -50,8 +51,8 @@
 }
 
 .tab-active {
-  color: #FF6B00;
-  font-weight: 600;
+  color: #14213d;
+  font-weight: 800;
 }
 
 .tab-active::after {
@@ -62,7 +63,7 @@
   transform: translateX(-50%);
   width: 60rpx;
   height: 4rpx;
-  background: #FF6B00;
+  background: #fca311;
   border-radius: 2rpx;
 }
 
@@ -71,7 +72,7 @@
   align-items: center;
   justify-content: center;
   padding: 2rpx 12rpx;
-  background: #E53935;
+  background: #d92d20;
   color: #fff;
   font-size: 22rpx;
   border-radius: 20rpx;
@@ -86,11 +87,11 @@
 
 .workflow-card {
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 10rpx;
   margin-bottom: 20rpx;
-  padding: 24rpx;
-  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
-  border: 1rpx solid #eef1f5;
+  padding: 26rpx;
+  box-shadow: 0 10rpx 26rpx rgba(20, 33, 61, 0.05);
+  border: 1rpx solid #e7ecf2;
 }
 
 .workflow-card.completed {
@@ -114,7 +115,7 @@
   display: block;
   font-size: 32rpx;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #14213d;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -123,7 +124,7 @@
 .factory-name {
   display: block;
   font-size: 26rpx;
-  color: #666;
+  color: #667085;
   margin-top: 4rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -132,7 +133,7 @@
 
 .status-badge {
   padding: 6rpx 16rpx;
-  border-radius: 8rpx;
+  border-radius: 999rpx;
   font-size: 22rpx;
   font-weight: 500;
   max-width: 210rpx;
@@ -143,28 +144,28 @@
 }
 
 .status-badge.created {
-  background: #E3F2FD;
-  color: #1976D2;
+  background: #edf2f7;
+  color: #14213d;
 }
 
 .status-badge.factory_confirmed {
-  background: #FFF3E0;
-  color: #E65100;
+  background: #fff2d9;
+  color: #8a4b10;
 }
 
 .status-badge.measured_priced {
-  background: #F3E5F5;
-  color: #7B1FA2;
+  background: #eef4ff;
+  color: #3538cd;
 }
 
 .status-badge.admin_confirmed {
-  background: #E8F5E9;
-  color: #388E3C;
+  background: #e6f6f3;
+  color: #0f766e;
 }
 
 .status-badge.warehouse_delivered {
-  background: #E0F7FA;
-  color: #00838F;
+  background: #ecfdff;
+  color: #0e7090;
 }
 
 .status-badge.completed {
@@ -173,8 +174,8 @@
 }
 
 .status-badge.mainline {
-  background: #FFF3E0;
-  color: #E65100;
+  background: #fff2d9;
+  color: #8a4b10;
 }
 
 .status-badge.billed {
@@ -184,7 +185,7 @@
 
 .card-body {
   padding-bottom: 16rpx;
-  border-bottom: 1rpx solid #f5f5f5;
+  border-bottom: 1rpx solid #edf1f6;
   margin-bottom: 16rpx;
 }
 
@@ -192,7 +193,7 @@
   display: flex;
   align-items: center;
   font-size: 26rpx;
-  color: #333;
+  color: #344054;
   margin-bottom: 8rpx;
   flex-wrap: wrap;
   gap: 4rpx 0;
@@ -205,7 +206,7 @@
 
 .route-info {
   font-size: 24rpx;
-  color: #999;
+  color: #667085;
   margin-bottom: 8rpx;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -218,19 +219,20 @@
 
 .pay-tag {
   display: inline-block;
-  padding: 4rpx 12rpx;
-  border-radius: 6rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 999rpx;
   font-size: 22rpx;
+  font-weight: 700;
 }
 
 .pay-tag.monthly {
-  background: #E3F2FD;
-  color: #1976D2;
+  background: #edf2f7;
+  color: #14213d;
 }
 
 .pay-tag.spot {
-  background: #FFF8E1;
-  color: #F57F17;
+  background: #fff2d9;
+  color: #8a4b10;
 }
 
 .card-actions {
@@ -245,7 +247,7 @@
   min-width: 180rpx;
   text-align: center;
   padding: 16rpx 0;
-  border-radius: 10rpx;
+  border-radius: 8rpx;
   font-size: 28rpx;
   font-weight: 500;
   display: flex;
@@ -284,18 +286,19 @@
 }
 
 .btn-primary {
-  background: #FF6B00;
-  color: #fff;
+  background: #fca311;
+  color: #14213d;
+  font-weight: 800;
 }
 
 .btn-warn {
-  background: #FF9800;
+  background: #14213d;
   color: #fff;
 }
 
 .btn-secondary {
-  background: #f5f5f5;
-  color: #666;
+  background: #edf2f7;
+  color: #344054;
 }
 
 /* 空状态 */
@@ -305,9 +308,9 @@
   align-items: center;
   padding: 120rpx 40rpx;
   background: #fff;
-  border-radius: 16rpx;
-  border: 1rpx solid #eef1f5;
-  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
+  border-radius: 10rpx;
+  border: 1rpx solid #e7ecf2;
+  box-shadow: 0 10rpx 26rpx rgba(20, 33, 61, 0.05);
 }
 
 .empty-icon {

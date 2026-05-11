@@ -14,9 +14,9 @@
   right: 0;
   height: 100%;
   background: #fff;
-  border-radius: 18rpx 18rpx 0 0;
-  box-shadow: 0 -6rpx 24rpx rgba(31, 41, 55, 0.08);
-  border-top: 1rpx solid #eef1f5;
+  border-radius: 14rpx 14rpx 0 0;
+  box-shadow: 0 -10rpx 28rpx rgba(20, 33, 61, 0.1);
+  border-top: 1rpx solid #e7ecf2;
 }
 
 .inner {
@@ -175,7 +175,7 @@
 }
 
 /* 选中变橙色 */
-.on { background: #FF6B00 !important; }
+.on { background: #fca311 !important; }
 
 /* ---- 文字 ---- */
 .label {
@@ -194,7 +194,7 @@
 
 .label.on {
   background: transparent !important;
-  color: #FF6B00;
+  color: #14213d;
   font-weight: 600;
 }
 
@@ -223,5 +223,5 @@
 }
 
 .dot.on {
-  background: #FF6B00;
+  background: #fca311;
 }

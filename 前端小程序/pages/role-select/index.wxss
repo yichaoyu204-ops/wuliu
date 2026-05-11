@@ -1,6 +1,8 @@
 .container {
-  padding: 64rpx 32rpx;
-  background: #f7f8fa;
+  position: relative;
+  overflow: hidden;
+  padding: 76rpx 32rpx;
+  background: linear-gradient(180deg, #14213d 0%, #243655 34%, #f3f5f8 34%);
   min-height: 100vh;
 }
 
@@ -9,18 +11,31 @@
   padding: 0 8rpx;
 }
 
+.brand-mark {
+  width: 72rpx;
+  height: 72rpx;
+  margin-bottom: 26rpx;
+  border-radius: 14rpx;
+  background: #fca311;
+  color: #14213d;
+  text-align: center;
+  line-height: 72rpx;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
 .role-title {
   display: block;
   font-size: 44rpx;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #fff;
   line-height: 1.22;
 }
 
 .role-subtitle {
   display: block;
   font-size: 28rpx;
-  color: #999;
+  color: rgba(255, 255, 255, 0.64);
   margin-top: 12rpx;
 }
 
@@ -35,9 +50,9 @@
   align-items: center;
   padding: 34rpx 30rpx;
   background: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 4rpx 18rpx rgba(31, 41, 55, 0.05);
-  border: 1rpx solid #eef1f5;
+  border-radius: 10rpx;
+  box-shadow: 0 14rpx 32rpx rgba(20, 33, 61, 0.08);
+  border: 1rpx solid #e7ecf2;
   transition: transform 0.16s ease, border-color 0.16s ease;
 }
 
@@ -49,14 +64,31 @@
 .role-icon {
   width: 76rpx;
   height: 76rpx;
-  border-radius: 14rpx;
+  border-radius: 10rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #fff3e8;
-  font-size: 40rpx;
+  background: #edf2f7;
+  color: #14213d;
+  font-size: 30rpx;
+  font-weight: 900;
   margin-right: 22rpx;
   flex-shrink: 0;
+}
+
+.role-salesman .role-icon {
+  background: #fff2d9;
+  color: #8a4b10;
+}
+
+.role-warehouse .role-icon {
+  background: #e6f6f3;
+  color: #0f766e;
+}
+
+.role-admin .role-icon {
+  background: #edf2f7;
+  color: #14213d;
 }
 
 .role-info {
@@ -67,14 +99,14 @@
   display: block;
   font-size: 32rpx;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #14213d;
   line-height: 1.35;
 }
 
 .role-desc {
   display: block;
   font-size: 24rpx;
-  color: #999;
+  color: #667085;
   margin-top: 8rpx;
 }
 
@@ -87,11 +119,11 @@
 /* 登录表单 */
 .login-form {
   background: #fff;
-  border-radius: 16rpx;
+  border-radius: 10rpx;
   padding: 36rpx 30rpx 40rpx;
   margin-top: 20rpx;
-  box-shadow: 0 6rpx 22rpx rgba(31, 41, 55, 0.07);
-  border: 1rpx solid #eef1f5;
+  box-shadow: 0 14rpx 32rpx rgba(20, 33, 61, 0.08);
+  border: 1rpx solid #e7ecf2;
 }
 
 .login-back {
@@ -115,7 +147,7 @@
   display: block;
   font-size: 40rpx;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #14213d;
 }
 
 .login-subtitle {
@@ -141,7 +173,7 @@
   width: 100%;
   height: 88rpx;
   background: #f8fafc;
-  border-radius: 12rpx;
+  border-radius: 8rpx;
   padding: 0 24rpx;
   font-size: 32rpx;
   color: #1a1a1a;
@@ -152,15 +184,15 @@
 .btn-login {
   width: 100%;
   height: 96rpx;
-  background: #FF6B00;
-  color: #fff;
-  border-radius: 14rpx;
+  background: #fca311;
+  color: #14213d;
+  border-radius: 8rpx;
   text-align: center;
   line-height: 96rpx;
   font-size: 32rpx;
   font-weight: 600;
   margin-top: 44rpx;
-  box-shadow: 0 8rpx 18rpx rgba(255, 107, 0, 0.22);
+  box-shadow: 0 10rpx 22rpx rgba(252, 163, 17, 0.22);
 }
 
 .btn-wechat-login {
@@ -168,7 +200,7 @@
   height: 96rpx;
   background: #07C160;
   color: #fff;
-  border-radius: 14rpx;
+  border-radius: 8rpx;
   text-align: center;
   line-height: 96rpx;
   font-size: 32rpx;
@@ -205,7 +237,7 @@
   text-align: center;
   margin-top: 32rpx;
   font-size: 28rpx;
-  color: #FF6B00;
+  color: #8a4b10;
 }
 
 .btn-disabled {

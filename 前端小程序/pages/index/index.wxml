@@ -2,7 +2,15 @@
   <!-- 顶部搜索区 -->
   <view class="search-section">
     <view class="top-bar">
+      <view class="brand-block">
+        <text class="brand-kicker">YICHAO LOGISTICS</text>
+        <text class="brand-title">一超物流</text>
+      </view>
       <view class="logout-btn" bindtap="onLogout">退出登录</view>
+    </view>
+    <view class="search-title">
+      <text class="search-heading">运单追踪</text>
+      <text class="search-subheading">义乌到宁波干线货物状态查询</text>
     </view>
     <view class="search-box">
       <input
@@ -21,7 +29,7 @@
   <!-- 待办流程提醒 -->
   <view class="pending-banner" wx:if="{{pendingCount > 0 && userRole}}" bindtap="goToWorkflow">
     <view class="pending-content">
-      <text class="pending-icon">⚡</text>
+      <text class="pending-icon">!</text>
       <view class="pending-text">
         <text class="pending-count">{{pendingCount}} 条</text>
         <text class="pending-desc">流程待推进</text>
@@ -32,16 +40,16 @@
 
   <!-- 功能入口 -->
   <view class="feature-grid">
-    <view class="feature-item" bindtap="goToMyShipments">
-      <view class="feature-icon" style="background: #FFF3E0;">📋</view>
+    <view class="feature-item feature-waybill" bindtap="goToMyShipments">
+      <view class="feature-icon">单</view>
       <text class="feature-text">所有运单</text>
     </view>
-    <view class="feature-item" bindtap="scanCode">
-      <view class="feature-icon" style="background: #e8f5e9;">📷</view>
+    <view class="feature-item feature-scan" bindtap="scanCode">
+      <view class="feature-icon">扫</view>
       <text class="feature-text">扫码查单</text>
     </view>
-    <view class="feature-item" bindtap="contactService">
-      <view class="feature-icon" style="background: #e3f2fd;">📞</view>
+    <view class="feature-item feature-service" bindtap="contactService">
+      <view class="feature-icon">客</view>
       <text class="feature-text">联系客服</text>
     </view>
   </view>
@@ -93,11 +101,16 @@
   <!-- 空状态引导 -->
   <view class="empty-section" wx:if="{{!hasSearched && history.length === 0}}">
     <view class="empty-box">
-      <text class="empty-icon-large">🚛</text>
+      <view class="empty-visual">
+        <view class="empty-line empty-line-main"></view>
+        <view class="empty-line empty-line-sub"></view>
+        <view class="empty-dot empty-dot-left"></view>
+        <view class="empty-dot empty-dot-right"></view>
+      </view>
       <text class="empty-title">欢迎使用一超物流</text>
       <text class="empty-desc">输入业务编号或手机号，实时查询货物状态</text>
       <view class="empty-tip">
-        <text>💡 首次使用？点击下方"建单"创建运单</text>
+        <text>首次使用可从底部进入建单</text>
       </view>
     </view>
   </view>
@@ -116,7 +129,7 @@
             <text class="contact-name">蒋</text>
             <text class="contact-phone">{{contact1.phone}}</text>
           </view>
-          <text class="contact-arrow">📞</text>
+          <text class="contact-arrow">拨打</text>
         </view>
         <view class="contact-item" bindtap="makePhoneCall" data-phone="{{contact2.phone}}">
           <view class="contact-avatar" style="background: #e3f2fd;">姚</view>
@@ -124,7 +137,7 @@
             <text class="contact-name">姚</text>
             <text class="contact-phone">{{contact2.phone}}</text>
           </view>
-          <text class="contact-arrow">📞</text>
+          <text class="contact-arrow">拨打</text>
         </view>
       </view>
     </view>

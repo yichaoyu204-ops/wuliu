@@ -1,40 +1,44 @@
 <view class="container">
   <view class="role-header">
-    <text class="role-title">选择您的身份</text>
-    <text class="role-subtitle">首次使用请选择，后续自动记住</text>
+    <view class="brand-mark">YC</view>
+    <text class="role-title">一超物流工作台</text>
+    <text class="role-subtitle">选择身份后进入对应流程</text>
   </view>
 
   <!-- 角色选择 -->
   <view class="role-list" wx:if="{{!showLoginForm}}">
-    <view class="role-card" bindtap="selectRole" data-role="salesman">
-      <text class="role-icon">📋</text>
+    <view class="role-card role-salesman" bindtap="selectRole" data-role="salesman">
+      <text class="role-icon">业</text>
       <view class="role-info">
         <text class="role-name">业务员 / 工厂</text>
+        <text class="role-desc">查单、建单、查看账单</text>
       </view>
       <text class="role-arrow">›</text>
     </view>
 
     <!-- 司机角色暂时冻结，代码保留 -->
     <view class="role-card" wx:if="{{false}}" bindtap="selectRole" data-role="driver">
-      <text class="role-icon">🚚</text>
+      <text class="role-icon">司</text>
       <view class="role-info">
         <text class="role-name">司机</text>
       </view>
       <text class="role-arrow">›</text>
     </view>
 
-    <view class="role-card" bindtap="selectRole" data-role="warehouse">
-      <text class="role-icon">📦</text>
+    <view class="role-card role-warehouse" bindtap="selectRole" data-role="warehouse">
+      <text class="role-icon">仓</text>
       <view class="role-info">
         <text class="role-name">仓管员</text>
+        <text class="role-desc">实测、入库、现结收款</text>
       </view>
       <text class="role-arrow">›</text>
     </view>
 
-    <view class="role-card" bindtap="selectRole" data-role="admin">
-      <text class="role-icon">⚙️</text>
+    <view class="role-card role-admin" bindtap="selectRole" data-role="admin">
+      <text class="role-icon">管</text>
       <view class="role-info">
         <text class="role-name">管理员</text>
+        <text class="role-desc">报价、审核、费用配置</text>
       </view>
       <text class="role-arrow">›</text>
     </view>
