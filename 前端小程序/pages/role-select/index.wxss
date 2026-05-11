@@ -11,19 +11,6 @@
   padding: 0 8rpx;
 }
 
-.brand-mark {
-  width: 72rpx;
-  height: 72rpx;
-  margin-bottom: 26rpx;
-  border-radius: 14rpx;
-  background: #fca311;
-  color: #14213d;
-  text-align: center;
-  line-height: 72rpx;
-  font-size: 26rpx;
-  font-weight: 900;
-}
-
 .role-title {
   display: block;
   font-size: 44rpx;
@@ -475,20 +462,6 @@
   padding: 64rpx 64rpx 56rpx;
 }
 
-.brand-mark {
-  width: 76rpx;
-  height: 76rpx;
-  margin-bottom: 28rpx;
-  border-radius: 18rpx;
-  background: rgba(255, 255, 255, 0.96);
-  color: #ff6b00;
-  text-align: center;
-  line-height: 76rpx;
-  font-size: 34rpx;
-  font-weight: 900;
-  box-shadow: 0 12rpx 24rpx rgba(142, 57, 0, 0.18);
-}
-
 .role-title {
   display: block;
   max-width: 620rpx;
@@ -536,6 +509,73 @@
 }
 
 /* === End Role Select Page Fix === */
+
+/* === Premium Role Landing Refinement === */
+.container {
+  padding: 28rpx 32rpx 72rpx;
+  background:
+    linear-gradient(180deg, rgba(255, 107, 0, 0.08) 0%, rgba(255, 107, 0, 0) 300rpx),
+    #f8f7f4;
+}
+
+.container::before {
+  display: none;
+}
+
+.role-header {
+  margin: 22rpx 0 30rpx;
+  padding: 42rpx 38rpx 40rpx;
+  background: #fffefa;
+  border: 1rpx solid #eadfd2;
+  border-radius: 22rpx;
+  box-shadow: 0 16rpx 38rpx rgba(20, 33, 61, 0.08);
+}
+
+.role-header::before {
+  content: '';
+  display: block;
+  width: 88rpx;
+  height: 8rpx;
+  margin-bottom: 28rpx;
+  border-radius: 999rpx;
+  background: #ff6b00;
+}
+
+.role-eyebrow {
+  display: block;
+  margin-bottom: 12rpx;
+  color: #9a4b10;
+  font-size: 20rpx;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+
+.role-title {
+  max-width: none;
+  color: #14213d;
+  font-size: 42rpx;
+  line-height: 1.25;
+  text-shadow: none;
+}
+
+.role-subtitle {
+  color: #697386;
+  font-size: 27rpx;
+}
+
+.role-card {
+  padding: 34rpx 32rpx;
+  border-radius: 18rpx;
+}
+
+.role-icon {
+  width: 70rpx;
+  height: 70rpx;
+  border-radius: 16rpx;
+  font-size: 28rpx;
+}
+
+/* === End Premium Role Landing Refinement === */
 
 /* === No Emoji UI Icons === */
 .empty-icon,
