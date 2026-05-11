@@ -118,7 +118,7 @@
         <view class="empty-dot empty-dot-left"></view>
         <view class="empty-dot empty-dot-right"></view>
       </view>
-      <text class="empty-title">欢迎使用一超物流</text>
+      <text class="empty-title">欢迎使用义乌专线运输集成系统</text>
       <text class="empty-desc">输入业务编号或手机号，实时查询货物状态</text>
       <view class="empty-tip">
         <text>首次使用可从底部进入建单</text>

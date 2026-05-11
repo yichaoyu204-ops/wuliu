@@ -26,7 +26,7 @@ Page({
     const { role } = e.currentTarget.dataset;
 
     // ===== 测试模式：直接登录，固定姓名 =====
-    this.completeLogin(role, '13800000000', '虞一超');
+    this.completeLogin(role, '13800000000', '系统用户');
     // ===== 测试模式结束 =====
 
     /* ===== 正常登录方式（恢复时请取消注释） =====

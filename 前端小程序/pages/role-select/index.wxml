@@ -1,7 +1,7 @@
 <view class="container">
   <view class="role-header">
     <view class="brand-mark">YC</view>
-    <text class="role-title">一超物流工作台</text>
+    <text class="role-title">义乌专线运输集成系统工作台</text>
     <text class="role-subtitle">选择身份后进入对应流程</text>
   </view>
 

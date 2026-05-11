@@ -202,3 +202,207 @@
   font-size: 28rpx;
   color: #999;
 }
+
+/* === Yiwu Line UI Polish v2 === */
+.container {
+  background: #f8f7f4;
+  color: #14213d;
+}
+
+.section,
+.info-card,
+.route-card,
+.fee-card,
+.measure-card,
+.quote-card,
+.ai-card,
+.ai-result-card,
+.workflow-card,
+.shipment-card,
+.bill-card,
+.role-card,
+.login-form,
+.attachment-card,
+.empty-box,
+.empty-state,
+.tip-bar,
+.footer,
+.manual-review-list,
+.modal-content {
+  border-radius: 16rpx;
+  border: 1rpx solid #e8e1d8;
+  box-shadow: 0 12rpx 28rpx rgba(20, 33, 61, 0.07);
+}
+
+.section,
+.info-card,
+.route-card,
+.fee-card,
+.measure-card,
+.quote-card,
+.workflow-card,
+.shipment-card,
+.bill-card,
+.role-card,
+.login-form,
+.attachment-card,
+.empty-box,
+.empty-state,
+.footer,
+.modal-content {
+  background: #fffefa;
+}
+
+.section-title,
+.page-title,
+.waybill-no,
+.shipment-id,
+.bill-id,
+.factory-name,
+.empty-title,
+.role-name,
+.login-title text,
+.route-name,
+.timeline-name,
+.fee-total-label,
+.quote-total-label,
+.modal-title {
+  color: #14213d;
+  font-weight: 800;
+}
+
+.form-row,
+.info-row,
+.bill-footer,
+.card-footer,
+.card-body,
+.fee-row,
+.quote-row,
+.measure-row {
+  border-color: #eee8df;
+}
+
+.form-label,
+.info-label,
+.stats-label,
+.bill-type,
+.route-info,
+.create-time,
+.empty-desc,
+.empty-hint,
+.fee-calc,
+.timeline-time,
+.timeline-operator,
+.measure-label {
+  color: #697386;
+}
+
+.form-input,
+.login-input,
+.modal-input,
+.modal-picker,
+.form-picker-wide,
+.form-picker-date,
+.form-picker-time,
+.date-picker-text {
+  color: #14213d;
+}
+
+.form-input,
+.login-input,
+.modal-input,
+.modal-picker {
+  background: #fbfaf7;
+  border: 1rpx solid #e8e1d8;
+  border-radius: 10rpx;
+}
+
+.btn-submit,
+.btn-primary,
+.btn-login,
+.btn-monthly,
+.empty-btn,
+.modal-btn-confirm,
+.mark-paid-btn {
+  background: #ff6b00;
+  color: #fff;
+  border-radius: 12rpx;
+  font-weight: 800;
+  box-shadow: 0 10rpx 22rpx rgba(255, 107, 0, 0.22);
+}
+
+.btn-secondary,
+.modal-btn-cancel {
+  background: #f2efe9;
+  color: #374151;
+  border-radius: 12rpx;
+}
+
+.status-tag,
+.status-badge,
+.bill-status,
+.pay-tag,
+.quote-status,
+.manual-review-tag {
+  border-radius: 999rpx;
+  font-weight: 700;
+}
+
+.status-tag.active,
+.status-badge.factory_confirmed,
+.status-badge.mainline,
+.pay-tag.spot,
+.quote-status.sent,
+.manual-review-tag {
+  color: #9a4b10;
+  background: #fff1dc;
+}
+
+.status-tag.completed,
+.status-badge.admin_confirmed,
+.status-badge.billed,
+.bill-status.paid,
+.quote-status.confirmed {
+  color: #0f766e;
+  background: #e6f6f3;
+}
+
+.bill-status.unpaid,
+.amount,
+.fee-total-amount,
+.quote-total-amount {
+  color: #d92d20;
+}
+
+.tab-bar {
+  background: #fffefa;
+  border-bottom: 1rpx solid #e8e1d8;
+  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.04);
+}
+
+.tab-active {
+  color: #ff6b00;
+  font-weight: 800;
+}
+
+.tab-active::after {
+  background: #ff6b00;
+}
+
+.stats-bar,
+.page-title {
+  background: linear-gradient(135deg, #ff6b00 0%, #ff8a1f 100%);
+  color: #fff;
+}
+
+.ai-card {
+  border-style: solid;
+  border-color: #ffd5b8;
+}
+
+.ai-icon,
+.empty-icon {
+  color: #ff6b00;
+}
+
+/* === End Yiwu Line UI Polish v2 === */
