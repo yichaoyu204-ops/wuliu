@@ -523,29 +523,41 @@
 }
 
 .role-header {
-  margin: 22rpx 0 30rpx;
-  padding: 42rpx 38rpx 40rpx;
+  position: relative;
+  margin: 22rpx 0 28rpx;
+  padding: 32rpx 34rpx 32rpx 42rpx;
   background: #fffefa;
   border: 1rpx solid #eadfd2;
-  border-radius: 22rpx;
-  box-shadow: 0 16rpx 38rpx rgba(20, 33, 61, 0.08);
+  border-radius: 18rpx;
+  box-shadow: 0 12rpx 30rpx rgba(20, 33, 61, 0.065);
 }
 
 .role-header::before {
   content: '';
-  display: block;
-  width: 88rpx;
-  height: 8rpx;
-  margin-bottom: 28rpx;
+  position: absolute;
+  left: 24rpx;
+  top: 34rpx;
+  width: 6rpx;
+  height: 96rpx;
   border-radius: 999rpx;
   background: #ff6b00;
 }
 
+.role-header::after {
+  content: '';
+  display: block;
+  width: 72rpx;
+  height: 6rpx;
+  margin-top: 24rpx;
+  border-radius: 999rpx;
+  background: #ffe1c9;
+}
+
 .role-eyebrow {
   display: block;
-  margin-bottom: 12rpx;
+  margin-bottom: 10rpx;
   color: #9a4b10;
-  font-size: 20rpx;
+  font-size: 19rpx;
   font-weight: 900;
   letter-spacing: 0;
 }
@@ -553,14 +565,15 @@
 .role-title {
   max-width: none;
   color: #14213d;
-  font-size: 42rpx;
+  font-size: 40rpx;
   line-height: 1.25;
   text-shadow: none;
 }
 
 .role-subtitle {
+  margin-top: 10rpx;
   color: #697386;
-  font-size: 27rpx;
+  font-size: 26rpx;
 }
 
 .role-card {
