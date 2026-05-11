@@ -362,3 +362,38 @@
 }
 
 /* === End No Emoji UI Icons === */
+
+/* === Full Status Label Visibility === */
+.status-tag,
+.status-badge,
+.bill-status,
+.pay-tag,
+.quote-status,
+.manual-review-tag {
+  max-width: 360rpx !important;
+  min-height: 34rpx;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  line-height: 1.35;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-header,
+.shipment-header,
+.bill-header {
+  align-items: flex-start;
+}
+
+.status-badge {
+  padding-left: 16rpx;
+  padding-right: 16rpx;
+}
+
+/* === End Full Status Label Visibility === */
