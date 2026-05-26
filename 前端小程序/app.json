@@ -10,6 +10,7 @@
     "pages/admin/feeconfig/index",
     "pages/admin/measure/index",
     "pages/admin/quote/index",
+    "pages/admin/appointment/index",
     "pages/admin/billing/index",
     "pages/admin/review/index",
     "pages/confirm/quote/index",
@@ -29,6 +30,7 @@
       { "pagePath": "pages/admin/create/index", "text": "建单" },
       { "pagePath": "pages/admin/myshipments/index", "text": "全部运单" },
       { "pagePath": "pages/workflow/index", "text": "流程" },
+      { "pagePath": "pages/admin/appointment/index", "text": "预约进仓" },
       { "pagePath": "pages/billing/cart/index", "text": "账单" }
     ]
   },

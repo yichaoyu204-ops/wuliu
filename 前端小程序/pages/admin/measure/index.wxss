@@ -109,64 +109,6 @@
   white-space: nowrap;
 }
 
-/* 照片网格 */
-.photo-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16rpx;
-  margin-top: 8rpx;
-}
-
-.photo-item {
-  position: relative;
-  width: 200rpx;
-  height: 200rpx;
-}
-
-.photo-img {
-  width: 200rpx;
-  height: 200rpx;
-  border-radius: 12rpx;
-  object-fit: cover;
-}
-
-.photo-del {
-  position: absolute;
-  top: -12rpx;
-  right: -12rpx;
-  background: rgba(0,0,0,0.6);
-  color: #fff;
-  font-size: 22rpx;
-  width: 40rpx;
-  height: 40rpx;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.photo-add {
-  width: 200rpx;
-  height: 200rpx;
-  border: 2rpx dashed #ccc;
-  border-radius: 12rpx;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8rpx;
-  background: #fafafa;
-}
-
-.add-icon {
-  font-size: 48rpx;
-}
-
-.add-text {
-  font-size: 22rpx;
-  color: #888;
-}
-
 /* 费用计算 */
 .fee-group {
   margin-bottom: 24rpx;
@@ -177,6 +119,11 @@
   color: #888;
   margin-bottom: 12rpx;
   display: block;
+}
+
+.collection-group-title {
+  font-size: 28rpx;
+  color: #1a1a1a;
 }
 
 .fee-row {

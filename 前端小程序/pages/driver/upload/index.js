@@ -3,6 +3,7 @@ const app = getApp();
 Page({
   data: {
     cargoInfo: {
+      warehouseEntryNo: '',
       waybillNo: '',
       pieces: '',
       piecesUnit: 'CTNS',
@@ -95,12 +96,20 @@ Page({
     this.setData({ aiLoading: false });
   },
 
+  getAIFieldValue(field, fallback) {
+    if (field && typeof field === 'object' && field.val != null) return field.val;
+    if (field != null && typeof field !== 'object') return field;
+    return fallback;
+  },
+
   fillFormFromAI(result) {
     const info = result.shipmentInfo || {};
+    const cargo = result.cargoInfo || {};
     const routing = result.routing || {};
     const contacts = result.contacts || {};
 
     const manualReview = {};
+    if (info.warehouseEntryNo && info.warehouseEntryNo.manualReview) manualReview.warehouseEntryNo = true;
     if (info.waybillNo && info.waybillNo.manualReview) manualReview.waybillNo = true;
     const fields = ['pieces', 'weight', 'volume', 'marks'];
     fields.forEach(f => {
@@ -123,7 +132,8 @@ Page({
     }
 
     this.setData({
-      'cargoInfo.waybillNo': info.waybillNo && info.waybillNo.val != null ? String(info.waybillNo.val) : '',
+      'cargoInfo.warehouseEntryNo': info.warehouseEntryNo && info.warehouseEntryNo.val != null ? String(info.warehouseEntryNo.val) : '',
+      'cargoInfo.waybillNo': this.getAIFieldValue(info.waybillNo, cargo.waybillNo) != null ? String(this.getAIFieldValue(info.waybillNo, cargo.waybillNo)) : '',
       'cargoInfo.pieces': info.pieces && info.pieces.val != null ? String(info.pieces.val) : '',
       'cargoInfo.piecesUnit': piecesUnit,
       piecesUnitIndex: piecesUnitIndex >= 0 ? piecesUnitIndex : 0,
@@ -142,6 +152,7 @@ Page({
     });
   },
 
+  onWarehouseEntryNoChange(e) { this.setData({ 'cargoInfo.warehouseEntryNo': e.detail.value }); },
   onWaybillNoChange(e) { this.setData({ 'cargoInfo.waybillNo': e.detail.value }); },
   onPiecesChange(e) { this.setData({ 'cargoInfo.pieces': e.detail.value }); },
   onPiecesUnitChange(e) { const idx = parseInt(e.detail.value); this.setData({ piecesUnitIndex: idx, 'cargoInfo.piecesUnit': this.data.unitOptions.pieces[idx] }); },

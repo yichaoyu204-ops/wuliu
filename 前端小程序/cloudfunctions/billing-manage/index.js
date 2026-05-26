@@ -12,6 +12,8 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
+const BILL_VISIBLE_ROLES = ['admin', 'warehouse', 'salesman'];
+
 const ADMIN_OPENIDS = [
   // 'o-xxxxxxxxxxxxxxxxxxxxx',
 ];
@@ -21,6 +23,134 @@ function checkAdmin(openId) {
   if (ADMIN_OPENIDS.length === 0) return true;
   if (!ADMIN_OPENIDS.includes(openId)) throw new Error('AUTH_FAILED:权限不足');
   return true;
+}
+
+function normalizePhoneList(values) {
+  return Array.from(new Set((values || []).filter(Boolean).map(item => String(item))));
+}
+
+function buildBillVisibility(source = {}) {
+  return {
+    visibleRoles: BILL_VISIBLE_ROLES,
+    visiblePhones: normalizePhoneList([
+      source.clientPhone,
+      source.managerPhone,
+      source.contacts?.contact1Phone,
+      source.contacts?.contact2Phone
+    ])
+  };
+}
+
+function getOriginalAmount(bill = {}) {
+  return formatMoney(
+    bill.discount?.originalAmount != null
+      ? bill.discount.originalAmount
+      : (bill.originalAmount != null ? bill.originalAmount : bill.totalAmount || 0)
+  );
+}
+
+function normalizeRateLabel(rawValue, rate) {
+  const rawText = String(rawValue).trim();
+  const rawNumber = Number(rawText);
+  if (rawText && rawNumber > 10) return `${rawText}折`;
+  if (rawText && rawNumber > 1) return `${rawText}折`;
+  return `${formatMoney(rate * 10)}折`;
+}
+
+function calculateDiscountPayload(data = {}, originalAmount = 0) {
+  const type = data.type;
+  const rawValue = data.value;
+  const value = Number(rawValue);
+  if (!['rate', 'amount'].includes(type)) throw new Error('请选择优惠方式');
+  if (!Number.isFinite(value) || value <= 0) throw new Error('请输入正确的优惠数值');
+  if (!Number.isFinite(originalAmount) || originalAmount <= 0) throw new Error('账单原价异常，无法优惠');
+
+  if (type === 'rate') {
+    const rate = value > 10 ? value / 100 : (value > 1 ? value / 10 : value);
+    if (rate <= 0 || rate >= 1) throw new Error('折扣需小于原价，例如 9、95 或 9.5');
+    const finalAmount = formatMoney(originalAmount * rate);
+    const discountAmount = formatMoney(originalAmount - finalAmount);
+    return {
+      type,
+      rate,
+      rateLabel: normalizeRateLabel(rawValue, rate),
+      originalAmount,
+      discountAmount,
+      finalAmount
+    };
+  }
+
+  const discountAmount = formatMoney(value);
+  if (discountAmount > originalAmount) throw new Error('减免金额不能大于账单原价');
+  return {
+    type,
+    originalAmount,
+    discountAmount,
+    finalAmount: formatMoney(originalAmount - discountAmount)
+  };
+}
+
+function buildShipmentBrief(shipment = {}) {
+  const cargoInfo = shipment.cargoInfo || {};
+  const routing = shipment.routing || {};
+  return {
+    shipmentId: shipment._id || '',
+    waybillNo: cargoInfo.waybillNo || '',
+    warehouseEntryNo: cargoInfo.warehouseEntryNo || '',
+    pieces: cargoInfo.pieces || 0,
+    piecesUnit: cargoInfo.piecesUnit || '件',
+    grossWeight: cargoInfo.grossWeight || 0,
+    weightUnit: cargoInfo.weightUnit || 'KGS',
+    volume: cargoInfo.volume || 0,
+    volumeUnit: cargoInfo.volumeUnit || 'CBM',
+    marks: cargoInfo.marks || '',
+    warehouseName: routing.warehouseName || '',
+    destinationPort: routing.destinationPort || '',
+    entryTime: routing.entryTime || null,
+    departureTime: routing.departureTime || null,
+    latestDeliveryTime: routing.latestDeliveryTime || null,
+    currentNodeName: shipment.currentNodeName || '',
+    createdAt: shipment.createdAt || shipment._createTime || null,
+    updatedAt: shipment.updatedAt || null
+  };
+}
+
+async function enrichBillsWithShipmentInfo(bills = []) {
+  const shipmentIds = bills.flatMap(bill => [
+    bill.shipmentId,
+    ...(bill.shipmentIds || [])
+  ]).filter(Boolean);
+
+  if (shipmentIds.length === 0) return bills;
+
+  const shipmentRes = await db.collection('shipments')
+    .where({ _id: _.in(Array.from(new Set(shipmentIds))) })
+    .get();
+
+  const shipmentMap = {};
+  (shipmentRes.data || []).forEach(shipment => {
+    shipmentMap[shipment._id] = buildShipmentBrief(shipment);
+  });
+
+  return bills.map(bill => {
+    const billShipmentIds = [
+      bill.shipmentId,
+      ...(bill.shipmentIds || [])
+    ].filter(Boolean);
+    const shipmentBriefs = billShipmentIds.map(id => shipmentMap[id]).filter(Boolean);
+    const waybillNos = shipmentBriefs.map(item => item.waybillNo).filter(Boolean);
+    const warehouseEntryNos = shipmentBriefs.map(item => item.warehouseEntryNo).filter(Boolean);
+
+    return {
+      ...bill,
+      waybillNo: bill.waybillNo || waybillNos[0] || '',
+      waybillNos,
+      warehouseEntryNo: bill.warehouseEntryNo || warehouseEntryNos[0] || '',
+      warehouseEntryNos,
+      shipmentBrief: bill.shipmentBrief || shipmentBriefs[0] || null,
+      shipmentBriefs
+    };
+  });
 }
 
 // ── 标记已付（事务）──
@@ -51,8 +181,13 @@ async function markPaid(billId, data, operatorOpenId) {
       }
     });
 
-    if (bill.shipmentId) {
-      await transaction.collection('shipments').doc(bill.shipmentId).update({
+    const shipmentIds = [
+      bill.shipmentId,
+      ...(bill.shipmentIds || [])
+    ].filter(Boolean);
+
+    for (const shipmentId of Array.from(new Set(shipmentIds))) {
+      await transaction.collection('shipments').doc(shipmentId).update({
         data: {
           'billing.paymentStatus': 'paid',
           'billing.paidAt': db.serverDate(),
@@ -67,21 +202,127 @@ async function markPaid(billId, data, operatorOpenId) {
   });
 }
 
-// ── 我的账单列表（分页）──
-async function billList(phone, status, page = 1, pageSize = 20) {
-  if (!phone) throw new Error('缺少手机号');
+// ── 管理端优惠（事务）──
+async function applyDiscount(billId, data, operatorOpenId) {
+  if (!billId) throw new Error('缺少账单ID');
 
-  const match = { clientPhone: phone, isDeleted: _.neq(true) };
+  return await db.runTransaction(async transaction => {
+    const billRes = await transaction.collection('bills').doc(billId).get();
+    if (!billRes.data) throw new Error('账单不存在');
+    const bill = billRes.data;
+    if (bill.status === 'paid') throw new Error('已支付账单不能再优惠');
+
+    const originalAmount = getOriginalAmount(bill);
+    const discountInfo = {
+      ...calculateDiscountPayload(data, originalAmount),
+      appliedAt: db.serverDate(),
+      appliedBy: operatorOpenId
+    };
+    const discountLog = {
+      ...discountInfo,
+      appliedAt: db.serverDate(),
+      appliedBy: operatorOpenId
+    };
+
+    await transaction.collection('bills').doc(billId).update({
+      data: {
+        originalAmount,
+        totalAmount: discountInfo.finalAmount,
+        discount: discountInfo,
+        discountHistory: _.push([discountLog]),
+        updatedAt: db.serverDate()
+      }
+    });
+
+    const shipmentIds = [
+      bill.shipmentId,
+      ...(bill.shipmentIds || [])
+    ].filter(Boolean);
+
+    for (const shipmentId of Array.from(new Set(shipmentIds))) {
+      await transaction.collection('shipments').doc(shipmentId).update({
+        data: {
+          'billing.discount': discountInfo,
+          'billing.originalAmount': originalAmount,
+          'billing.discountAmount': discountInfo.discountAmount,
+          'billing.payableAmount': discountInfo.finalAmount,
+          updatedAt: db.serverDate()
+        }
+      });
+    }
+
+    return {
+      billId,
+      originalAmount,
+      totalAmount: discountInfo.finalAmount,
+      discount: discountInfo
+    };
+  });
+}
+
+// ── 我的账单列表（分页）──
+async function getCreatorShipmentIds(operatorOpenId) {
+  if (!operatorOpenId) return [];
+
+  const res = await db.collection('shipments')
+    .where({ creatorOpenId: operatorOpenId, isDeleted: _.neq(true) })
+    .limit(100)
+    .get();
+
+  return (res.data || []).map(item => item._id).filter(Boolean);
+}
+
+function billBelongsToCurrentUser(bill, phone, creatorShipmentIds) {
+  const relatedShipmentIds = [
+    bill.shipmentId,
+    ...(bill.shipmentIds || [])
+  ].filter(Boolean);
+  const visiblePhones = bill.visiblePhones || [];
+
+  return (
+    relatedShipmentIds.some(id => creatorShipmentIds.includes(id)) ||
+    (phone && (bill.clientPhone === phone || visiblePhones.includes(phone)))
+  );
+}
+
+async function checkMarkPaidPermission(billId, role, phone, operatorOpenId) {
+  if (role === 'admin') {
+    checkAdmin(operatorOpenId);
+    return;
+  }
+  if (role !== 'salesman') throw new Error('权限不足：仅业务员或管理员可确认支付');
+
+  const billRes = await db.collection('bills').doc(billId).get();
+  if (!billRes.data) throw new Error('账单不存在');
+
+  const creatorShipmentIds = await getCreatorShipmentIds(operatorOpenId);
+  if (!billBelongsToCurrentUser(billRes.data, phone, creatorShipmentIds)) {
+    throw new Error('权限不足：只能确认自己的账单');
+  }
+}
+
+async function billList(phone, status, page = 1, pageSize = 20, role, operatorOpenId) {
+  const match = {
+    isDeleted: _.neq(true),
+    paymentType: _.neq('spot')
+  };
   if (status) match.status = status;
 
   const res = await db.collection('bills')
     .where(match)
     .orderBy('createdAt', 'desc')
-    .skip((page - 1) * pageSize)
-    .limit(pageSize)
+    .limit(100)
     .get();
 
-  return res.data;
+  const creatorShipmentIds = await getCreatorShipmentIds(operatorOpenId);
+  const visibleBills = (res.data || []).filter(bill => (
+    role === 'admin' && !phone && creatorShipmentIds.length === 0
+      ? true
+      : billBelongsToCurrentUser(bill, phone, creatorShipmentIds)
+  ));
+  const start = (page - 1) * pageSize;
+
+  return enrichBillsWithShipmentInfo(visibleBills.slice(start, start + pageSize));
 }
 
 // ── 管理端：所有账单（分页）──
@@ -114,6 +355,10 @@ async function pendingBills(page = 1, pageSize = 20) {
         _id: item.billing?.billId || `SHIP-${item._id}`,
         billType: item.billing?.paymentType === 'spot' ? 'spot' : 'monthly',
         shipmentId: item._id,
+        waybillNo: item.cargoInfo?.waybillNo || '',
+        warehouseEntryNo: item.cargoInfo?.warehouseEntryNo || '',
+        shipmentBrief: buildShipmentBrief(item),
+        shipmentBriefs: [buildShipmentBrief(item)],
         clientPhone: item.managerPhone || item.contacts?.contact1Phone || '',
         clientName: item.clientName || item.contacts?.contact1Name || '',
         factoryName: item.factoryName || item.creatorName || '',
@@ -159,6 +404,7 @@ async function createMonthlyBill(monthlyBatch, clientPhone, operatorOpenId) {
     const paidAmount = spots.reduce((s, b) => s + (b.paidAmount || 0), 0);
 
     const billId = `MONTHLY-${monthlyBatch}-${clientPhone.slice(-4)}`;
+    const visibility = buildBillVisibility(spots[0] || { clientPhone });
 
     await transaction.collection('bills').add({
       data: {
@@ -173,7 +419,9 @@ async function createMonthlyBill(monthlyBatch, clientPhone, operatorOpenId) {
         paidAmount: formatMoney(paidAmount),
         status: paidAmount >= totalAmount ? 'paid' : 'unpaid',
         paymentType: 'monthly',
+        sourceBillIds: spots.map(b => b._id),
         payments: spots.flatMap(b => b.payments || []),
+        ...visibility,
         createdAt: db.serverDate(),
         updatedAt: db.serverDate(),
         lastModifiedBy: operatorOpenId
@@ -182,7 +430,24 @@ async function createMonthlyBill(monthlyBatch, clientPhone, operatorOpenId) {
 
     for (const b of spots) {
       await transaction.collection('bills').doc(b._id).update({
-        data: { monthlyBatch, updatedAt: db.serverDate() }
+        data: {
+          monthlyBatch,
+          monthlyBillId: billId,
+          ...visibility,
+          updatedAt: db.serverDate()
+        }
+      });
+    }
+
+    for (const shipmentId of shipmentIds) {
+      await transaction.collection('shipments').doc(shipmentId).update({
+        data: {
+          'billing.monthlyBatch': monthlyBatch,
+          'billing.monthlyBillId': billId,
+          'billing.visibleRoles': visibility.visibleRoles,
+          'billing.visiblePhones': visibility.visiblePhones,
+          updatedAt: db.serverDate()
+        }
       });
     }
 
@@ -224,11 +489,15 @@ exports.main = async (event, context) => {
   try {
     switch (action) {
       case 'markPaid':
-        checkAdmin(OPENID);
+        await checkMarkPaidPermission(billId, role, phone, OPENID);
         return success(await markPaid(billId, data, OPENID), '已标记为已付');
 
+      case 'applyDiscount':
+        checkAdmin(OPENID);
+        return success(await applyDiscount(billId, data, OPENID), '优惠已生效');
+
       case 'billList':
-        return success(await billList(phone, status, page, pageSize));
+        return success(await billList(phone, status, page, pageSize, role, OPENID));
 
       case 'pendingBills':
         checkAdmin(OPENID);
@@ -239,22 +508,30 @@ exports.main = async (event, context) => {
         return success(await createMonthlyBill(monthlyBatch, phone, OPENID), '月结账单生成成功');
 
       case 'unpaidCount': {
-        const match = { status: 'unpaid', isDeleted: _.neq(true) };
+        if (role === 'warehouse') {
+          return success({ count: 0 });
+        }
+
+        const match = {
+          status: 'unpaid',
+          paymentType: _.neq('spot'),
+          isDeleted: _.neq(true)
+        };
         if (role === 'admin') {
           checkAdmin(OPENID);
-        } else {
-          if (!phone) return paramError('缺少phone参数');
-          match.clientPhone = phone;
+          const countRes = await db.collection('bills').where(match).count();
+          return success({ count: countRes.total });
         }
-        const countRes = await db.collection('bills').where(match).count();
-        return success({ count: countRes.total });
+
+        const bills = await billList(phone, 'unpaid', 1, 100, role, OPENID);
+        return success({ count: bills.length });
       }
 
       case 'cleanupPaidBills':
         return success(await cleanupPaidBills(), '清理任务执行完毕');
 
       default:
-        return paramError('未知的 action，支持：markPaid / billList / pendingBills / createMonthlyBill / cleanupPaidBills / unpaidCount');
+        return paramError('未知的 action，支持：markPaid / applyDiscount / billList / pendingBills / createMonthlyBill / cleanupPaidBills / unpaidCount');
     }
   } catch (err) {
     console.error(`[billing-manage][${action}] Error:`, err);

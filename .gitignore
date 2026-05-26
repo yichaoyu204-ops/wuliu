@@ -4,6 +4,7 @@ miniprogram_npm/
 
 # WeChat DevTool
 .project.config.json
+project.private.config.json
 sitemap.json
 
 # OS

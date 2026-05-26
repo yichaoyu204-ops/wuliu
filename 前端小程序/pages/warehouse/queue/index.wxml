@@ -7,11 +7,13 @@
   <view class="list" wx:if="{{shipments.length > 0}}">
     <view class="card" wx:for="{{shipments}}" wx:key="_id" bindtap="goMeasure" data-id="{{item._id}}">
       <view class="card-header">
-        <text class="card-id">{{item.cargoInfo.waybillNo || item._id}}</text>
+        <text class="card-id">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
         <text class="card-status">待测量</text>
       </view>
       <view class="card-body">
         <text class="card-factory">{{item.contacts.contact1Name || '——'}}</text>
+        <text class="card-info">进仓编号：{{item.cargoInfo.warehouseEntryNo || '——'}}</text>
+        <text class="card-info">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
         <text class="card-info">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit || 'CTNS'}} / {{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit || 'KGS'}} / {{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit || 'CBM'}}</text>
       </view>
       <view class="card-footer">

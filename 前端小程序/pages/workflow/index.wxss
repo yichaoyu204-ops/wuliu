@@ -131,6 +131,33 @@
   white-space: nowrap;
 }
 
+.creator-name {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  margin-top: 8rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  background: #f6f8fb;
+  color: #667085;
+  font-size: 23rpx;
+  line-height: 1.45;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.business-no {
+  display: block;
+  margin-top: 6rpx;
+  color: #344054;
+  font-size: 26rpx;
+  line-height: 1.45;
+  font-weight: 600;
+  word-break: break-all;
+  white-space: normal;
+}
+
 .status-badge {
   padding: 6rpx 16rpx;
   border-radius: 999rpx;
@@ -211,6 +238,28 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.appointment-line {
+  display: inline-block;
+  max-width: 100%;
+  margin: 2rpx 0 8rpx;
+  padding: 6rpx 14rpx;
+  border-radius: 8rpx;
+  font-size: 23rpx;
+  font-weight: 700;
+  line-height: 1.45;
+  word-break: break-all;
+}
+
+.appointment-line.done {
+  color: #0f766e;
+  background: #e6f6f3;
+}
+
+.appointment-line.pending {
+  color: #8a4b10;
+  background: #fff2d9;
 }
 
 .payment-type {
@@ -443,6 +492,7 @@
 .stats-label,
 .bill-type,
 .route-info,
+.appointment-line,
 .create-time,
 .empty-desc,
 .empty-hint,

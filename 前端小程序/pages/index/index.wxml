@@ -11,7 +11,7 @@
       <input
         class="search-input"
         type="text"
-        placeholder="输入业务编号/手机号/名字查询"
+        placeholder="输入进仓编号/业务参与编号/手机号/名字查询"
         value="{{keyword}}"
         bindinput="onInputChange"
         confirm-type="search"
@@ -69,13 +69,18 @@
   <view class="result-section" wx:if="{{hasSearched}}">
     <view class="section-title">查询结果</view>
 
-    <view class="shipment-card" wx:for="{{shipments}}" wx:key="_id" bindtap="goToDetail" data-id="{{item._id}}">
+    <view class="shipment-card" wx:for="{{shipments}}" wx:key="_id" bindtap="goToDetail" data-id="{{item._detailId || item._id}}">
       <view class="shipment-header">
-        <text class="shipment-id">{{item.cargoInfo.waybillNo || item._id}}</text>
-        <view class="status-tag {{item.status}}">{{item.currentNodeName || '运输中'}}</view>
+        <text class="shipment-id">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
+        <view class="shipment-tags">
+          <view class="status-tag {{item.status}}">{{item.currentNodeName || '运输中'}}</view>
+          <view class="appointment-mini-tag {{item.appointmentTagClass}}">{{item.appointmentTagText}}</view>
+        </view>
       </view>
       <view class="shipment-info">
         <text class="factory-name">{{item.contacts.contact1Name || '——'}}</text>
+        <text class="cargo-desc">进仓编号：{{item.cargoInfo.warehouseEntryNo || '——'}}</text>
+        <text class="cargo-desc">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
         <text class="cargo-desc" wx:if="{{item.cargoInfo}}">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit || '件'}} / {{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit || 'KGS'}} / {{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit || 'CBM'}}</text>
       </view>
       <view class="shipment-footer">
@@ -119,7 +124,7 @@
         <view class="empty-dot empty-dot-right"></view>
       </view>
       <text class="empty-title">欢迎使用义乌专线运输集成系统</text>
-      <text class="empty-desc">输入业务编号或手机号，实时查询货物状态</text>
+      <text class="empty-desc">输入进仓编号、业务参与编号或手机号，实时查询货物状态</text>
       <view class="empty-tip">
         <text>首次使用可从底部进入建单</text>
       </view>

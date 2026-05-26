@@ -1,19 +1,27 @@
 <view class="container">
   <view class="header">
     <text class="header-title">司机任务</text>
-    <text class="header-desc">扫描业务编号更新物流节点</text>
+    <text class="header-desc">扫描进仓编号或业务参与编号更新物流节点</text>
   </view>
 
   <view class="search-bar">
-    <input class="search-input" placeholder="输入业务编号" value="{{keyword}}" bindinput="onInput" />
+    <input class="search-input" placeholder="输入进仓编号/业务参与编号" value="{{keyword}}" bindinput="onInput" />
     <view class="search-btn" bindtap="search">查询</view>
     <view class="scan-btn" bindtap="scanCode">扫码</view>
   </view>
 
   <view class="shipment-card" wx:if="{{shipment}}">
     <view class="card-header">
-      <text class="card-id">{{shipment.cargoInfo.waybillNo || shipment._id}}</text>
+      <text class="card-id">{{shipment.cargoInfo.warehouseEntryNo || shipment.cargoInfo.waybillNo || shipment._id}}</text>
       <text class="card-factory">{{shipment.contacts.contact1Name || '——'}}</text>
+    </view>
+    <view class="node-info">
+      <text class="node-label">进仓编号</text>
+      <text class="node-value">{{shipment.cargoInfo.warehouseEntryNo || '——'}}</text>
+    </view>
+    <view class="node-info">
+      <text class="node-label">业务参与编号</text>
+      <text class="node-value">{{shipment.cargoInfo.waybillNo || '——'}}</text>
     </view>
 
     <view class="node-info">
@@ -43,6 +51,6 @@
   </view>
 
   <view class="hint" wx:if="{{!shipment && !hasSearched}}">
-    <text class="hint-text">输入业务编号或扫码查询货物</text>
+    <text class="hint-text">输入进仓编号、业务参与编号或扫码查询货物</text>
   </view>
 </view>

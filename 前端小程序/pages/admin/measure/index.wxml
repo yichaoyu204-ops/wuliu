@@ -2,7 +2,11 @@
   <!-- 货物信息卡片 -->
   <view wx:if="{{shipment}}" class="info-card">
     <view class="info-row">
-      <text class="info-label">业务编号</text>
+      <text class="info-label">进仓编号</text>
+      <text class="info-value mono">{{shipment.cargoInfo.warehouseEntryNo || '——'}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">业务参与编号</text>
       <text class="info-value mono">{{shipment.cargoInfo.waybillNo || '——'}}</text>
     </view>
     <view class="info-row">
@@ -49,38 +53,6 @@
     </view>
   </view>
 
-  <!-- 照片上传 -->
-  <view class="section">
-    <text class="section-title">实测留存照片 *</text>
-    <text class="section-hint">建议拍：地磅屏幕、测量卷尺、货物外观，最多{{maxPhotos}}张</text>
-
-    <view class="photo-grid">
-      <view
-        wx:for="{{photos}}"
-        wx:key="fileID"
-        class="photo-item"
-      >
-        <image
-          class="photo-img"
-          src="{{item.tempUrl || item.fileID}}"
-          mode="aspectFill"
-          bindtap="previewPhoto"
-          data-index="{{index}}"
-        />
-        <view class="photo-del" bindtap="removePhoto" data-index="{{index}}">✕</view>
-      </view>
-
-      <view
-        wx:if="{{photos.length < maxPhotos}}"
-        class="photo-add"
-        bindtap="choosePhoto"
-      >
-        <view class="add-icon add-line-icon"></view>
-        <text class="add-text">拍照/上传</text>
-      </view>
-    </view>
-  </view>
-
   <!-- 费用计算 -->
   <view class="section" wx:if="{{shipment}}">
     <text class="section-title">费用计算</text>
@@ -97,27 +69,26 @@
       </view>
     </view>
 
-    <!-- 附加费用 -->
+    <!-- 代收款 -->
     <view class="fee-group">
-      <view class="fee-group-title">附加费用</view>
-
-      <!-- 代收款 -->
+      <view class="fee-group-title collection-group-title">代收款</view>
       <view class="extra-fee-item">
-        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="0">
-          <view class="checkbox {{extraFees[0].enabled ? 'checked' : ''}}">
-            <text wx:if="{{extraFees[0].enabled}}">✓</text>
+        <view class="extra-fee-header" bindtap="toggleCollectionFee">
+          <view class="checkbox {{collectionFee.enabled ? 'checked' : ''}}">
+            <text wx:if="{{collectionFee.enabled}}">✓</text>
           </view>
           <text class="extra-fee-name">代收款</text>
-          <text class="extra-fee-amount" wx:if="{{extraFees[0].enabled}}">¥{{extraFees[0].amount}}</text>
+          <text class="extra-fee-amount" wx:if="{{collectionFee.enabled}}">¥{{collectionFee.amount}}</text>
         </view>
-        <view class="extra-fee-body" wx:if="{{extraFees[0].enabled}}">
+        <view class="extra-fee-body" wx:if="{{collectionFee.enabled}}">
           <view class="sub-fee-row" wx:for="{{collectionItems}}" wx:key="name">
             <text class="sub-fee-name">{{item.name}}</text>
             <view class="sub-fee-inputs">
               <input class="sub-input price" type="digit" value="{{item.price}}" bindinput="onCollectionPriceChange" data-idx="{{index}}" />
               <text class="sub-unit">元/{{item.unit}}</text>
               <text class="sub-multiply">×</text>
-              <input class="sub-input qty" type="digit" value="{{item.qty}}" bindinput="onCollectionQtyChange" data-idx="{{index}}" />
+              <input wx:if="{{!item.qtySource}}" class="sub-input qty" type="digit" value="{{item.qty}}" bindinput="onCollectionQtyChange" data-idx="{{index}}" />
+              <text wx:else class="sub-input qty">{{form.volume || 0}}</text>
               <text class="sub-unit">{{item.unit}}</text>
               <text class="sub-equals">=</text>
               <text class="sub-amount">¥{{item.amount}}</text>
@@ -125,18 +96,46 @@
           </view>
         </view>
       </view>
+    </view>
 
-      <!-- 分拨拼货费 -->
+    <!-- 附加费用 -->
+    <view class="fee-group">
+      <view class="fee-group-title">附加费用</view>
+
+      <!-- 北仑分拨费 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="0">
+          <view class="checkbox {{extraFees[0].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[0].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">北仑分拨费</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[0].enabled}}">¥{{extraFees[0].amount}}</text>
+        </view>
+        <view class="extra-fee-body" wx:if="{{extraFees[0].enabled}}">
+          <view class="inline-input-row">
+            <text>票数</text>
+            <input class="inline-input" type="number" value="{{extraFees[0].tickets}}" bindinput="onExtraFeeFieldChange" data-idx="0" data-field="tickets" placeholder="0" />
+            <text>票 × 120元/票</text>
+          </view>
+          <view class="extra-fee-hint">义乌发北仑下货点后再小车分拨，属于附加费用</view>
+        </view>
+      </view>
+
+      <!-- 上门提货费 -->
       <view class="extra-fee-item">
         <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="1">
           <view class="checkbox {{extraFees[1].enabled ? 'checked' : ''}}">
             <text wx:if="{{extraFees[1].enabled}}">✓</text>
           </view>
-          <text class="extra-fee-name">分拨拼货费</text>
+          <text class="extra-fee-name">上门提货费</text>
           <text class="extra-fee-amount" wx:if="{{extraFees[1].enabled}}">¥{{extraFees[1].amount}}</text>
         </view>
-        <view class="extra-fee-hint" wx:if="{{extraFees[1].enabled}}">
-          ≤5立方:100元/票 | 5-20立方:200元/票 | 20立方以上:免费
+        <view class="extra-fee-body" wx:if="{{extraFees[1].enabled}}">
+          <view class="inline-input-row">
+            <text>提货次数</text>
+            <input class="inline-input" type="number" value="{{extraFees[1].times}}" bindinput="onExtraFeeFieldChange" data-idx="1" data-field="times" placeholder="0" />
+            <text>次 × 50元/次</text>
+          </view>
         </view>
       </view>
 
@@ -152,7 +151,7 @@
         <view class="extra-fee-body" wx:if="{{extraFees[2].enabled}}">
           <view class="inline-input-row">
             <text>存放天数</text>
-            <input class="inline-input" type="number" value="{{extraFees[2].days}}" bindinput="onStorageDaysChange" placeholder="0" />
+            <input class="inline-input" type="number" value="{{extraFees[2].days}}" bindinput="onExtraFeeFieldChange" data-idx="2" data-field="days" placeholder="0" />
             <text>天（5天内免费，超过部分50元/票/天）</text>
           </view>
         </view>
@@ -170,29 +169,68 @@
         <view class="extra-fee-body" wx:if="{{extraFees[3].enabled}}">
           <view class="inline-input-row">
             <text>件数</text>
-            <input class="inline-input" type="number" value="{{extraFees[3].pieces}}" bindinput="onRelabelPiecesChange" placeholder="0" />
+            <input class="inline-input" type="number" value="{{extraFees[3].pieces}}" bindinput="onExtraFeeFieldChange" data-idx="3" data-field="pieces" placeholder="0" />
             <text>件 × 2元/件</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 义乌地区转运费 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="4">
+          <view class="checkbox {{extraFees[4].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[4].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">义乌地区转运费</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[4].enabled}}">¥{{extraFees[4].amount}}</text>
+        </view>
+        <view wx:if="{{extraFees[4].enabled}}">
+          <view class="extra-fee-hint">
+            小于5方180元/次 | 5-9.99方220元/次 | 10-20方280元/次 | 大于20方单独报价
+          </view>
+          <view class="inline-input-row" wx:if="{{extraFees[4].needsCustom}}">
+            <text>单独报价</text>
+            <input class="inline-input" type="digit" value="{{extraFees[4].customAmount}}" bindinput="onExtraFeeFieldChange" data-idx="4" data-field="customAmount" placeholder="0" />
+            <text>元</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 非义乌地区转运费 -->
+      <view class="extra-fee-item">
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="5">
+          <view class="checkbox {{extraFees[5].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[5].enabled}}">✓</text>
+          </view>
+          <text class="extra-fee-name">非义乌地区转运费</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[5].enabled}}">¥{{extraFees[5].amount}}</text>
+        </view>
+        <view class="extra-fee-body" wx:if="{{extraFees[5].enabled}}">
+          <view class="inline-input-row">
+            <text>单独报价</text>
+            <input class="inline-input" type="digit" value="{{extraFees[5].customAmount}}" bindinput="onExtraFeeFieldChange" data-idx="5" data-field="customAmount" placeholder="0" />
+            <text>元</text>
           </view>
         </view>
       </view>
 
       <!-- 其他杂费 -->
       <view class="extra-fee-item">
-        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="4">
-          <view class="checkbox {{extraFees[4].enabled ? 'checked' : ''}}">
-            <text wx:if="{{extraFees[4].enabled}}">✓</text>
+        <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="6">
+          <view class="checkbox {{extraFees[6].enabled ? 'checked' : ''}}">
+            <text wx:if="{{extraFees[6].enabled}}">✓</text>
           </view>
           <text class="extra-fee-name">其他杂费</text>
-          <text class="extra-fee-amount" wx:if="{{extraFees[4].enabled}}">¥{{extraFees[4].amount}}</text>
+          <text class="extra-fee-amount" wx:if="{{extraFees[6].enabled}}">¥{{extraFees[6].amount}}</text>
         </view>
-        <view class="extra-fee-body" wx:if="{{extraFees[4].enabled}}">
+        <view class="extra-fee-body" wx:if="{{extraFees[6].enabled}}">
           <view class="inline-input-row">
             <text>费用名称</text>
-            <input class="inline-input wide" type="text" value="{{extraFees[4].customName}}" bindinput="onOtherNameChange" placeholder="如：加急费" />
+            <input class="inline-input wide" type="text" value="{{extraFees[6].customName}}" bindinput="onExtraFeeFieldChange" data-idx="6" data-field="customName" placeholder="如：加急费" />
           </view>
           <view class="inline-input-row">
             <text>金额</text>
-            <input class="inline-input" type="digit" value="{{extraFees[4].customAmount}}" bindinput="onOtherAmountChange" placeholder="0" />
+            <input class="inline-input" type="digit" value="{{extraFees[6].customAmount}}" bindinput="onExtraFeeFieldChange" data-idx="6" data-field="customAmount" placeholder="0" />
             <text>元</text>
           </view>
         </view>
@@ -216,7 +254,7 @@
     </view>
   </view>
 
-  <!-- 仓库现结支付弹窗 -->
+  <!-- 供应商现结支付弹窗 -->
   <view class="pay-modal" wx:if="{{showPayModal}}">
     <view class="pay-mask" bindtap="closePayModal"></view>
     <view class="pay-content">

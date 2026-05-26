@@ -35,6 +35,13 @@ Page({
     const role = wx.getStorageSync('userRole') || '';
     if (!role) return;
     this.setData({ userRole: role });
+    if (role === 'salesman') {
+      this.setData({ pendingCount: 0 });
+      if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+        this.getTabBar().setData({ badgeValue: 0 });
+      }
+      return;
+    }
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
@@ -64,8 +71,8 @@ Page({
     this.setData({ phone });
     try {
       const res = await wx.cloud.callFunction({
-        name: 'shipment-query',
-        data: { action: 'billCount', role, phone }
+        name: 'billing-manage',
+        data: { action: 'unpaidCount', role, phone }
       });
       if (res.result.code === 0) {
         const count = res.result.data.count;
@@ -96,21 +103,22 @@ Page({
     const { keyword } = this.data;
     const k = keyword.trim();
     if (!k) {
-      wx.showToast({ title: '请输入业务编号/手机号/名字', icon: 'none' });
+      wx.showToast({ title: '请输入进仓编号/业务参与编号/手机号/名字', icon: 'none' });
       return;
     }
 
     this.setData({ loading: true, hasSearched: true });
 
     try {
+      const role = wx.getStorageSync('userRole') || '';
       // 策略1：先按名字查
       const nameRes = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'queryByPhone', name: k }
+        data: { action: 'queryByPhone', name: k, role }
       });
 
       if (nameRes.result.code === 0 && nameRes.result.data && nameRes.result.data.length > 0) {
-        this.setData({ shipments: nameRes.result.data });
+        this.setData({ shipments: this.decorateShipmentList(nameRes.result.data) });
         this.saveHistory(k);
         this.setData({ loading: false });
         return;
@@ -119,11 +127,11 @@ Page({
       // 策略2：按手机号查
       const phoneRes = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'queryByPhone', phone: k }
+        data: { action: 'queryByPhone', phone: k, role }
       });
 
       if (phoneRes.result.code === 0 && phoneRes.result.data && phoneRes.result.data.length > 0) {
-        this.setData({ shipments: phoneRes.result.data });
+        this.setData({ shipments: this.decorateShipmentList(phoneRes.result.data) });
         this.saveHistory(k);
         this.setData({ loading: false });
         return;
@@ -132,11 +140,11 @@ Page({
       // 策略3：按单号查
       const detailRes = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'detail', shipmentId: k }
+        data: { action: 'detail', shipmentId: k, role }
       });
 
       if (detailRes.result.code === 0 && detailRes.result.data) {
-        this.setData({ shipments: [detailRes.result.data] });
+        this.setData({ shipments: this.decorateShipmentList([detailRes.result.data]) });
         this.saveHistory(k);
       } else {
         this.setData({ shipments: [] });
@@ -147,6 +155,19 @@ Page({
     }
 
     this.setData({ loading: false });
+  },
+
+  decorateShipmentList(list) {
+    return (list || []).map(item => {
+      const scheduledAt = item.warehouseAppointment?.scheduledAt || '';
+      const completed = !!(item.warehouseAppointment?.isCompleted && scheduledAt);
+      return {
+        ...item,
+        _detailId: item._id || item.shipmentId,
+        appointmentTagText: completed ? `已预约：${String(scheduledAt).replace('T', ' ').slice(0, 16)}` : '未预约进仓',
+        appointmentTagClass: completed ? 'done' : 'pending'
+      };
+    });
   },
 
   saveHistory(keyword) {

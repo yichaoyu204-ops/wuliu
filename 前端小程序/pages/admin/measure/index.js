@@ -16,21 +16,22 @@ Page({
       volumeUnit: 'CBM',
       note: ''
     },
-    photos: [],        // [{fileID, tempUrl}]
-    maxPhotos: 6,
     // 费用计算
     mainFees: [
-      { name: '进仓运费', amount: 0, detail: '' },
-      { name: '装卸费', amount: 0, detail: '' }
+      { name: '进仓运费', amount: 0, detail: '' }
     ],
+    collectionFee: { name: '代收款', amount: 0, enabled: false },
     extraFees: [
-      { code: 'collection', name: '代收款', amount: 0, enabled: false },
-      { code: 'distribution', name: '分拨拼货费', amount: 0, enabled: false },
-      { code: 'storage', name: '堆存费', amount: 0, enabled: false, days: '' },
+      { code: 'beilun_distribution', name: '北仑分拨费', amount: 0, enabled: false, tickets: '' },
+      { code: 'pickup', name: '上门提货费', amount: 0, enabled: false, times: '' },
+      { code: 'storage', name: '集货点堆存费', amount: 0, enabled: false, days: '' },
       { code: 'relabel', name: '贴唛改唛费', amount: 0, enabled: false, pieces: '' },
+      { code: 'yiwu_transfer', name: '义乌地区转运费', amount: 0, enabled: false, customAmount: '' },
+      { code: 'non_yiwu_transfer', name: '非义乌地区转运费', amount: 0, enabled: false, customAmount: '' },
       { code: 'other', name: '其他杂费', amount: 0, enabled: false, customName: '', customAmount: '' }
     ],
     collectionItems: [], // 代收费子项，按路线动态生成
+    routeFeeProfile: null,
     totalAmount: 0,
   },
 
@@ -49,7 +50,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'detail', shipmentId: id }
+        data: { action: 'detail', shipmentId: id, role: 'warehouse' }
       });
       if (res.result.code === 0) {
         const s = res.result.data;
@@ -58,13 +59,13 @@ Page({
         const c = s.cargoInfo || {};
         this.setData({
           shipment: s,
+          routeFeeProfile: this.getRouteFeeProfile(s),
           'form.pieces': a?.pieces != null ? String(a.pieces) : (c.pieces != null ? String(c.pieces) : ''),
           'form.weight': a?.weight != null ? String(a.weight) : (c.grossWeight != null ? String(c.grossWeight) : ''),
           'form.volume': a?.volume != null ? String(a.volume) : (c.volume != null ? String(c.volume) : ''),
           'form.weightUnit': a?.weightUnit || c.weightUnit || 'KGS',
           'form.volumeUnit': a?.volumeUnit || c.volumeUnit || 'CBM',
-          'form.note': s.measurement?.note || '',
-          photos: (s.measurement?.photos || []).map(fid => ({ fileID: fid, tempUrl: fid }))
+          'form.note': s.measurement?.note || ''
         }, () => {
           this.initCollectionItems();
           this.calculateAllFees();
@@ -87,23 +88,41 @@ Page({
     });
   },
 
+  getRouteFeeProfile(shipment) {
+    const routeId = shipment?.routeId || '';
+    const routeName = shipment?.routeSnapshot?.name || shipment?.routeName || '';
+    const isHaitong = routeId.includes('haitong') || routeName.includes('海通');
+    return isHaitong
+      ? {
+          isHaitong: true,
+          lineName: '义乌集货点→海通安达仓库',
+          volumeRate: 55,
+          weightRate: 185
+        }
+      : {
+          isHaitong: false,
+          lineName: '义乌集货点→宁波北仑仓库',
+          volumeRate: 65,
+          weightRate: 190
+        };
+  },
+
   // 初始化代收费子项（按路线区分）
   initCollectionItems() {
-    const routeId = this.data.shipment?.routeId || '';
-    const isMengheng = routeId.includes('mh');
-    let items = [];
-    if (isMengheng) {
+    const profile = this.data.routeFeeProfile || this.getRouteFeeProfile(this.data.shipment);
+    let items;
+    if (profile.isHaitong) {
       items = [
         { name: '打单费', price: 15, qty: 1, unit: '票', amount: 15 },
         { name: '缠绕膜费', price: 2, qty: 0, unit: '托', amount: 0 },
-        { name: '卸货费', price: 20, qty: 0, unit: '立方', amount: 0 }
+        { name: '卸货费', price: 20, qty: 0, unit: '立方', amount: 0, qtySource: 'volume' }
       ];
     } else {
       items = [
-        { name: '代收款', price: 0, qty: 0, unit: '立方', amount: 0 }
+        { name: '进仓费代收代付', price: 0, qty: 1, unit: '票', amount: 0 }
       ];
     }
-    this.setData({ collectionItems: items });
+    this.setData({ collectionItems: items, routeFeeProfile: profile });
   },
 
   // 计算所有费用
@@ -111,8 +130,7 @@ Page({
     const { form, shipment, extraFees, collectionItems } = this.data;
     const weightKg = parseFloat(form.weight) || 0;
     const volume = parseFloat(form.volume) || 0;
-    const routeId = shipment?.routeId || '';
-    const isMengheng = routeId.includes('mh');
+    const profile = this.data.routeFeeProfile || this.getRouteFeeProfile(shipment);
 
     // 1. 进仓运费
     let transportFee = 0;
@@ -120,50 +138,38 @@ Page({
     if (weightKg > 0 && volume > 0) {
       const weightTons = weightKg / 1000; // 公斤 → 吨
       const ratio = volume / weightTons;  // 每吨货物占多少立方
-      if (isMengheng) {
-        if (ratio >= 4) {
-          transportFee = volume * 55;
-          transportDetail = `轻货按体积 ${volume}立方 × 55元/立方（每吨${ratio.toFixed(2)}立方）`;
-        } else {
-          transportFee = weightTons * 190;
-          transportDetail = `重货按重量 ${weightTons.toFixed(3)}吨 × 190元/吨（每吨${ratio.toFixed(2)}立方）`;
-        }
+      if (ratio >= 4) {
+        transportFee = volume * profile.volumeRate;
+        transportDetail = `${profile.lineName}：${volume}立方 × ${profile.volumeRate}元/立方（每吨${ratio.toFixed(2)}立方，≥4按立方）`;
       } else {
-        if (ratio >= 4) {
-          transportFee = volume * 85;
-          transportDetail = `轻货按体积 ${volume}立方 × 85元/立方（每吨${ratio.toFixed(2)}立方）`;
-        } else {
-          transportFee = weightTons * 220;
-          transportDetail = `重货按重量 ${weightTons.toFixed(3)}吨 × 220元/吨（每吨${ratio.toFixed(2)}立方）`;
-        }
+        transportFee = weightTons * profile.weightRate;
+        transportDetail = `${profile.lineName}：${weightTons.toFixed(3)}吨 × ${profile.weightRate}元/吨（每吨${ratio.toFixed(2)}立方，<4按重量）`;
       }
     }
 
-    // 2. 装卸费（不足1立方按1立方）
-    const handlingVolume = volume > 0 ? Math.ceil(volume) : 0;
-    const handlingFee = handlingVolume * 20;
-    const handlingDetail = handlingVolume > 0 ? `${handlingVolume}立方 × 20元/立方（不足1立方按1立方）` : '';
-
     const mainFees = [
-      { name: '进仓运费', amount: this.round2(transportFee), detail: transportDetail },
-      { name: '装卸费', amount: this.round2(handlingFee), detail: handlingDetail }
+      { name: '进仓运费', amount: this.round2(transportFee), detail: transportDetail }
     ];
 
-    // 3. 代收款
-    let collectionFee = 0;
-    if (extraFees[0].enabled) {
-      collectionFee = collectionItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    // 2. 代收款：常规费用，展示在附加费用上方
+    let collectionAmount = 0;
+    if (this.data.collectionFee.enabled) {
+      collectionAmount = collectionItems.reduce((sum, item) => {
+        const qty = item.qtySource === 'volume' ? volume : (parseFloat(item.qty) || 0);
+        item.qty = item.qtySource === 'volume' ? volume : item.qty;
+        item.amount = this.round2((parseFloat(item.price) || 0) * qty);
+        return sum + item.amount;
+      }, 0);
     }
-    extraFees[0].amount = this.round2(collectionFee);
+    const nextCollectionFee = { ...this.data.collectionFee, amount: this.round2(collectionAmount) };
 
-    // 4. 分拨拼货费
-    let distributionFee = 0;
-    if (extraFees[1].enabled && volume > 0) {
-      if (volume <= 5) distributionFee = 100;
-      else if (volume <= 20) distributionFee = 200;
-      else distributionFee = 0;
-    }
-    extraFees[1].amount = this.round2(distributionFee);
+    // 3. 北仑分拨费：附加费用第一项
+    const distributionTickets = parseInt(extraFees[0].tickets) || 0;
+    extraFees[0].amount = extraFees[0].enabled ? this.round2(distributionTickets * 120) : 0;
+
+    // 4. 上门提货费
+    const pickupTimes = parseInt(extraFees[1].times) || 0;
+    extraFees[1].amount = extraFees[1].enabled ? this.round2(pickupTimes * 50) : 0;
 
     // 5. 堆存费
     let storageFee = 0;
@@ -181,18 +187,34 @@ Page({
     }
     extraFees[3].amount = this.round2(relabelFee);
 
-    // 7. 其他杂费
-    let otherFee = 0;
+    // 7. 义乌地区转运费
+    let yiwuTransferFee = 0;
+    extraFees[4].needsCustom = volume > 20;
     if (extraFees[4].enabled) {
-      otherFee = parseFloat(extraFees[4].customAmount) || 0;
+      if (volume > 20) {
+        yiwuTransferFee = parseFloat(extraFees[4].customAmount) || 0;
+      } else if (volume >= 10) {
+        yiwuTransferFee = 280;
+      } else if (volume >= 5) {
+        yiwuTransferFee = 220;
+      } else if (volume > 0) {
+        yiwuTransferFee = 180;
+      }
     }
-    extraFees[4].amount = this.round2(otherFee);
+    extraFees[4].amount = this.round2(yiwuTransferFee);
+
+    // 8. 非义乌地区转运费
+    extraFees[5].amount = extraFees[5].enabled ? this.round2(parseFloat(extraFees[5].customAmount) || 0) : 0;
+
+    // 9. 其他杂费
+    extraFees[6].amount = extraFees[6].enabled ? this.round2(parseFloat(extraFees[6].customAmount) || 0) : 0;
 
     // 总计
     const totalAmount = mainFees.reduce((s, f) => s + f.amount, 0) +
+                        (nextCollectionFee.enabled ? nextCollectionFee.amount : 0) +
                         extraFees.reduce((s, f) => f.enabled ? s + f.amount : s, 0);
 
-    this.setData({ mainFees, extraFees, totalAmount: this.round2(totalAmount) });
+    this.setData({ mainFees, collectionFee: nextCollectionFee, extraFees, collectionItems, routeFeeProfile: profile, totalAmount: this.round2(totalAmount) });
   },
 
   round2(n) {
@@ -205,6 +227,12 @@ Page({
     const key = `extraFees[${idx}].enabled`;
     const enabled = !this.data.extraFees[idx].enabled;
     this.setData({ [`extraFees[${idx}].enabled`]: enabled }, () => {
+      this.calculateAllFees();
+    });
+  },
+
+  toggleCollectionFee() {
+    this.setData({ 'collectionFee.enabled': !this.data.collectionFee.enabled }, () => {
       this.calculateAllFees();
     });
   },
@@ -233,91 +261,12 @@ Page({
     });
   },
 
-  // 堆存费天数变更
-  onStorageDaysChange(e) {
-    this.setData({ 'extraFees[2].days': e.detail.value }, () => {
+  onExtraFeeFieldChange(e) {
+    const idx = parseInt(e.currentTarget.dataset.idx, 10);
+    const field = e.currentTarget.dataset.field;
+    this.setData({ [`extraFees[${idx}].${field}`]: e.detail.value }, () => {
       this.calculateAllFees();
     });
-  },
-
-  // 贴唛改唛件数变更
-  onRelabelPiecesChange(e) {
-    this.setData({ 'extraFees[3].pieces': e.detail.value }, () => {
-      this.calculateAllFees();
-    });
-  },
-
-  // 其他杂费名称变更
-  onOtherNameChange(e) {
-    this.setData({ 'extraFees[4].customName': e.detail.value });
-  },
-
-  // 其他杂费金额变更
-  onOtherAmountChange(e) {
-    this.setData({ 'extraFees[4].customAmount': e.detail.value }, () => {
-      this.calculateAllFees();
-    });
-  },
-
-  async choosePhoto() {
-    const { photos, maxPhotos } = this.data;
-    if (photos.length >= maxPhotos) {
-      wx.showToast({ title: `最多${maxPhotos}张`, icon: 'none' });
-      return;
-    }
-
-    wx.chooseMedia({
-      count: maxPhotos - photos.length,
-      mediaType: ['image'],
-      sourceType: ['camera', 'album'],
-      sizeType: ['compressed'],   // 强制压缩，避免原图占用带宽和存储
-      success: async (res) => {
-        wx.showLoading({ title: '上传留存中...' });
-        try {
-          const uploads = res.tempFiles.map(file => {
-            const ext = file.tempFilePath.split('.').pop() || 'jpg';
-            const cloudPath = `measurements/${this.data.shipmentId}_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-            return wx.cloud.uploadFile({ cloudPath, filePath: file.tempFilePath })
-              .then(r => ({ fileID: r.fileID, tempUrl: file.tempFilePath }))
-              .catch(() => null);
-          });
-          const results = await Promise.all(uploads);
-          const uploaded = results.filter(Boolean);
-          if (uploaded.length < results.length) {
-            wx.showToast({ title: '部分照片上传失败', icon: 'none' });
-          }
-          this.setData({ photos: [...this.data.photos, ...uploaded] });
-        } catch (e) {
-          wx.showToast({ title: '上传失败，请重试', icon: 'none' });
-        } finally {
-          wx.hideLoading();
-        }
-      }
-    });
-  },
-
-  // 删除时同步清理云端文件，防止产生孤儿文件持续扣费
-  async removePhoto(e) {
-    const { index } = e.currentTarget.dataset;
-    const photos = [...this.data.photos];
-    const target = photos[index];
-    photos.splice(index, 1);
-    this.setData({ photos });
-
-    if (target.fileID && target.fileID.startsWith('cloud://')) {
-      try {
-        await wx.cloud.deleteFile({ fileList: [target.fileID] });
-      } catch (err) {
-        console.error('清理云端废弃照片失败:', err);
-        // 文件可能已被删除或权限不足，静默处理不阻断用户
-      }
-    }
-  },
-
-  previewPhoto(e) {
-    const { index } = e.currentTarget.dataset;
-    const urls = this.data.photos.map(p => p.tempUrl || p.fileID);
-    wx.previewImage({ current: urls[index], urls });
   },
 
   // 关闭支付弹窗
@@ -337,16 +286,13 @@ Page({
 
   // 带防呆校验：发现异常误差时弹窗二次确认
   validate() {
-    const { form, photos } = this.data;
+    const { form } = this.data;
 
     if (!form.weight || isNaN(parseFloat(form.weight))) {
       wx.showToast({ title: '请填写实测重量', icon: 'none' }); return false;
     }
     if (!form.volume || isNaN(parseFloat(form.volume))) {
       wx.showToast({ title: '请填写实测体积', icon: 'none' }); return false;
-    }
-    if (photos.length === 0) {
-      wx.showToast({ title: '请至少上传一张实测照片', icon: 'none' }); return false;
     }
 
     // 异常误差防呆：实测体积与申报差异超过30%时弹窗确认
@@ -382,24 +328,22 @@ Page({
   async doSubmit() {
     this.setData({ submitting: true });
     try {
-      const { form, photos, shipmentId, mainFees, extraFees, collectionItems, totalAmount } = this.data;
+      const { form, shipmentId, mainFees, collectionFee, extraFees, collectionItems, totalAmount } = this.data;
 
       // 构建费用明细
       const feeItems = [
         ...mainFees.map(f => ({ name: f.name, amount: f.amount, type: 'main', detail: f.detail })),
+        ...(collectionFee.enabled ? [{
+          name: collectionFee.name,
+          amount: collectionFee.amount,
+          type: 'main',
+          detail: collectionItems.map(i => `${i.name}:${i.price}×${i.qty}${i.unit}`).join(' + ')
+        }] : []),
         ...extraFees.filter(f => f.enabled).map(f => {
-          if (f.code === 'collection') {
-            return {
-              name: f.name,
-              amount: f.amount,
-              type: 'extra',
-              detail: collectionItems.map(i => `${i.name}:${i.price}×${i.qty}${i.unit}`).join(' + ')
-            };
-          }
           if (f.code === 'other') {
             return { name: f.customName || '其他杂费', amount: f.amount, type: 'extra', detail: '' };
           }
-          return { name: f.name, amount: f.amount, type: 'extra', detail: '' };
+          return { name: f.name, amount: f.amount, type: 'extra', detail: this.getExtraFeeDetail(f) };
         })
       ];
 
@@ -414,7 +358,6 @@ Page({
             volume: parseFloat(form.volume),
             weightUnit: form.weightUnit,
             volumeUnit: form.volumeUnit,
-            photos: photos.map(p => p.fileID),
             note: form.note,
             fees: feeItems,
             totalAmount
@@ -423,7 +366,7 @@ Page({
       });
 
       if (res.result.code === 0) {
-        // 仓库现结：弹出支付二维码
+        // 供应商现结：弹出支付二维码
         const isSpot = this.data.shipment?.billing?.paymentType === 'spot';
         if (isSpot) {
           this.setData({ submitting: false, showPayModal: true, payAmount: totalAmount });
@@ -446,6 +389,25 @@ Page({
         showCancel: false
       });
       this.setData({ submitting: false });
+    }
+  },
+
+  getExtraFeeDetail(f) {
+    switch (f.code) {
+      case 'pickup':
+        return `${parseInt(f.times) || 0}次 × 50元/次`;
+      case 'storage':
+        return `${parseInt(f.days) || 0}天，5天内免费，超过部分50元/票/天`;
+      case 'relabel':
+        return `${parseInt(f.pieces) || 0}件 × 2元/件`;
+      case 'beilun_distribution':
+        return `${parseInt(f.tickets) || 0}票 × 120元/票`;
+      case 'yiwu_transfer':
+        return f.customAmount ? `义乌地区转运，单独报价${f.customAmount}元` : '按体积分档：<5方180元，5-9.99方220元，10-20方280元，>20方单独报价';
+      case 'non_yiwu_transfer':
+        return `非义乌地区转运，单独报价${f.customAmount || 0}元`;
+      default:
+        return '';
     }
   }
 });

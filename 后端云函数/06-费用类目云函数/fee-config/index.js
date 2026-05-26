@@ -26,39 +26,69 @@ const ADMIN_OPENIDS = [
 
 const DEFAULT_CATEGORIES = [
   {
-    _id: 'cat_base_transport',
-    name: '基础运费',
+    _id: 'cat_inbound_transport',
+    name: '进仓运费',
     type: 'baseTransport',
-    calculationType: 'fixed',
-    basePrice: 500,
+    calculationType: 'manual',
+    basePrice: null,
     unitPrice: null,
-    unit: '元/票',
+    unit: '元',
     freeDays: null,
     isRequired: true,
     isEnabled: true,
-    allowManualAmount: false,
+    allowManualAmount: true,
     sortOrder: 1,
-    description: '每票固定收取'
+    description: '按路线与体积吨比计算'
   },
   {
-    _id: 'cat_warehouse',
-    name: '仓储费',
-    type: 'warehouse',
-    calculationType: 'per_volume_per_day',
+    _id: 'cat_collection',
+    name: '代收款',
+    type: 'collection',
+    calculationType: 'manual',
     basePrice: null,
-    unitPrice: 5,
-    unit: '元/m³/天',
-    freeDays: 3,
+    unitPrice: null,
+    unit: '元',
+    freeDays: null,
+    isRequired: false,
+    isEnabled: true,
+    allowManualAmount: true,
+    sortOrder: 2,
+    description: '按海通/北仑代收项目录入'
+  },
+  {
+    _id: 'cat_pickup',
+    name: '上门提货费',
+    type: 'pickup',
+    calculationType: 'fixed',
+    basePrice: 50,
+    unitPrice: null,
+    unit: '元/次',
+    freeDays: null,
     isRequired: false,
     isEnabled: true,
     allowManualAmount: false,
-    sortOrder: 2,
-    description: '超出3天免费期后按体积×天数收费'
+    sortOrder: 3,
+    description: '直接去义乌周边工厂上门提货'
   },
   {
-    _id: 'cat_wrapping',
-    name: '缠货费',
-    type: 'wrapping',
+    _id: 'cat_storage',
+    name: '集货点堆存费',
+    type: 'storage',
+    calculationType: 'manual',
+    basePrice: null,
+    unitPrice: 50,
+    unit: '元/票/天',
+    freeDays: 5,
+    isRequired: false,
+    isEnabled: true,
+    allowManualAmount: true,
+    sortOrder: 4,
+    description: '超过5天收取堆存费'
+  },
+  {
+    _id: 'cat_relabel',
+    name: '贴唛改唛费',
+    type: 'relabel',
     calculationType: 'per_piece',
     basePrice: null,
     unitPrice: 2,
@@ -67,23 +97,38 @@ const DEFAULT_CATEGORIES = [
     isRequired: false,
     isEnabled: true,
     allowManualAmount: false,
-    sortOrder: 3,
-    description: '缠膜保护时按件收取'
+    sortOrder: 5,
+    description: '加贴唛头或改动唛头'
   },
   {
-    _id: 'cat_pickup',
-    name: '提货费',
-    type: 'pickup',
+    _id: 'cat_beilun_distribution',
+    name: '北仑分拨费',
+    type: 'beilunDistribution',
     calculationType: 'fixed',
-    basePrice: 100,
+    basePrice: 120,
     unitPrice: null,
     unit: '元/票',
     freeDays: null,
     isRequired: false,
     isEnabled: true,
     allowManualAmount: false,
-    sortOrder: 4,
-    description: '上门提货时收取'
+    sortOrder: 6,
+    description: '义乌发北仑下货点后再小车分拨'
+  },
+  {
+    _id: 'cat_transfer',
+    name: '转运费',
+    type: 'transfer',
+    calculationType: 'manual',
+    basePrice: null,
+    unitPrice: null,
+    unit: '元',
+    freeDays: null,
+    isRequired: false,
+    isEnabled: true,
+    allowManualAmount: true,
+    sortOrder: 7,
+    description: '义乌地区分档，非义乌地区单独报价'
   },
   {
     _id: 'cat_other',
@@ -119,7 +164,7 @@ function calculateAmount(category, measurement) {
       return actual.volume != null ? formatMoney(safeMultiply(category.unitPrice, actual.volume)) : null;
     case 'per_weight':
       return actual.weight != null ? formatMoney(safeMultiply(category.unitPrice, actual.weight)) : null;
-    // 仓储费需要天数，由前端录入天数后再计算
+    // 需要业务补充数量、天数或单独报价的类目，由前端实测页录入后再保存
     case 'per_volume_per_day':
     case 'manual':
     default:

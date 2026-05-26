@@ -10,6 +10,7 @@
       <view class="status-info">
         <text class="status-name">{{statusMainTitle || shipment.currentNodeName || '运输中'}}</text>
         <text class="status-desc">{{statusSubTitle || statusDesc}}</text>
+        <view class="appointment-tag {{shipment.appointmentTagClass}}">{{shipment.appointmentTagText}}</view>
       </view>
     </view>
 
@@ -25,9 +26,21 @@
       </view>
 
       <view class="info-card">
-        <!-- 业务编号 -->
+        <!-- 进仓编号 -->
         <view class="info-row">
-          <text class="info-label">业务编号</text>
+          <text class="info-label">进仓编号</text>
+          <block wx:if="{{isEditing}}">
+            <input class="edit-input" type="text" value="{{editForm.warehouseEntryNo}}" data-field="warehouseEntryNo" bindinput="onEditInput" />
+          </block>
+          <block wx:else>
+            <text class="info-value mono" wx:if="{{shipment.cargoInfo.warehouseEntryNo}}">{{shipment.cargoInfo.warehouseEntryNo}}</text>
+            <text class="info-value hint" wx:else>——</text>
+          </block>
+        </view>
+
+        <!-- 业务参与编号 -->
+        <view class="info-row">
+          <text class="info-label">业务参与编号</text>
           <block wx:if="{{isEditing}}">
             <input class="edit-input" type="text" value="{{editForm.waybillNo}}" data-field="waybillNo" bindinput="onEditInput" />
           </block>
@@ -35,6 +48,18 @@
             <text class="info-value mono" wx:if="{{shipment.cargoInfo.waybillNo}}">{{shipment.cargoInfo.waybillNo}}</text>
             <text class="info-value hint" wx:else>——</text>
           </block>
+        </view>
+
+        <!-- 建单业务员 -->
+        <view class="info-row">
+          <text class="info-label">建单业务员</text>
+          <text class="info-value">{{shipment.creatorName || '——'}}</text>
+        </view>
+
+        <!-- 业务员手机号 -->
+        <view class="info-row">
+          <text class="info-label">业务员手机号</text>
+          <text class="info-value mono">{{shipment.creatorPhone || '——'}}</text>
         </view>
 
         <!-- 货物明细 -->
@@ -135,12 +160,15 @@
                 <radio value="monthly" checked="{{editForm.paymentType === 'monthly'}}" color="#FF6B00" />萌恒月结
               </label>
               <label class="radio-label">
-                <radio value="spot" checked="{{editForm.paymentType === 'spot'}}" color="#FF6B00" />仓库现结
+                <radio value="spot" checked="{{editForm.paymentType === 'spot'}}" color="#FF6B00" />供应商现结
+              </label>
+              <label class="radio-label">
+                <radio value="supplier_monthly" checked="{{editForm.paymentType === 'supplier_monthly'}}" color="#FF6B00" />供应商月结
               </label>
             </radio-group>
           </block>
           <block wx:else>
-            <text class="info-value">{{shipment.billing.paymentType === 'spot' ? '仓库现结' : '萌恒月结'}}</text>
+            <text class="info-value">{{shipment.paymentTypeLabel || '萌恒月结'}}</text>
           </block>
         </view>
       </view>
@@ -297,20 +325,6 @@
             <input class="edit-input" type="text" value="{{measurementEditForm.note}}" data-field="note" bindinput="onMeasurementInput" placeholder="备注" maxlength="50" />
           </view>
         </block>
-        <view class="measure-photos" wx:if="{{shipment.measurement.photos && shipment.measurement.photos.length > 0}}">
-          <text class="measure-photo-title">实测照片</text>
-          <scroll-view scroll-x class="photo-scroll">
-            <image
-              wx:for="{{shipment.measurement.photos}}"
-              wx:key="*this"
-              class="photo-thumb"
-              src="{{item}}"
-              mode="aspectFill"
-              bindtap="previewPhoto"
-              data-url="{{item}}"
-            />
-          </scroll-view>
-        </view>
       </view>
     </view>
 
@@ -319,15 +333,15 @@
     <view class="action-bar" wx:if="{{shipment.quote.status === 'sent'}}">
       <view class="btn-primary" bindtap="goConfirm">确认报价</view>
     </view>
-    <!-- 仓管员确认入库 -->
+    <!-- 接单员确认收货 -->
     <view class="action-bar" wx:elif="{{showConfirmInbound}}">
-      <view class="btn-primary" bindtap="advanceNode">确认入库</view>
+      <view class="btn-primary" bindtap="advanceNode">确认收货</view>
     </view>
-    <!-- 仓管员确认出库 -->
+    <!-- 接单员确认发运 -->
     <view class="action-bar" wx:elif="{{showConfirmOutbound}}">
-      <view class="btn-primary" bindtap="advanceNode">确认出库</view>
+      <view class="btn-primary" bindtap="advanceNode">确认发运</view>
     </view>
-    <!-- 仓管员确认信息 -->
+    <!-- 接单员确认信息 -->
     <view class="action-bar" wx:elif="{{canEdit && shipment.oaStatus === 'created'}}">
       <view class="btn-primary" bindtap="confirmInfo">确认信息</view>
     </view>

@@ -55,6 +55,28 @@
   line-height: 1.45;
 }
 
+.appointment-tag {
+  display: inline-block;
+  max-width: 100%;
+  margin-top: 14rpx;
+  padding: 8rpx 16rpx;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 700;
+  line-height: 1.35;
+  white-space: normal;
+}
+
+.appointment-tag.done {
+  background: rgba(15, 118, 110, 0.16);
+  color: #d9fff8;
+}
+
+.appointment-tag.pending {
+  background: rgba(252, 163, 17, 0.16);
+  color: #ffe3ad;
+}
+
 /* 区块 */
 .section {
   margin: 0 24rpx 24rpx;
@@ -434,34 +456,6 @@
   color: #14213d;
   font-weight: 500;
   text-align: right;
-}
-
-.measure-photos {
-  margin-top: 20rpx;
-  padding-top: 20rpx;
-  border-top: 1rpx solid #f8f8f8;
-}
-
-.measure-photo-title {
-  font-size: 24rpx;
-  color: #888;
-  margin-bottom: 12rpx;
-  display: block;
-}
-
-.photo-scroll {
-  white-space: nowrap;
-  display: flex;
-  flex-direction: row;
-}
-
-.photo-thumb {
-  width: 180rpx;
-  height: 180rpx;
-  border-radius: 8rpx;
-  margin-right: 16rpx;
-  flex-shrink: 0;
-  object-fit: cover;
 }
 
 /* 报价卡片 */

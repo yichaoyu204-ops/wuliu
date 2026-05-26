@@ -38,12 +38,41 @@ function initTimeline(route) {
   }));
 }
 
+async function getBoundCreator(openId, role) {
+  if (!openId) throw new Error('无法获取微信身份，请先登录');
+
+  const expectedRole = role || 'salesman';
+  let user = null;
+
+  const roleRes = await db.collection('users')
+    .where({ openId, role: expectedRole })
+    .limit(1)
+    .get();
+  user = roleRes.data[0] || null;
+
+  if (!user) {
+    const userRes = await db.collection('users')
+      .where({ openId })
+      .limit(1)
+      .get();
+    user = userRes.data[0] || null;
+  }
+
+  if (!user) throw new Error('请先完成微信登录绑定后再建单');
+  if (!['salesman', 'admin'].includes(user.role)) {
+    throw new Error('当前角色不能建单');
+  }
+
+  return user;
+}
+
 // 司机提交：存入 driver_submissions 集合等待管理员复核
 async function driverSubmit(event) {
   const { cargoInfo, contacts, routing, imageUrl } = event;
   const { OPENID } = cloud.getWXContext();
+  const contactPhone = contacts?.contact1Phone || contacts?.contactPhone || '';
 
-  if (!cargoInfo || !contacts || !contacts.contactPhone) {
+  if (!cargoInfo || !contacts || !contactPhone) {
     return paramError('缺少必要参数');
   }
   if (!imageUrl) {
@@ -101,30 +130,44 @@ exports.main = async (event, context) => {
     cargoInfo,
     routing,
     contacts,
-    routeId = 'route_yw_nb_standard',  // 默认路线
+    routeId = 'route_yw_haitong_anda',  // 默认路线
     clientType = 'salesman',
     paymentType = 'monthly'  // monthly | spot
   } = event;
 
-  if (!cargoInfo || !contacts || !contacts.contactPhone) {
+  if (!cargoInfo || !contacts || !(contacts.contactPhone || contacts.contact1Phone)) {
     return paramError('缺少必要参数');
   }
 
-  // 获取当前用户 OPENID
-  const { OPENID } = cloud.getWXContext();
+    // 获取当前用户 OPENID
+    const { OPENID } = cloud.getWXContext();
 
   try {
+    const creator = await getBoundCreator(OPENID, event.creatorRole || event.role || clientType);
+
     // 获取路线配置（可配置）
     const route = getRouteById(routeId);
 
-    // 运单号去重检查（waybillNo 非空时）
+    const warehouseEntryNo = cargoInfo.warehouseEntryNo || '';
+    if (warehouseEntryNo.trim()) {
+      const dupEntryRes = await db.collection('shipments').where({
+        'cargoInfo.warehouseEntryNo': warehouseEntryNo.trim(),
+        isDeleted: _.neq(true)
+      }).limit(1).get();
+      if (dupEntryRes.data.length > 0) {
+        return error(`进仓编号 ${warehouseEntryNo.trim()} 已存在，请勿重复建单`);
+      }
+    }
+
+    // 业务参与编号去重检查（waybillNo 非空时）
     const waybillNo = cargoInfo.waybillNo || '';
     if (waybillNo.trim()) {
       const dupRes = await db.collection('shipments').where({
-        'cargoInfo.waybillNo': waybillNo.trim()
+        'cargoInfo.waybillNo': waybillNo.trim(),
+        isDeleted: _.neq(true)
       }).limit(1).get();
       if (dupRes.data.length > 0) {
-        return error(`运单号 ${waybillNo.trim()} 已存在，请勿重复建单`);
+        return error(`业务参与编号 ${waybillNo.trim()} 已存在，请勿重复建单`);
       }
     }
 
@@ -225,14 +268,14 @@ exports.main = async (event, context) => {
 
       // OA 审批流状态
       oaStatus: 'created',       // created → measured_priced → admin_confirmed → completed
-      oaStatusName: '已建单，待仓管员实测定价',
+      oaStatusName: '已建单，待接单员实测定价',
       oaAssignedTo: 'warehouse',  // 当前待处理角色: warehouse | admin
       oaHistory: [
         {
           status: 'created',
-          statusName: '已建单，待仓管员实测定价',
+          statusName: '已建单，待接单员实测定价',
           operator: OPENID || '',
-          role: 'salesman',
+          role: creator.role || 'salesman',
           timestamp: db.serverDate()
         }
       ],
@@ -250,7 +293,10 @@ exports.main = async (event, context) => {
 
       // 创建者信息
       creatorOpenId: OPENID || '',
-      creatorName: event.creatorName || '',
+      creatorUserId: creator._id || '',
+      creatorName: creator.name || '',
+      creatorPhone: creator.phone || '',
+      creatorRole: creator.role || 'salesman',
 
       // 分享
       shareToken,

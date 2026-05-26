@@ -54,13 +54,151 @@ function normalizeWaybillNo(value) {
     return { val: null, valid: false };
   }
 
-  const raw = String(value).trim().toUpperCase().replace(/\s+/g, '');
-  const match = raw.match(/\d{2}MH[A-Z0-9]+/);
-  if (!match) {
+  const raw = String(value)
+    .trim()
+    .toUpperCase()
+    .replace(/^[^A-Z0-9]+|[^A-Z0-9]+$/g, '')
+    .replace(/[\s\-_\/]+/g, '');
+  if (!/^\d{2}MH[A-Z0-9]+$/.test(raw)) {
     return { val: null, valid: false };
   }
 
-  return { val: match[0], valid: true };
+  return { val: raw, valid: true };
+}
+
+function collectWaybillCandidates(aiData, info) {
+  const candidates = [];
+  const add = (value) => {
+    const raw = readAIFieldValue(value);
+    if (raw === null || raw === undefined) return;
+    const matches = String(raw).toUpperCase().match(/\b\d{2}[\s\-_\/]*MH[A-Z0-9]+\b/g);
+    if (matches) candidates.push(...matches);
+  };
+
+  add(info.waybillNo);
+  add(info.waybillNoCandidates);
+  add(aiData.waybillNo);
+  add(aiData.waybillNoCandidates);
+  add(aiData.allVisibleCodes);
+  add(aiData.visibleCodes);
+  add(aiData.codes);
+  add(aiData.rawText);
+  add(aiData.ocrText);
+  add(aiData.fullText);
+  add(aiData.text);
+  add(JSON.stringify(aiData));
+
+  return Array.from(new Set(candidates));
+}
+
+function pickWaybillNo(aiData, info) {
+  const direct = normalizeWaybillNo(checkFieldValue(info.waybillNo));
+  if (direct.valid) return direct;
+
+  const candidates = collectWaybillCandidates(aiData, info)
+    .map(value => normalizeWaybillNo(value))
+    .filter(item => item.valid);
+
+  return candidates[0] || { val: null, valid: false };
+}
+
+function checkFieldValue(field) {
+  if (!field) return null;
+  return Object.prototype.hasOwnProperty.call(field, 'val') ? field.val : field;
+}
+
+function readAIFieldValue(field) {
+  if (field === null || field === undefined) return null;
+  if (Array.isArray(field)) return field;
+  if (typeof field === 'object' && Object.prototype.hasOwnProperty.call(field, 'val')) return field.val;
+  return field;
+}
+
+function normalizeEntryCandidate(value) {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .trim()
+    .replace(/^[：:\s#编号号-]+/, '')
+    .replace(/[，,。；;、\s]+$/g, '')
+    .toUpperCase()
+    .replace(/\s+/g, '');
+}
+
+function collectEntryCandidates(aiData, info) {
+  const candidates = [];
+  const add = (value, source = '') => {
+    if (Array.isArray(value)) {
+      value.forEach(item => add(item, source));
+      return;
+    }
+    const normalized = normalizeEntryCandidate(readAIFieldValue(value));
+    if (normalized) candidates.push({ value: normalized, source });
+  };
+
+  add(info.warehouseEntryNo, 'field');
+  add(info.entryNo, 'field');
+  add(info.inboundNo, 'field');
+  add(info.warehouseEntryNoCandidates, 'candidate');
+  add(aiData.warehouseEntryNoCandidates, 'candidate');
+  add(aiData.allVisibleCodes, 'visible');
+  add(aiData.visibleCodes, 'visible');
+  add(aiData.codes, 'visible');
+
+  const textBlocks = [
+    aiData.rawText,
+    aiData.ocrText,
+    aiData.fullText,
+    aiData.text,
+    JSON.stringify(aiData)
+  ].filter(Boolean);
+  const labelRegex = /(?:进仓(?:编号|单号)?|入仓(?:号|编号|单号)?|收货编号|仓库编号|仓编|NO\.?|No)[:：\s#-]*([A-Z0-9][A-Z0-9\-\/]{2,30})/gi;
+  textBlocks.forEach(text => {
+    let match;
+    while ((match = labelRegex.exec(String(text))) !== null) {
+      add(match[1], 'label');
+    }
+  });
+
+  return candidates;
+}
+
+function pickWarehouseEntryNo(aiData, info, context = {}) {
+  const excluded = new Set([
+    context.waybillNo,
+    context.pieces,
+    context.weight,
+    context.volume
+  ].filter(v => v !== null && v !== undefined).map(v => normalizeEntryCandidate(v)));
+
+  const seen = new Set();
+  const candidates = collectEntryCandidates(aiData, info)
+    .map(item => ({ ...item, value: normalizeEntryCandidate(item.value) }))
+    .filter(item => {
+      const value = item.value;
+      if (!value || seen.has(value)) return false;
+      seen.add(value);
+      if (excluded.has(value)) return false;
+      if (/^\d{2}MH[A-Z0-9]+$/.test(value)) return false;
+      if (/^\d{4}[-/]?\d{1,2}[-/]?\d{1,2}$/.test(value)) return false;
+      if (/^1[3-9]\d{9}$/.test(value)) return false;
+      if (/^\d{1,3}(?:\.\d+)?(?:KG|KGS|CBM|CTNS|PACKAGE|PACKAGES|PCS)?$/i.test(value)) return false;
+      if (!/\d/.test(value)) return false;
+      return /^[A-Z0-9][A-Z0-9\-\/]{3,29}$/.test(value);
+    });
+
+  const scored = candidates.map(item => {
+    let score = 0;
+    if (item.source === 'field') score += 100;
+    if (item.source === 'label') score += 80;
+    if (item.source === 'candidate') score += 60;
+    if (item.source === 'visible') score += 20;
+    if (/^[A-Z]+\d{2}MH[A-Z0-9]+$/.test(item.value)) score += 30;
+    if (/[A-Z]/.test(item.value) && /\d/.test(item.value)) score += 12;
+    if (item.value.length >= 6 && item.value.length <= 16) score += 8;
+    return { ...item, score };
+  }).sort((a, b) => b.score - a.score);
+
+  return scored[0]?.value || null;
 }
 
 /**
@@ -90,12 +228,31 @@ function normalizeShipmentData(aiData) {
   const volumeRaw = checkField(info.volume, '体积');
   const volumeExtracted = extractNumberAndUnit(volumeRaw);
 
-  const waybillResult = normalizeWaybillNo(checkField(info.waybillNo, '业务编号'));
-  if (!waybillResult.valid) {
-    reviewFields.push('业务编号');
+  const waybillFieldValue = checkField(info.waybillNo, '业务参与编号');
+  const waybillResult = normalizeWaybillNo(waybillFieldValue).valid
+    ? normalizeWaybillNo(waybillFieldValue)
+    : pickWaybillNo(aiData, info);
+  if (waybillResult.valid) {
+    const waybillReviewIndex = reviewFields.indexOf('业务参与编号');
+    if (waybillReviewIndex >= 0) reviewFields.splice(waybillReviewIndex, 1);
+  } else if (!reviewFields.includes('业务参与编号')) {
+    reviewFields.push('业务参与编号');
+  }
+
+  const directWarehouseEntryNo = readAIFieldValue(info.warehouseEntryNo) || readAIFieldValue(info.entryNo);
+  const warehouseEntryNo = pickWarehouseEntryNo(aiData, info, {
+    waybillNo: waybillResult.val,
+    pieces: piecesExtracted.val || piecesRaw,
+    weight: weightExtracted.val || weightRaw,
+    volume: volumeExtracted.val || volumeRaw
+  });
+
+  if ((!directWarehouseEntryNo || info.warehouseEntryNo?.manualReview || info.entryNo?.manualReview) && !reviewFields.includes('进仓编号')) {
+    reviewFields.push('进仓编号');
   }
 
   let cargoInfo = {
+    warehouseEntryNo,
     waybillNo: waybillResult.val,
     pieces: piecesExtracted.val || piecesRaw,
     piecesUnit: info.pieces?.unit || piecesExtracted.unit || 'CTNS',
@@ -105,6 +262,9 @@ function normalizeShipmentData(aiData) {
     volumeUnit: info.volume?.unit || volumeExtracted.unit || 'CBM',
     marks: checkField(info.marks, '唛头')
   };
+  if (!cargoInfo.warehouseEntryNo && !reviewFields.includes('进仓编号')) {
+    reviewFields.push('进仓编号');
+  }
 
   // AI字段交叉校验：修复常见识别错误
   cargoInfo = validateAndFixFields(cargoInfo);
@@ -150,11 +310,11 @@ function normalizeShipmentData(aiData) {
     }
   }
 
-  // 业务编号必须是两位年份+MH开头，不符合则清空，避免错误建单
+  // 业务参与编号必须是两位年份+MH开头，不符合则清空，避免错误建单
   const waybillNoStr = cargoInfo.waybillNo ? String(cargoInfo.waybillNo) : '';
   if (waybillNoStr && !/^\d{2}MH[A-Z0-9]+$/.test(waybillNoStr)) {
     cargoInfo.waybillNo = null;
-    reviewFields.push('业务编号');
+    reviewFields.push('业务参与编号');
   }
 
   // 去重reviewFields
@@ -182,7 +342,7 @@ function normalizeShipmentData(aiData) {
  * 2. volume是文字且marks为空 → volume应为marks
  * 3. marks含CBM等单位 → 应归入volume
  * 4. waybillNo必须是两位年份+MH开头，否则清空并复核
- * 5. 防止把DSCGL、货号、客户编码、条码号误填为业务编号
+ * 5. 防止把DSCGL、货号、客户编码、条码号误填为业务参与编号
  */
 function validateAndFixFields(cargoInfo) {
   const isPureNumber = (v) => v !== null && v !== undefined && /^[\d.]+$/.test(String(v).trim());

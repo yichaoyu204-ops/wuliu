@@ -3,6 +3,7 @@ const app = getApp();
 Page({
   data: {
     cargoInfo: {
+      warehouseEntryNo: '',
       waybillNo: '',
       pieces: '',
       piecesUnit: 'CTNS',
@@ -19,19 +20,19 @@ Page({
       contact2Phone: '87507082'
     },
     routing: {
-      warehouseName: '',
+      warehouseName: '海通安达',
       destinationPort: '',
       departureTime: '',
       latestDeliveryTime: ''
     },
     routes: [
-      { id: 'route_yw_mh_hub', name: '义乌→萌恒仓库（经义乌中转仓）' },
-      { id: 'route_yw_bl_hub', name: '义乌→北仑方向其他仓库（经义乌中转仓）' },
-      { id: 'route_yw_mh_direct', name: '义乌→萌恒仓库（工厂直发）' },
-      { id: 'route_yw_bl_direct', name: '义乌→北仑方向其他仓库（工厂直发）' }
+      { id: 'route_yw_haitong_anda', name: '义乌→海通安达', warehouseName: '海通安达' },
+      { id: 'route_yw_leyi_warehouse', name: '义乌→乐祎仓库', warehouseName: '乐祎仓库' },
+      { id: 'route_yw_shunhang_warehouse', name: '义乌→顺航仓库', warehouseName: '顺航仓库' },
+      { id: 'route_yw_other_warehouse', name: '义乌→其他仓库', warehouseName: '' }
     ],
     routeIndex: 0,
-    routeName: '义乌→萌恒仓库（经义乌中转仓）',
+    routeName: '义乌→海通安达',
     piecesUnitIndex: 0,
     weightUnitIndex: 0,
     volumeUnitIndex: 0,
@@ -49,7 +50,8 @@ Page({
     attachmentFileId: '',
     paymentTypeIndex: 0,
     paymentTypeLabel: '萌恒月结',
-    paymentTypeOptions: ['萌恒月结', '仓库现结']
+    paymentTypeOptions: ['萌恒月结', '供应商现结', '供应商月结'],
+    paymentTypeValues: ['monthly', 'spot', 'supplier_monthly']
   },
 
   onLoad() {
@@ -82,7 +84,9 @@ Page({
               const file = fileRes.tempFiles[0];
               const ext = file.name.split('.').pop().toLowerCase();
               if (this.imageExts.includes(ext) || ext === 'pdf') {
-                this.uploadAndRecognize(file.path, ext);
+                this.prepareUploadFile(file.path, ext, file.size)
+                  .then(fileInfo => this.uploadAndRecognize(fileInfo.filePath, fileInfo.ext))
+                  .catch(err => wx.showToast({ title: err.message || '文件处理失败', icon: 'none' }));
               } else {
                 wx.showToast({ title: '仅支持图片或PDF格式', icon: 'none' });
               }
@@ -95,13 +99,50 @@ Page({
             mediaType: ['image'],
             sourceType,
             success: (mediaRes) => {
-              const tempFilePath = mediaRes.tempFiles[0].tempFilePath;
-              const ext = (mediaRes.tempFiles[0].fileType || 'jpg').toLowerCase();
-              this.uploadAndRecognize(tempFilePath, ext);
+              const file = mediaRes.tempFiles[0];
+              const tempFilePath = file.tempFilePath;
+              const ext = (file.fileType || 'jpg').toLowerCase();
+              this.prepareUploadFile(tempFilePath, ext, file.size)
+                .then(fileInfo => this.uploadAndRecognize(fileInfo.filePath, fileInfo.ext))
+                .catch(err => wx.showToast({ title: err.message || '文件处理失败', icon: 'none' }));
             }
           });
         }
       }
+    });
+  },
+
+  async prepareUploadFile(filePath, ext, size = 0) {
+    const isPDF = ext === 'pdf';
+    const sizeMB = Number(size || 0) / 1024 / 1024;
+
+    if (isPDF) {
+      if (sizeMB > 10) throw new Error('PDF过大，请换小于10MB的文件');
+      return { filePath, ext };
+    }
+
+    if (sizeMB > 8) throw new Error('图片过大，请重新拍照或裁剪后上传');
+
+    if (sizeMB > 1 || ['heic', 'heif', 'png'].includes(ext)) {
+      try {
+        const compressedPath = await this.compressImageFile(filePath);
+        return { filePath: compressedPath, ext: 'jpg' };
+      } catch (e) {
+        return { filePath, ext };
+      }
+    }
+
+    return { filePath, ext };
+  },
+
+  compressImageFile(filePath) {
+    return new Promise((resolve, reject) => {
+      wx.compressImage({
+        src: filePath,
+        quality: 70,
+        success: res => resolve(res.tempFilePath),
+        fail: reject
+      });
     });
   },
 
@@ -147,33 +188,73 @@ Page({
             showCancel: false
           });
         } else {
-          wx.showToast({ title: aiRes.result.message || '识别失败', icon: 'none' });
+          wx.showToast({
+            title: this.getAIErrorMessage(aiRes.result.message),
+            icon: 'none',
+            duration: 2500
+          });
         }
         this.setData({ aiLoading: false });
       }
     } catch (e) {
       wx.hideLoading();
+      console.error('AI识别调用失败:', e);
       if (isPDF) {
         wx.showModal({
           title: 'PDF识别提示',
-          content: 'PDF自动识别暂不可用，请手动录入信息',
+          content: this.getAIErrorMessage(e.errMsg || e.message || 'PDF自动识别暂不可用，请手动录入信息'),
           showCancel: false
         });
       } else {
-        wx.showToast({ title: '识别出错，请手动录入', icon: 'none' });
+        wx.showToast({
+          title: this.getAIErrorMessage(e.errMsg || e.message || '识别出错，请手动录入'),
+          icon: 'none',
+          duration: 3000
+        });
       }
       this.setData({ aiLoading: false });
     }
   },
 
+  getAIErrorMessage(message) {
+    const raw = String(message || '');
+    if (/overloaded|engine_overloaded|429|繁忙/i.test(raw)) {
+      return 'AI服务当前繁忙，请稍后再试';
+    }
+    if (/uploadFile.*timeout|uploadFile:fail timeout|cloud\.uploadFile/i.test(raw)) {
+      return '附件上传超时，请换小一点的图片或稍后重试';
+    }
+    if (/timeout|ETIMEDOUT|超时/i.test(raw)) {
+      return 'AI识别超时，请稍后重试';
+    }
+    if (/OPENAI_API_KEY/i.test(raw)) {
+      return 'OpenAI密钥未配置';
+    }
+    if (/KIMI_API_KEY/i.test(raw)) {
+      return 'Kimi密钥未配置';
+    }
+    if (/model|does not exist|not found|无权限|permission/i.test(raw)) {
+      return 'AI模型无权限或模型名不可用';
+    }
+    return (raw || '识别失败，请手动录入').slice(0, 80);
+  },
+
+  getAIFieldValue(field, fallback) {
+    if (field && typeof field === 'object' && field.val != null) return field.val;
+    if (field != null && typeof field !== 'object') return field;
+    return fallback;
+  },
+
   // 将 AI 识别结果填充到表单
   fillFormFromAI(result) {
     const info = result.shipmentInfo || {};
+    const cargo = result.cargoInfo || {};
     const routing = result.routing || {};
     const contacts = result.contacts || {};
 
     // 检测哪些字段需要人工复核
     const manualReview = {};
+    if (info.warehouseEntryNo && info.warehouseEntryNo.manualReview) manualReview.warehouseEntryNo = true;
     if (info.waybillNo && info.waybillNo.manualReview) manualReview.waybillNo = true;
     const fields = ['pieces', 'weight', 'volume', 'marks'];
     fields.forEach(f => {
@@ -182,7 +263,8 @@ Page({
     // 联系人信息不从AI识别填充，由用户手动填写
 
     this.setData({
-      'cargoInfo.waybillNo': info.waybillNo && info.waybillNo.val != null ? String(info.waybillNo.val) : this.data.cargoInfo.waybillNo,
+      'cargoInfo.warehouseEntryNo': info.warehouseEntryNo && info.warehouseEntryNo.val != null ? String(info.warehouseEntryNo.val) : this.data.cargoInfo.warehouseEntryNo,
+      'cargoInfo.waybillNo': this.getAIFieldValue(info.waybillNo, cargo.waybillNo) != null ? String(this.getAIFieldValue(info.waybillNo, cargo.waybillNo)) : this.data.cargoInfo.waybillNo,
       'cargoInfo.pieces': info.pieces && info.pieces.val != null ? String(info.pieces.val) : this.data.cargoInfo.pieces,
       'cargoInfo.piecesUnit': info.pieces && info.pieces.unit || this.data.cargoInfo.piecesUnit,
       'cargoInfo.grossWeight': info.weight && info.weight.val != null ? String(info.weight.val) : this.data.cargoInfo.grossWeight,
@@ -209,6 +291,9 @@ Page({
     });
   },
 
+  onWarehouseEntryNoChange(e) {
+    this.setData({ 'cargoInfo.warehouseEntryNo': e.detail.value });
+  },
   onWaybillNoChange(e) {
     this.setData({ 'cargoInfo.waybillNo': e.detail.value });
   },
@@ -250,7 +335,12 @@ Page({
   },
   onRouteChange(e) {
     const idx = parseInt(e.detail.value);
-    this.setData({ routeIndex: idx, routeName: this.data.routes[idx].name });
+    const selected = this.data.routes[idx];
+    this.setData({
+      routeIndex: idx,
+      routeName: selected.name,
+      'routing.warehouseName': selected.warehouseName
+    });
   },
   onWarehouseChange(e) {
     this.setData({ 'routing.warehouseName': e.detail.value });
@@ -299,27 +389,8 @@ Page({
     this.setData({ submitting: true });
 
     try {
-      const paymentType = this.data.paymentTypeIndex === 0 ? 'monthly' : 'spot';
-      let creatorName = wx.getStorageSync('userName') || '';
-      // 如果 storage 中没有 userName，尝试从 users 集合查询
-      if (!creatorName) {
-        const userPhone = wx.getStorageSync('userPhone') || '';
-        const userRole = wx.getStorageSync('userRole') || '';
-        if (userPhone && userRole) {
-          try {
-            const userRes = await wx.cloud.callFunction({
-              name: 'user-login',
-              data: { action: 'login', role: userRole, phone: userPhone }
-            });
-            if (userRes.result.code === 0 && userRes.result.data?.name) {
-              creatorName = userRes.result.data.name;
-              wx.setStorageSync('userName', creatorName);
-            }
-          } catch (e) {
-            console.error('获取用户信息失败:', e);
-          }
-        }
-      }
+      const paymentType = this.data.paymentTypeValues[this.data.paymentTypeIndex] || 'monthly';
+      const creatorRole = wx.getStorageSync('userRole') || 'salesman';
       const res = await wx.cloud.callFunction({
         name: 'shipment-create',
         data: {
@@ -328,7 +399,7 @@ Page({
           routing: submitRouting,
           routeId: routes[routeIndex].id,
           paymentType,
-          creatorName,
+          creatorRole,
           attachmentFileId
         }
       });

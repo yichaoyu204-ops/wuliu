@@ -28,9 +28,14 @@
   <view class="form-section" wx:if="{{hasImage && !aiLoading}}">
     <view class="section-title">识别结果（请核对修改）</view>
 
-    <view class="form-row {{manualReview.waybillNo ? 'row-warning' : ''}}">
-      <text class="form-label">业务编号</text>
-      <input class="form-input" type="text" placeholder="如 26MH642064" value="{{cargoInfo.waybillNo}}" bindinput="onWaybillNoChange" />
+    <view class="form-row {{manualReview.warehouseEntryNo ? 'row-warning' : ''}}">
+      <text class="form-label">进仓编号</text>
+      <input class="form-input" type="text" placeholder="请输入进仓编号" value="{{cargoInfo.warehouseEntryNo}}" bindinput="onWarehouseEntryNoChange" />
+    </view>
+
+    <view class="form-row">
+      <text class="form-label">业务参与编号</text>
+      <input class="form-input" type="text" placeholder="请输入业务参与编号" value="{{cargoInfo.waybillNo}}" bindinput="onWaybillNoChange" />
     </view>
 
     <view class="form-row {{manualReview.pieces ? 'row-warning' : ''}}">

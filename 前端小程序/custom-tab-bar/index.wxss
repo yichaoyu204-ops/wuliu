@@ -45,15 +45,17 @@
 .t1 { left: 187.5rpx; }
 .t2 { display: none; }
 .t3 { left: 375rpx; }
-.t4 { left: 562.5rpx; }
+.t4 { display: none; }
+.t5 { left: 562.5rpx; }
 
-/* 管理员5个tab */
-.bar.is-admin .item { width: 150rpx; }
+/* 管理员6个tab */
+.bar.is-admin .item { width: 125rpx; }
 .bar.is-admin .t0 { left: 0; }
-.bar.is-admin .t1 { left: 150rpx; }
-.bar.is-admin .t2 { left: 300rpx; display: block; }
-.bar.is-admin .t3 { left: 450rpx; }
-.bar.is-admin .t4 { left: 600rpx; }
+.bar.is-admin .t1 { left: 125rpx; }
+.bar.is-admin .t2 { left: 250rpx; display: block; }
+.bar.is-admin .t3 { left: 375rpx; }
+.bar.is-admin .t4 { left: 500rpx; display: block; }
+.bar.is-admin .t5 { left: 625rpx; }
 
 /* ---- 图标区域 ---- */
 .icon {
@@ -64,17 +66,18 @@
 }
 
 /* 默认居中： (187.5 - 32) / 2 = 77.5rpx */
-.t0 .icon, .t1 .icon, .t3 .icon, .t4 .icon {
+.t0 .icon, .t1 .icon, .t3 .icon, .t5 .icon {
   left: 77.5rpx;
 }
 
-/* 管理员居中： (150 - 32) / 2 = 59rpx */
+/* 管理员居中： (125 - 32) / 2 = 46.5rpx */
 .bar.is-admin .t0 .icon,
 .bar.is-admin .t1 .icon,
 .bar.is-admin .t2 .icon,
 .bar.is-admin .t3 .icon,
-.bar.is-admin .t4 .icon {
-  left: 59rpx;
+.bar.is-admin .t4 .icon,
+.bar.is-admin .t5 .icon {
+  left: 46.5rpx;
 }
 
 .badge {
@@ -174,6 +177,35 @@
   background: #ccc;
 }
 
+/* 预约-日历 */
+.calendar-top {
+  position: absolute;
+  top: 3rpx;
+  left: 5rpx;
+  width: 22rpx;
+  height: 6rpx;
+  background: #ccc;
+}
+
+.calendar-body {
+  position: absolute;
+  top: 11rpx;
+  left: 5rpx;
+  width: 22rpx;
+  height: 17rpx;
+  background: #ccc;
+}
+
+.calendar-dot {
+  position: absolute;
+  top: 18rpx;
+  left: 14rpx;
+  width: 5rpx;
+  height: 5rpx;
+  border-radius: 50%;
+  background: #fff;
+}
+
 /* 选中变橙色 */
 .on { background: #fca311 !important; }
 
@@ -189,7 +221,8 @@
 }
 
 .bar.is-admin .label {
-  width: 150rpx;
+  width: 125rpx;
+  font-size: 20rpx;
 }
 
 .label.on {
@@ -209,17 +242,18 @@
 }
 
 /* 默认居中： (187.5 - 6) / 2 = 90.5rpx */
-.t0 .dot, .t1 .dot, .t3 .dot, .t4 .dot {
+.t0 .dot, .t1 .dot, .t3 .dot, .t5 .dot {
   left: 90.5rpx;
 }
 
-/* 管理员居中： (150 - 6) / 2 = 72rpx */
+/* 管理员居中： (125 - 6) / 2 = 59.5rpx */
 .bar.is-admin .t0 .dot,
 .bar.is-admin .t1 .dot,
 .bar.is-admin .t2 .dot,
 .bar.is-admin .t3 .dot,
-.bar.is-admin .t4 .dot {
-  left: 72rpx;
+.bar.is-admin .t4 .dot,
+.bar.is-admin .t5 .dot {
+  left: 59.5rpx;
 }
 
 .dot.on {

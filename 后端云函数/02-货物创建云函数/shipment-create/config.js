@@ -25,7 +25,8 @@ module.exports = {
 输出JSON格式：
 {
   "shipmentInfo": {
-    "entryNo": { "val": "进仓编号", "manualReview": false },
+    "warehouseEntryNo": { "val": "进仓编号", "manualReview": false },
+    "waybillNo": { "val": "业务参与编号", "manualReview": false },
     "pieces": { "val": "件数数字", "unit": "单位如CTNS/PLTS/件", "manualReview": false },
     "weight": { "val": "重量数字", "unit": "KGS/LBS", "manualReview": false },
     "volume": { "val": "体积数字", "unit": "CBM", "manualReview": false },
@@ -76,47 +77,47 @@ module.exports = {
   // 注意：修改此处只会影响新创建的货物，历史货物保持原路线不变
   defaultRoutes: [
     {
-      id: 'route_yw_mh_hub',
-      name: '义乌→萌恒仓库（经义乌中转仓）',
-      description: '标准路线：工厂→义乌中转仓→萌恒仓库',
+      id: 'route_yw_haitong_anda',
+      name: '义乌→海通安达',
+      description: '标准路线：工厂→义乌中转仓→海通安达',
       nodes: [
         { code: 'pickup', name: '工厂提货', minDuration: 1, maxDuration: 3, template: '已提货，运输至义乌中转仓，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck-loading', editable: true },
-        { code: 'yiwu_entry', name: '义乌中转仓入库', minDuration: 0.5, maxDuration: 1, template: '已入库义乌中转仓，准备发运', icon: 'warehouse', editable: true },
-        { code: 'mainline', name: '干线运输', minDuration: 3, maxDuration: 5, template: '运输中，萌恒仓库方向，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck', editable: true },
-        { code: 'queue', name: '仓库排队', minDuration: 0.25, maxDuration: 2, template: '已到达萌恒仓库，绿色通道排队中', icon: 'clock', editable: true },
-        { code: 'nb_entry', name: '入库完成', minDuration: 0, maxDuration: 0, template: '已完成入库萌恒仓库，等待报关', icon: 'check-circle', editable: false }
+        { code: 'yiwu_entry', name: '义乌中转仓收货', minDuration: 0.5, maxDuration: 1, template: '义乌中转仓已收货，准备发运', icon: 'warehouse', editable: true },
+        { code: 'mainline', name: '干线运输', minDuration: 3, maxDuration: 5, template: '运输中，海通安达方向，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck', editable: true },
+        { code: 'nb_entry', name: '已进入目标仓库', minDuration: 0, maxDuration: 0, template: '已进入目标仓库，等待报关', icon: 'check-circle', editable: false }
       ]
     },
     {
-      id: 'route_yw_bl_hub',
-      name: '义乌→北仑方向其他仓库（经义乌中转仓）',
-      description: '标准路线：工厂→义乌中转仓→北仑方向其他仓库',
+      id: 'route_yw_leyi_warehouse',
+      name: '义乌→乐祎仓库',
+      description: '标准路线：工厂→义乌中转仓→乐祎仓库',
       nodes: [
         { code: 'pickup', name: '工厂提货', minDuration: 1, maxDuration: 3, template: '已提货，运输至义乌中转仓，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck-loading', editable: true },
-        { code: 'yiwu_entry', name: '义乌中转仓入库', minDuration: 0.5, maxDuration: 1, template: '已入库义乌中转仓，准备发运', icon: 'warehouse', editable: true },
-        { code: 'mainline', name: '干线运输', minDuration: 3, maxDuration: 5, template: '运输中，北仑方向，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck', editable: true },
-        { code: 'queue', name: '仓库排队', minDuration: 0.25, maxDuration: 2, template: '已到达北仑仓库，绿色通道排队中', icon: 'clock', editable: true },
-        { code: 'nb_entry', name: '入库完成', minDuration: 0, maxDuration: 0, template: '已完成入库北仑仓库，等待报关', icon: 'check-circle', editable: false }
+        { code: 'yiwu_entry', name: '义乌中转仓收货', minDuration: 0.5, maxDuration: 1, template: '义乌中转仓已收货，准备发运', icon: 'warehouse', editable: true },
+        { code: 'mainline', name: '干线运输', minDuration: 3, maxDuration: 5, template: '运输中，乐祎仓库方向，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck', editable: true },
+        { code: 'nb_entry', name: '已进入目标仓库', minDuration: 0, maxDuration: 0, template: '已进入目标仓库，等待报关', icon: 'check-circle', editable: false }
       ]
     },
     {
-      id: 'route_yw_mh_direct',
-      name: '义乌→萌恒仓库（工厂直发）',
-      description: '直达路线：工厂不经义乌中转仓，直发萌恒仓库',
+      id: 'route_yw_shunhang_warehouse',
+      name: '义乌→顺航仓库',
+      description: '标准路线：工厂→义乌中转仓→顺航仓库',
       nodes: [
-        { code: 'pickup', name: '工厂提货', minDuration: 4, maxDuration: 6, template: '已提货，直接发往萌恒仓库，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck-loading', editable: true },
-        { code: 'queue', name: '仓库排队', minDuration: 0.25, maxDuration: 2, template: '已到达萌恒仓库，绿色通道排队中', icon: 'clock', editable: true },
-        { code: 'nb_entry', name: '入库完成', minDuration: 0, maxDuration: 0, template: '已完成入库萌恒仓库，等待报关', icon: 'check-circle', editable: false }
+        { code: 'pickup', name: '工厂提货', minDuration: 1, maxDuration: 3, template: '已提货，运输至义乌中转仓，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck-loading', editable: true },
+        { code: 'yiwu_entry', name: '义乌中转仓收货', minDuration: 0.5, maxDuration: 1, template: '义乌中转仓已收货，准备发运', icon: 'warehouse', editable: true },
+        { code: 'mainline', name: '干线运输', minDuration: 3, maxDuration: 5, template: '运输中，顺航仓库方向，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck', editable: true },
+        { code: 'nb_entry', name: '已进入目标仓库', minDuration: 0, maxDuration: 0, template: '已进入目标仓库，等待报关', icon: 'check-circle', editable: false }
       ]
     },
     {
-      id: 'route_yw_bl_direct',
-      name: '义乌→北仑方向其他仓库（工厂直发）',
-      description: '直达路线：工厂不经义乌中转仓，直发北仑方向其他仓库',
+      id: 'route_yw_other_warehouse',
+      name: '义乌→其他仓库',
+      description: '标准路线：工厂→义乌中转仓→其他仓库',
       nodes: [
-        { code: 'pickup', name: '工厂提货', minDuration: 4, maxDuration: 6, template: '已提货，直接发往北仑仓库，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck-loading', editable: true },
-        { code: 'queue', name: '仓库排队', minDuration: 0.25, maxDuration: 2, template: '已到达北仑仓库，绿色通道排队中', icon: 'clock', editable: true },
-        { code: 'nb_entry', name: '入库完成', minDuration: 0, maxDuration: 0, template: '已完成入库北仑仓库，等待报关', icon: 'check-circle', editable: false }
+        { code: 'pickup', name: '工厂提货', minDuration: 1, maxDuration: 3, template: '已提货，运输至义乌中转仓，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck-loading', editable: true },
+        { code: 'yiwu_entry', name: '义乌中转仓收货', minDuration: 0.5, maxDuration: 1, template: '义乌中转仓已收货，准备发运', icon: 'warehouse', editable: true },
+        { code: 'mainline', name: '干线运输', minDuration: 3, maxDuration: 5, template: '运输中，其他仓库方向，预计{minDuration}-{maxDuration}小时后到达', icon: 'truck', editable: true },
+        { code: 'nb_entry', name: '已进入目标仓库', minDuration: 0, maxDuration: 0, template: '已进入目标仓库，等待报关', icon: 'check-circle', editable: false }
       ]
     }
   ],
@@ -127,29 +128,44 @@ module.exports = {
   // 注意：修改此处只会影响新创建的货物
   defaultFees: {
     baseTransport: {
-      name: '基础运费',
-      basePrice: 500,        // 基础价格
-      unit: '元/票',
-      calculationType: 'fixed'  // fixed | per_weight | per_volume | per_piece
+      name: '进仓运费',
+      unit: '元',
+      calculationType: 'manual'
     },
-    warehouse: {
-      name: '仓储费',
-      unitPrice: 5,          // 单价
-      unit: '元/m³/天',
-      calculationType: 'per_volume_per_day',
-      freeDays: 3            // 免费天数
+    collection: {
+      name: '代收款',
+      unit: '元',
+      calculationType: 'manual'
     },
-    wrapping: {
-      name: '缠货费',
+    pickup: {
+      name: '上门提货费',
+      basePrice: 50,
+      unit: '元/次',
+      calculationType: 'fixed'
+    },
+    storage: {
+      name: '集货点堆存费',
+      unitPrice: 50,
+      unit: '元/票/天',
+      calculationType: 'manual',
+      freeDays: 5
+    },
+    relabel: {
+      name: '贴唛改唛费',
       unitPrice: 2,
       unit: '元/件',
       calculationType: 'per_piece'
     },
-    pickup: {
-      name: '提货费',
-      basePrice: 100,
+    beilunDistribution: {
+      name: '北仑分拨费',
+      basePrice: 120,
       unit: '元/票',
       calculationType: 'fixed'
+    },
+    transfer: {
+      name: '转运费',
+      unit: '元',
+      calculationType: 'manual'
     }
   },
 

@@ -5,7 +5,8 @@ App({
   globalData: {
     userInfo: null,
     role: null,
-    phone: null
+    phone: null,
+    name: null
   },
 
   onLaunch() {
@@ -24,6 +25,7 @@ App({
       this.globalData.userInfo = userInfo;
       this.globalData.role = userInfo.role;
       this.globalData.phone = userInfo.phone;
+      this.globalData.name = userInfo.name;
     }
   },
 
@@ -39,6 +41,7 @@ App({
     this.globalData.userInfo = userInfo;
     this.globalData.role = userInfo.role;
     this.globalData.phone = userInfo.phone;
+    this.globalData.name = userInfo.name;
     wx.setStorageSync('userInfo', userInfo);
   }
 });

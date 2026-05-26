@@ -18,7 +18,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'warehouseQueue', filter: { status: 'pending' } }
+        data: { action: 'warehouseQueue', role: 'warehouse', filter: { status: 'pending' } }
       });
       if (res.result.code === 0) {
         const list = res.result.data.list || [];

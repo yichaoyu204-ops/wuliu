@@ -16,17 +16,22 @@ Page({
     routeEditForm: {},
     isEditingMeasurement: false,
     measurementEditForm: {},
+    paymentTypeNameMap: {
+      monthly: '萌恒月结',
+      spot: '供应商现结',
+      supplier_monthly: '供应商月结'
+    },
     routes: [
-      { id: 'route_yw_mh_hub', name: '义乌→萌恒仓库（经义乌中转仓）' },
-      { id: 'route_yw_bl_hub', name: '义乌→北仑方向其他仓库（经义乌中转仓）' },
-      { id: 'route_yw_mh_direct', name: '义乌→萌恒仓库（工厂直发）' },
-      { id: 'route_yw_bl_direct', name: '义乌→北仑方向其他仓库（工厂直发）' }
+      { id: 'route_yw_haitong_anda', name: '义乌→海通安达', warehouseName: '海通安达' },
+      { id: 'route_yw_leyi_warehouse', name: '义乌→乐祎仓库', warehouseName: '乐祎仓库' },
+      { id: 'route_yw_shunhang_warehouse', name: '义乌→顺航仓库', warehouseName: '顺航仓库' },
+      { id: 'route_yw_other_warehouse', name: '义乌→其他仓库', warehouseName: '' }
     ]
   },
 
   onLoad(options) {
     const id = options.id || '';
-    const token = options.shareToken || '';
+    const token = options.shareToken || options.token || '';
 
     if (!id && !token) {
       wx.showToast({ title: '缺少参数', icon: 'none' });
@@ -40,7 +45,8 @@ Page({
 
   checkEditPermission() {
     const role = wx.getStorageSync('userRole') || '';
-    this.setData({ canEdit: role === 'warehouse' || role === 'admin', role });
+    const canEdit = role === 'warehouse' || role === 'admin';
+    this.setData({ canEdit, role });
   },
 
   async fetchDetail(shipmentId, shareToken) {
@@ -50,6 +56,8 @@ Page({
       const params = { action: 'detail' };
       if (shipmentId) params.shipmentId = shipmentId;
       if (shareToken) params.shareToken = shareToken;
+      const role = wx.getStorageSync('userRole') || '';
+      if (role) params.role = role;
 
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
@@ -58,19 +66,20 @@ Page({
 
       if (res.result.code === 0 && res.result.data) {
         const shipment = res.result.data;
+        this.decorateAppointment(shipment);
 
         // 给 timeline 节点添加显示文案
         const displayMap = {
           pickup: '已提货，工厂送货/上门提货',
-          yiwu_entry: '已入库，义乌中转仓入库',
-          mainline: '已出库，干线运输中',
-          nb_entry: '已完成入库'
+          yiwu_entry: '已收货，义乌中转仓收货',
+          mainline: '已发运，干线运输中',
+          nb_entry: '已进入目标仓库'
         };
         const statusLabelMap = {
           pickup: { active: '进行中', completed: '已完成' },
-          yiwu_entry: { active: '待入库', completed: '已入库' },
-          mainline: { active: '待出库', completed: '已出库' },
-          nb_entry: { active: '进行中', completed: '已完成' }
+          yiwu_entry: { active: '待收货', completed: '已收货' },
+          mainline: { active: '运输中', completed: '已发运' },
+          nb_entry: { active: '已进入目标仓库', completed: '已进入目标仓库' }
         };
         if (shipment.timeline) {
           shipment.timeline = shipment.timeline.map(node => ({
@@ -79,6 +88,7 @@ Page({
             displayStatus: statusLabelMap[node.nodeCode]?.[node.status] || (node.status === 'completed' ? '已完成' : (node.status === 'active' ? '进行中' : '待处理'))
           }));
         }
+        shipment.paymentTypeLabel = this.getPaymentTypeLabel(shipment.billing?.paymentType || 'monthly');
 
         const statusCard = this.getStatusCard(shipment);
         const timeline = shipment.timeline || [];
@@ -111,11 +121,29 @@ Page({
     this.setData({ loading: false });
   },
 
+  decorateAppointment(shipment) {
+    const appointment = shipment.warehouseAppointment || {};
+    const scheduledAt = appointment.scheduledAt || '';
+    const completed = !!(appointment.isCompleted && scheduledAt);
+    shipment.appointmentCompleted = completed;
+    shipment.appointmentTimeText = completed ? this.formatAppointmentTime(scheduledAt) : '';
+    shipment.appointmentTagText = completed
+      ? `已完成进仓预约，时间为${shipment.appointmentTimeText}`
+      : '暂未完成进仓预约';
+    shipment.appointmentTagClass = completed ? 'done' : 'pending';
+  },
+
+  formatAppointmentTime(value) {
+    if (!value) return '';
+    return String(value).replace('T', ' ').slice(0, 16);
+  },
+
   initEditForm() {
     const s = this.data.shipment;
     if (!s) return;
     this.setData({
       editForm: {
+        warehouseEntryNo: s.cargoInfo?.warehouseEntryNo || '',
         waybillNo: s.cargoInfo?.waybillNo || '',
         pieces: s.cargoInfo?.pieces != null ? String(s.cargoInfo.pieces) : '',
         grossWeight: s.cargoInfo?.grossWeight != null ? String(s.cargoInfo.grossWeight) : '',
@@ -151,6 +179,10 @@ Page({
     this.setData({ 'editForm.paymentType': e.detail.value });
   },
 
+  getPaymentTypeLabel(paymentType) {
+    return this.data.paymentTypeNameMap[paymentType] || '萌恒月结';
+  },
+
   async saveEdit() {
     const { shipment, editForm } = this.data;
     if (!shipment) return;
@@ -165,6 +197,7 @@ Page({
           shipmentId: shipment._id,
           data: {
             cargoInfo: {
+              warehouseEntryNo: editForm.warehouseEntryNo,
               waybillNo: editForm.waybillNo,
               pieces: editForm.pieces ? parseInt(editForm.pieces, 10) : 0,
               grossWeight: parseFloat(editForm.grossWeight) || 0,
@@ -217,36 +250,36 @@ Page({
       case 'pickup':
         mainTitle = '工厂送货/上门提货';
         if (oaStatus === 'created') {
-          subTitle = '已建单，等待仓管员实测';
+          subTitle = '已建单，等待接单员实测';
         } else if (oaStatus === 'measured_priced') {
           subTitle = '已实测定价，等待管理员确认';
         } else if (oaStatus === 'admin_confirmed') {
-          subTitle = '管理员已确认，等待入库';
+          subTitle = '管理员已确认，等待收货';
         }
         icon = '';
         break;
       case 'yiwu_entry':
-        mainTitle = '义乌中转仓入库';
+        mainTitle = '义乌中转仓收货';
         if (oaStatus === 'measured_priced') {
           subTitle = '已实测定价，等待管理员确认';
         } else if (oaStatus === 'admin_confirmed') {
-          subTitle = '管理员已确认，等待出库';
+          subTitle = '管理员已确认，等待发运';
         }
         icon = '';
         break;
       case 'mainline':
-        mainTitle = '已出库，干线运输中';
-        subTitle = '货物已出库，正在运输途中';
+        mainTitle = '运输中';
+        subTitle = '已发运，干线运输中';
         icon = '';
         break;
       case 'nb_entry':
-        mainTitle = '入库完成';
-        subTitle = '货物已送达，等待报关';
+        mainTitle = '已进入目标仓库';
+        subTitle = '目标仓库已确认送达';
         icon = '';
         break;
     }
 
-    if (shipment.status === 'completed') {
+    if (shipment.status === 'completed' && !['mainline', 'nb_entry'].includes(activeCode)) {
       mainTitle = '流程已完结';
       subTitle = '货物运输已完成';
         icon = '';
@@ -256,6 +289,9 @@ Page({
   },
 
   getStatusDesc(shipment) {
+    const activeNode = (shipment.timeline || []).find(n => n.status === 'active');
+    if (activeNode?.nodeCode === 'mainline') return '货物已发运，干线运输中';
+    if (activeNode?.nodeCode === 'nb_entry' || shipment.status === 'arrived_target_warehouse') return '货物已进入目标仓库';
     if (shipment.status === 'completed') return '货物已送达，运输完成';
     if (shipment.quote?.status === 'sent') return '报价已发送，等待客户确认';
     if (shipment.quote?.status === 'confirmed') {
@@ -269,7 +305,7 @@ Page({
 
   previewPhoto(e) {
     const url = e.currentTarget.dataset.url;
-    const photos = this.data.shipment.measurement?.photos || [];
+    const photos = (this.data.shipment.timeline || []).flatMap(node => node.photos || []);
     wx.previewImage({ current: url, urls: photos });
   },
 
@@ -300,7 +336,7 @@ Page({
     });
   },
 
-  // 仓管员确认信息后，选择下一步
+  // 接单员确认信息后，选择下一步
   confirmInfo() {
     const shipmentId = this.data.shipment?._id;
     if (!shipmentId) return;
@@ -317,7 +353,7 @@ Page({
     });
   },
 
-  // 仓管员/管理员：推进物流节点
+  // 接单员/管理员：推进物流节点
   async advanceNode() {
     const shipment = this.data.shipment;
     if (!shipment) return;
@@ -329,7 +365,7 @@ Page({
       return;
     }
 
-    const actionText = activeNode.nodeCode === 'pickup' ? '确认入库' : '确认出库';
+    const actionText = activeNode.nodeCode === 'pickup' ? '确认收货' : '确认发运';
 
     wx.showModal({
       title: `确认${actionText}`,
@@ -391,7 +427,8 @@ Page({
     const selected = this.data.routes[idx];
     this.setData({
       'routeEditForm.routeIndex': idx,
-      'routeEditForm.routeId': selected.id
+      'routeEditForm.routeId': selected.id,
+      'routeEditForm.warehouseName': selected.warehouseName
     });
   },
 
@@ -505,7 +542,7 @@ Page({
     const shipment = this.data.shipment;
     if (!shipment) return {};
     return {
-      title: `${shipment.cargoInfo.waybillNo || '运单'} - ${shipment.currentNodeName || '运输中'}`,
+      title: `${shipment.cargoInfo.warehouseEntryNo || shipment.cargoInfo.waybillNo || '运单'} - ${shipment.currentNodeName || '运输中'}`,
       path: `/pages/detail/index?shareToken=${shipment.shareToken}`,
       imageUrl: '/images/share-cover.png'
     };

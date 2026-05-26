@@ -47,16 +47,28 @@
       <view class="dot {{activeIndex === (isAdmin ? 3 : 2) ? 'on' : ''}}"></view>
     </view>
 
-    <!-- 账单 -->
-    <view class="item t4" data-index="{{isAdmin ? 4 : 3}}" bindtap="switchTab">
+    <!-- 预约进仓（仅管理员） -->
+    <view class="item t4" wx:if="{{isAdmin}}" data-index="4" bindtap="switchTab">
       <view class="icon">
-        <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:5rpx"></view>
-        <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:11rpx"></view>
-        <view class="line {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}" style="top:17rpx"></view>
+        <view class="calendar-top {{activeIndex === 4 ? 'on' : ''}}"></view>
+        <view class="calendar-body {{activeIndex === 4 ? 'on' : ''}}"></view>
+        <view class="calendar-dot {{activeIndex === 4 ? 'on' : ''}}"></view>
+        <view class="badge" wx:if="{{appointmentBadgeValue > 0}}">{{appointmentBadgeValue}}</view>
+      </view>
+      <view class="label {{activeIndex === 4 ? 'on' : ''}}">预约进仓</view>
+      <view class="dot {{activeIndex === 4 ? 'on' : ''}}"></view>
+    </view>
+
+    <!-- 账单 -->
+    <view class="item t5" data-index="{{isAdmin ? 5 : 3}}" bindtap="switchTab">
+      <view class="icon">
+        <view class="line {{activeIndex === (isAdmin ? 5 : 3) ? 'on' : ''}}" style="top:5rpx"></view>
+        <view class="line {{activeIndex === (isAdmin ? 5 : 3) ? 'on' : ''}}" style="top:11rpx"></view>
+        <view class="line {{activeIndex === (isAdmin ? 5 : 3) ? 'on' : ''}}" style="top:17rpx"></view>
         <view class="badge" wx:if="{{billingBadgeValue > 0}}">{{billingBadgeValue}}</view>
       </view>
-      <view class="label {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}">账单</view>
-      <view class="dot {{activeIndex === (isAdmin ? 4 : 3) ? 'on' : ''}}"></view>
+      <view class="label {{activeIndex === (isAdmin ? 5 : 3) ? 'on' : ''}}">账单</view>
+      <view class="dot {{activeIndex === (isAdmin ? 5 : 3) ? 'on' : ''}}"></view>
     </view>
   </view>
 </view>

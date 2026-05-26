@@ -29,7 +29,7 @@ Page({
     this.setData({ loading: true });
     try {
       const [shipRes, catRes] = await Promise.all([
-        wx.cloud.callFunction({ name: 'shipment-query', data: { action: 'detail', shipmentId } }),
+        wx.cloud.callFunction({ name: 'shipment-query', data: { action: 'detail', shipmentId, role: 'admin' } }),
         wx.cloud.callFunction({ name: 'fee-config', data: { action: 'list' } })
       ]);
 
@@ -76,6 +76,8 @@ Page({
             quoteItems.push(this.buildQuoteItem(cat, shipment.measurement));
           }
         });
+      } else if (shipment.fees?.length > 0) {
+        quoteItems = this.buildQuoteItemsFromShipmentFees(shipment.fees);
       } else {
         // 新建报价：按类目生成初始项
         quoteItems = categories
@@ -98,6 +100,16 @@ Page({
       wx.showToast({ title: '网络错误', icon: 'none' });
       this.setData({ loading: false });
     }
+  },
+
+  buildQuoteItemsFromShipmentFees(fees) {
+    return fees.map((fee, index) => ({
+      categoryId: fee.categoryId || `measurement_fee_${index}`,
+      name: fee.name || '费用',
+      calculationDetail: fee.detail || '仓库实测费用',
+      amount: fee.amount != null ? Math.round(Number(fee.amount) * 100) / 100 : 0,
+      isIncluded: fee.isIncluded !== false
+    }));
   },
 
   // 检查申报单位与实测单位是否一致

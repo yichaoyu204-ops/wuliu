@@ -52,7 +52,7 @@ function normalizeShipmentData(aiData) {
 
   return {
     cargoInfo: {
-      warehouseEntryNo: checkField(info.entryNo, '进仓编号'),
+      warehouseEntryNo: checkField(info.warehouseEntryNo, '进仓编号') || checkField(info.entryNo, '进仓编号'),
       pieces: checkField(info.pieces, '件数'),
       piecesUnit: info.pieces ? info.pieces.unit || '件' : '件',
       grossWeight: checkField(info.weight, '重量'),

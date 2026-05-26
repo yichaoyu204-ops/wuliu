@@ -12,8 +12,13 @@ Page({
     activeTab: 'pending',
     isSalesman: false,
     isAdmin: false,
+    paymentTypeNameMap: {
+      monthly: '萌恒月结',
+      spot: '供应商现结',
+      supplier_monthly: '供应商月结'
+    },
     statusNameMap: {
-      created: '已建单，待仓管员实测定价',
+      created: '已建单',
       measured_priced: '已实测定价，管理员同步确认中',
       admin_confirmed: '管理员已确认，待送达',
       billed: '账单已发送，待支付',
@@ -25,7 +30,7 @@ Page({
     const role = wx.getStorageSync('userRole') || '';
     const roleNameMap = {
       salesman: '业务员',
-      warehouse: '仓管员',
+      warehouse: '接单员',
       admin: '管理员'
     };
     this.setData({
@@ -75,7 +80,7 @@ Page({
       });
 
       if (res.result.code === 0) {
-        const list = res.result.data?.list || [];
+        const list = (res.result.data?.list || []).map(item => this.enrichShipment(item));
         const grouped = this.groupShipmentsByDate(list);
         this.setData({ groupedShipments: grouped });
       } else {
@@ -129,10 +134,50 @@ Page({
     return `${MM}-${DD} ${hh}:${mm}`;
   },
 
+  getPaymentTypeLabel(paymentType) {
+    return this.data.paymentTypeNameMap[paymentType] || '萌恒月结';
+  },
+
+  isMonthlyPayment(paymentType) {
+    return paymentType === 'monthly' || paymentType === 'supplier_monthly';
+  },
+
+  enrichShipment(item) {
+    const paymentType = item.billing?.paymentType || 'monthly';
+    const appointment = this.getAppointmentDisplay(item);
+    return {
+      ...item,
+      paymentTypeLabel: this.getPaymentTypeLabel(paymentType),
+      isMonthlyPayment: this.isMonthlyPayment(paymentType),
+      appointmentTagText: appointment.text,
+      appointmentTagClass: appointment.className
+    };
+  },
+
+  getAppointmentDisplay(item) {
+    const scheduledAt = item.warehouseAppointment?.scheduledAt || '';
+    if (item.warehouseAppointment?.isCompleted && scheduledAt) {
+      return {
+        text: `已完成进仓预约，时间为 ${String(scheduledAt).replace('T', ' ').slice(0, 16)}`,
+        className: 'done'
+      };
+    }
+    return {
+      text: '暂未完成进仓预约',
+      className: 'pending'
+    };
+  },
+
   // 统一更新 tabBar badge（所有角色共用）
   async updateBadge() {
     const role = wx.getStorageSync('userRole') || '';
     if (!role) return;
+    if (role === 'salesman') {
+      if (typeof this.getTabBar === 'function' && this.getTabBar()) {
+        this.getTabBar().setData({ badgeValue: 0 });
+      }
+      return;
+    }
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
@@ -152,7 +197,7 @@ Page({
     }
   },
 
-  // 仓管/管理员：加载流程待办
+  // 接单员/管理员：加载流程待办
   async loadWorkflows() {
     this.setData({ loading: true });
 
@@ -173,8 +218,33 @@ Page({
           const timeline = item.timeline || [];
           const activeNode = timeline.find(n => n.status === 'active');
           const nodeCode = activeNode ? activeNode.nodeCode : '';
-          const btnMap = { pickup: '确认入库', yiwu_entry: '确认出库', mainline: '确认到达' };
-          return { ...item, currentNodeCode: nodeCode, advanceButtonText: btnMap[nodeCode] || '推进节点' };
+          const btnMap = { pickup: '确认收货', yiwu_entry: '确认发运', mainline: '确认到达' };
+          const canConfirmOutbound = this.data.role === 'warehouse' &&
+            nodeCode === 'yiwu_entry' &&
+            (item.oaStatus === 'admin_confirmed' || item.oaStatus === 'billed');
+          const isSpotBusinessCompleted = item.billing?.paymentType === 'spot' &&
+            item.oaStatus === 'completed' &&
+            nodeCode === 'mainline';
+          const isMonthlyBillSent = this.isMonthlyPayment(item.billing?.paymentType) &&
+            item.oaStatus === 'billed';
+          const canAdminConfirmDelivered = this.data.role === 'admin' &&
+            (isSpotBusinessCompleted || isMonthlyBillSent);
+          const isTargetWarehouse = nodeCode === 'nb_entry' || item.status === 'arrived_target_warehouse';
+          const workflowStatusBadgeClass = isTargetWarehouse
+            ? 'completed'
+            : (nodeCode === 'mainline' ? 'mainline' : 'completed');
+          const workflowStatusBadgeText = isTargetWarehouse
+            ? '已进入目标仓库'
+            : (nodeCode === 'mainline' ? '运输中' : '流程已完结');
+          return {
+            ...this.enrichShipment(item),
+            currentNodeCode: nodeCode,
+            advanceButtonText: btnMap[nodeCode] || '推进节点',
+            canConfirmOutbound,
+            canAdminConfirmDelivered,
+            workflowStatusBadgeClass,
+            workflowStatusBadgeText
+          };
         });
 
         const pendingList = processList(pending);
@@ -315,8 +385,8 @@ Page({
 
   // 节点文案映射
   nodeButtonMap: {
-    pickup: '确认入库',
-    yiwu_entry: '确认出库',
+    pickup: '确认收货',
+    yiwu_entry: '确认发运',
     mainline: '确认到达'
   },
 

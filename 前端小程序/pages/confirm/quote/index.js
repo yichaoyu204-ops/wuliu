@@ -23,7 +23,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'detail', shipmentId }
+        data: { action: 'detail', shipmentId, role: wx.getStorageSync('userRole') || '' }
       });
       wx.hideLoading();
 
@@ -70,7 +70,12 @@ Page({
       return;
     }
 
-    const paymentText = paymentType === 'spot' ? '现结' : '月结';
+    const paymentTextMap = {
+      spot: '供应商现结',
+      monthly: '萌恒月结',
+      supplier_monthly: '供应商月结'
+    };
+    const paymentText = paymentTextMap[paymentType] || '萌恒月结';
     wx.showModal({
       title: '二次确认',
       content: `确认采用「${paymentText}」方式支付运费 ¥${parseFloat(quote.subtotal || 0).toFixed(2)} 吗？确认后无法撤销。`,
@@ -99,7 +104,7 @@ Page({
 
       if (res.result.code === 0) {
         const msg = paymentType === 'spot'
-          ? '已确认，请等待仓管员确认收款'
+          ? '已确认，请等待接单员确认收款'
           : '已归入月结账单';
         wx.showToast({ title: msg, icon: 'success', duration: 2000 });
         setTimeout(() => {
@@ -123,7 +128,7 @@ Page({
       success: () => {
         wx.showModal({
           title: '单号已复制',
-          content: `业务编号 ${id} 已复制到剪贴板。如有异议，请将单号发送给业务员沟通。`,
+          content: `业务参与编号 ${id} 已复制到剪贴板。如有异议，请将单号发送给业务员沟通。`,
           showCancel: false,
           confirmText: '知道了'
         });

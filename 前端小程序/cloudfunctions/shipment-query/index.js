@@ -11,31 +11,50 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
-// 权限白名单
-const ADMIN_OPENIDS = [];
-const WAREHOUSE_OPENIDS = [];
+async function getCurrentUser(openId, role) {
+  if (!openId) return null;
 
-function checkAdmin(openId) {
-  if (!openId) throw new Error('无法获取用户身份');
-  if (ADMIN_OPENIDS.length === 0) return true;
-  if (ADMIN_OPENIDS.includes(openId)) return true;
+  if (role) {
+    const roleRes = await db.collection('users').where({ openId, role }).limit(1).get();
+    if (roleRes.data.length > 0) return roleRes.data[0];
+  }
+
+  const userRes = await db.collection('users').where({ openId }).limit(1).get();
+  return userRes.data[0] || null;
+}
+
+function checkAdmin(user) {
+  if (!user) throw new Error('请先登录');
+  if (user.role === 'admin') return true;
   throw new Error('权限不足');
 }
 
-function isWarehouseOrAdmin(openId) {
-  if (!openId) return false;
-  if (WAREHOUSE_OPENIDS.length === 0 && ADMIN_OPENIDS.length === 0) return true;
-  return WAREHOUSE_OPENIDS.includes(openId) || ADMIN_OPENIDS.includes(openId);
+function isWarehouseOrAdmin(user) {
+  return user && ['warehouse', 'admin'].includes(user.role);
+}
+
+function canReadShipment(shipment, user) {
+  if (!shipment) return false;
+  if (!user) return false;
+  if (user.role === 'salesman') return shipment.creatorOpenId === user.openId;
+  return ['warehouse', 'admin'].includes(user.role);
+}
+
+function getSalesmanScope(user) {
+  if (user?.role === 'salesman') {
+    return { creatorOpenId: user.openId };
+  }
+  return {};
 }
 
 /**
  * 查询货物列表（按手机号）
  */
-async function queryByPhone(phone, filter = {}, pagination = { page: 1, pageSize: 20 }) {
+async function queryByPhone(phone, filter = {}, pagination = { page: 1, pageSize: 20 }, currentUser = null) {
   const { page, pageSize } = pagination;
   const skip = (page - 1) * pageSize;
 
-  let query = db.collection('shipments').where({ managerPhone: phone, isDeleted: _.neq(true), ...filter });
+  let query = db.collection('shipments').where({ managerPhone: phone, isDeleted: _.neq(true), ...getSalesmanScope(currentUser), ...filter });
   const countRes = await query.count();
   const total = countRes.total;
 
@@ -49,14 +68,21 @@ async function queryByPhone(phone, filter = {}, pagination = { page: 1, pageSize
   const list = listRes.data.map(item => ({
     shipmentId: item._id,
     factoryName: item.factoryName,
+    creatorName: item.creatorName,
+    creatorPhone: item.creatorPhone,
     cargoInfo: {
+      warehouseEntryNo: item.cargoInfo.warehouseEntryNo,
+      waybillNo: item.cargoInfo.waybillNo,
       pieces: item.cargoInfo.pieces,
       piecesUnit: item.cargoInfo.piecesUnit,
       grossWeight: item.cargoInfo.grossWeight,
-      volume: item.cargoInfo.volume
+      weightUnit: item.cargoInfo.weightUnit,
+      volume: item.cargoInfo.volume,
+      volumeUnit: item.cargoInfo.volumeUnit
     },
     currentNodeName: item.currentNodeName,
     status: item.status,
+    warehouseAppointment: item.warehouseAppointment,
     totalAmount: item.totalAmount,
     updatedAt: item.updatedAt,
     shareToken: item.shareToken
@@ -114,15 +140,44 @@ async function convertFileIdsToUrls(shipment) {
 /**
  * 获取完整详情（含日志）
  */
-async function getDetailWithLogs(shipmentId) {
-  const [shipmentRes, logsRes] = await Promise.all([
-    db.collection('shipments').doc(shipmentId).get(),
-    db.collection('operation_logs').where({ shipmentId }).orderBy('timestamp', 'desc').limit(50).get()
-  ]);
+async function getDetailWithLogs(shipmentId, currentUser) {
+  let shipment = null;
 
-  if (!shipmentRes.data) return null;
+  try {
+    const shipmentRes = await db.collection('shipments').doc(shipmentId).get();
+    shipment = shipmentRes.data || null;
+  } catch (e) {
+    shipment = null;
+  }
 
-  const shipment = { ...shipmentRes.data, logs: logsRes.data };
+  if (!shipment) {
+    const byWaybillRes = await db.collection('shipments')
+      .where({ 'cargoInfo.waybillNo': shipmentId, isDeleted: _.neq(true) })
+      .limit(1)
+      .get();
+    shipment = byWaybillRes.data?.[0] || null;
+  }
+
+  if (!shipment) {
+    const byWarehouseEntryRes = await db.collection('shipments')
+      .where({ 'cargoInfo.warehouseEntryNo': shipmentId, isDeleted: _.neq(true) })
+      .limit(1)
+      .get();
+    shipment = byWarehouseEntryRes.data?.[0] || null;
+  }
+
+  if (!shipment) return null;
+  if (!canReadShipment(shipment, currentUser)) {
+    throw new Error('权限不足：只能查看自己创建的运单');
+  }
+
+  const logsRes = await db.collection('operation_logs')
+    .where({ shipmentId: shipment._id })
+    .orderBy('timestamp', 'desc')
+    .limit(50)
+    .get();
+
+  shipment = { ...shipment, logs: logsRes.data };
   await convertFileIdsToUrls(shipment);
   return shipment;
 }
@@ -133,16 +188,27 @@ exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext();
 
   try {
+    const currentUser = await getCurrentUser(OPENID, event.role);
+
     switch (action) {
       case 'list':
+        if (!currentUser) return error('请先登录');
         if (!phone) return paramError('缺少phone参数');
-        return success(await queryByPhone(phone, filter, pagination));
+        return success(await queryByPhone(phone, filter, pagination, currentUser));
 
-      case 'detail':
+      case 'detail': {
+        const detailToken = event.shareToken || token;
+        if (detailToken) {
+          const sharedDetail = await queryByToken(detailToken);
+          if (!sharedDetail) return notFound('货物不存在或链接已失效');
+          await convertFileIdsToUrls(sharedDetail);
+          return success(sharedDetail);
+        }
         if (!shipmentId) return paramError('缺少shipmentId参数');
-        const detail = await getDetailWithLogs(shipmentId);
+        const detail = await getDetailWithLogs(shipmentId, currentUser);
         if (!detail) return notFound('货物不存在');
         return success(detail);
+      }
 
       case 'byToken':
         if (!token) return paramError('缺少token参数');
@@ -159,35 +225,49 @@ exports.main = async (event, context) => {
           currentNodeIndex: byToken.currentNodeIndex,
           timeline: byToken.timeline,
           status: byToken.status,
+          warehouseAppointment: byToken.warehouseAppointment,
           updatedAt: byToken.updatedAt,
           shareToken: byToken.shareToken
         });
 
       case 'queryByPhone': {
+        if (!currentUser) return error('请先登录');
+
         // 支持按名字模糊查询
         if (event.name) {
+          const queryParts = [
+            _.or([
+              { factoryName: db.RegExp({ regexp: event.name, options: 'i' }) },
+              { clientName: db.RegExp({ regexp: event.name, options: 'i' }) }
+            ]),
+            { isDeleted: _.neq(true) }
+          ];
+          const salesmanScope = getSalesmanScope(currentUser);
+          if (salesmanScope.creatorOpenId) queryParts.push(salesmanScope);
+
           const nameRes = await db.collection('shipments')
-            .where(_.and([
-              _.or([
-                { factoryName: db.RegExp({ regexp: event.name, options: 'i' }) },
-                { clientName: db.RegExp({ regexp: event.name, options: 'i' }) }
-              ]),
-              { isDeleted: _.neq(true) }
-            ]))
+            .where(_.and(queryParts))
             .orderBy('updatedAt', 'desc')
             .limit(50)
             .get();
           const nameList = nameRes.data.map(item => ({
             _id: item._id,
             factoryName: item.factoryName,
+            creatorName: item.creatorName,
+            creatorPhone: item.creatorPhone,
             cargoInfo: {
+              warehouseEntryNo: item.cargoInfo.warehouseEntryNo,
+              waybillNo: item.cargoInfo.waybillNo,
               pieces: item.cargoInfo.pieces,
               piecesUnit: item.cargoInfo.piecesUnit,
               grossWeight: item.cargoInfo.grossWeight,
-              volume: item.cargoInfo.volume
+              weightUnit: item.cargoInfo.weightUnit,
+              volume: item.cargoInfo.volume,
+              volumeUnit: item.cargoInfo.volumeUnit
             },
             currentNodeName: item.currentNodeName,
             status: item.status,
+            warehouseAppointment: item.warehouseAppointment,
             totalAmount: item.totalAmount,
             updatedAt: item.updatedAt,
             shareToken: item.shareToken
@@ -197,21 +277,28 @@ exports.main = async (event, context) => {
 
         if (!phone) return paramError('缺少phone参数');
         const qbRes = await db.collection('shipments')
-          .where({ managerPhone: phone, isDeleted: _.neq(true) })
+          .where({ managerPhone: phone, isDeleted: _.neq(true), ...getSalesmanScope(currentUser) })
           .orderBy('updatedAt', 'desc')
           .limit(50)
           .get();
         const qbList = qbRes.data.map(item => ({
           _id: item._id,
           factoryName: item.factoryName,
+          creatorName: item.creatorName,
+          creatorPhone: item.creatorPhone,
           cargoInfo: {
+            warehouseEntryNo: item.cargoInfo.warehouseEntryNo,
+            waybillNo: item.cargoInfo.waybillNo,
             pieces: item.cargoInfo.pieces,
             piecesUnit: item.cargoInfo.piecesUnit,
             grossWeight: item.cargoInfo.grossWeight,
-            volume: item.cargoInfo.volume
+            weightUnit: item.cargoInfo.weightUnit,
+            volume: item.cargoInfo.volume,
+            volumeUnit: item.cargoInfo.volumeUnit
           },
           currentNodeName: item.currentNodeName,
           status: item.status,
+          warehouseAppointment: item.warehouseAppointment,
           totalAmount: item.totalAmount,
           updatedAt: item.updatedAt,
           shareToken: item.shareToken
@@ -220,13 +307,52 @@ exports.main = async (event, context) => {
       }
 
       case 'adminList':
-        checkAdmin(OPENID);
-        const adminRes = await db.collection('shipments').where({ isDeleted: _.neq(true) }).orderBy('updatedAt', 'desc').limit(100).get();
+        checkAdmin(currentUser);
+        const adminRes = await db.collection('shipments').where({ isDeleted: _.neq(true) }).orderBy('createdAt', 'desc').limit(100).get();
         return success({ list: adminRes.data, total: adminRes.data.length });
 
+      case 'appointmentList': {
+        checkAdmin(currentUser);
+        const apptRes = await db.collection('shipments')
+          .where({ isDeleted: _.neq(true) })
+          .orderBy('createdAt', 'desc')
+          .limit(100)
+          .get();
+        const pending = [];
+        const completed = [];
+        apptRes.data.forEach(item => {
+          const scheduledAt = item.warehouseAppointment?.scheduledAt || '';
+          if (item.warehouseAppointment?.isCompleted && scheduledAt) {
+            completed.push(item);
+          } else {
+            pending.push(item);
+          }
+        });
+        return success({
+          pending,
+          completed,
+          totalPending: pending.length,
+          totalCompleted: completed.length
+        });
+      }
+
+      case 'appointmentCount': {
+        checkAdmin(currentUser);
+        const apptRes = await db.collection('shipments')
+          .where({ isDeleted: _.neq(true) })
+          .orderBy('createdAt', 'desc')
+          .limit(100)
+          .get();
+        const count = apptRes.data.filter(item => {
+          const scheduledAt = item.warehouseAppointment?.scheduledAt || '';
+          return !(item.warehouseAppointment?.isCompleted && scheduledAt);
+        }).length;
+        return success({ count });
+      }
+
       case 'warehouseQueue': {
-        if (!isWarehouseOrAdmin(OPENID)) return error('权限不足：仅仓管员或管理员可访问');
-        // 仓管员：待测量的进仓货物列表
+        if (!isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可访问');
+        // 接单员：待测量的进仓货物列表
         const { status = 'pending' } = filter || {};
         let q = db.collection('shipments')
           .where({
@@ -241,15 +367,16 @@ exports.main = async (event, context) => {
           cargoInfo: item.cargoInfo,
           currentNodeName: item.currentNodeName,
           measurement: item.measurement,
+          warehouseAppointment: item.warehouseAppointment,
           createdAt: item.createdAt
         }));
         return success({ list: wqList, total: wqList.length });
       }
 
       case 'myShipments': {
-        if (!OPENID) return error('无法获取用户身份');
+        if (!currentUser) return error('请先登录');
         const myRes = await db.collection('shipments')
-          .where({ creatorOpenId: OPENID, isDeleted: _.neq(true) })
+          .where({ creatorOpenId: currentUser.openId, isDeleted: _.neq(true) })
           .orderBy('createdAt', 'desc')
           .limit(100)
           .get();
@@ -257,7 +384,11 @@ exports.main = async (event, context) => {
           _id: item._id,
           factoryName: item.factoryName,
           creatorName: item.creatorName,
+          creatorPhone: item.creatorPhone,
+          creatorRole: item.creatorRole,
           cargoInfo: {
+            warehouseEntryNo: item.cargoInfo.warehouseEntryNo,
+            waybillNo: item.cargoInfo.waybillNo,
             pieces: item.cargoInfo.pieces,
             piecesUnit: item.cargoInfo.piecesUnit,
             grossWeight: item.cargoInfo.grossWeight,
@@ -271,6 +402,7 @@ exports.main = async (event, context) => {
           oaStatusName: item.oaStatusName,
           currentNodeName: item.currentNodeName,
           status: item.status,
+          warehouseAppointment: item.warehouseAppointment,
           totalAmount: item.totalAmount,
           createdAt: item.createdAt,
           updatedAt: item.updatedAt,
@@ -282,8 +414,9 @@ exports.main = async (event, context) => {
       case 'billList': {
         const { role, phone, status } = event;
         const query = {
-          oaStatus: 'billed',
+          oaStatus: _.in(['billed', 'completed']),
           'billing.paymentType': _.neq('spot'),
+          'billing.billId': _.neq(''),
           isDeleted: _.neq(true)
         };
 
@@ -291,9 +424,13 @@ exports.main = async (event, context) => {
           query['billing.paymentStatus'] = status;
         }
 
-        if (role !== 'admin') {
-          if (!phone) return paramError('缺少phone参数');
-          query.managerPhone = phone;
+        if (role === 'admin') {
+          checkAdmin(currentUser);
+        } else if (currentUser?.role === 'salesman') {
+          query.creatorOpenId = currentUser.openId;
+          if (phone) query.managerPhone = phone;
+        } else {
+          return error('权限不足');
         }
 
         const billRes = await db.collection('shipments')
@@ -311,15 +448,20 @@ exports.main = async (event, context) => {
       case 'billCount': {
         const { role, phone } = event;
         const query = {
-          oaStatus: 'billed',
+          oaStatus: _.in(['billed', 'completed']),
           'billing.paymentType': _.neq('spot'),
+          'billing.billId': _.neq(''),
           'billing.paymentStatus': _.neq('paid'),
           isDeleted: _.neq(true)
         };
 
-        if (role !== 'admin') {
-          if (!phone) return paramError('缺少phone参数');
-          query.managerPhone = phone;
+        if (role === 'admin') {
+          checkAdmin(currentUser);
+        } else if (currentUser?.role === 'salesman') {
+          query.creatorOpenId = currentUser.openId;
+          if (phone) query.managerPhone = phone;
+        } else {
+          return error('权限不足');
         }
 
         const countRes = await db.collection('shipments')
@@ -332,6 +474,8 @@ exports.main = async (event, context) => {
       case 'workflowList': {
         const { role, includeCompleted = false } = event;
         if (!role) return paramError('缺少role参数');
+        if (role === 'admin') checkAdmin(currentUser);
+        if (role === 'warehouse' && !isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可访问');
 
         let pendingQuery = {};
         let storedQuery = {};
@@ -340,7 +484,7 @@ exports.main = async (event, context) => {
         let billingQuery = {};
 
         if (role === 'warehouse') {
-          // 仓管员分类基于物流节点状态
+          // 接单员分类基于物流节点状态
           pendingQuery = {
             timeline: _.elemMatch({ status: 'active', nodeCode: 'pickup' }),
             isDeleted: _.neq(true)
@@ -354,11 +498,29 @@ exports.main = async (event, context) => {
             { status: 'completed', isDeleted: _.neq(true) }
           ]);
         } else if (role === 'admin') {
-          // 管理员四分类：待处理 / 已入库 / 账单 / 已完结
+          // 管理员四分类：待处理 / 已收货 / 账单 / 已完结
           pendingQuery = { oaStatus: 'measured_priced', isDeleted: _.neq(true) };
-          storedQuery = { oaStatus: 'admin_confirmed', isDeleted: _.neq(true) };
+          storedQuery = {
+            oaStatus: 'admin_confirmed',
+            timeline: _.elemMatch({ status: 'active', nodeCode: 'yiwu_entry' }),
+            isDeleted: _.neq(true)
+          };
           billingQuery = { oaStatus: 'billed', 'billing.paymentType': _.neq('spot'), isDeleted: _.neq(true) };
-          completedQuery = { oaStatus: 'completed', isDeleted: _.neq(true) };
+          completedQuery = _.or([
+            { oaStatus: 'completed', isDeleted: _.neq(true) },
+            {
+              oaStatus: 'admin_confirmed',
+              'billing.paymentType': 'spot',
+              timeline: _.elemMatch({ status: 'active', nodeCode: _.in(['mainline', 'nb_entry']) }),
+              isDeleted: _.neq(true)
+            },
+            {
+              oaStatus: 'admin_confirmed',
+              'billing.paymentType': 'spot',
+              status: 'completed',
+              isDeleted: _.neq(true)
+            }
+          ]);
         } else {
           pendingQuery = { oaStatus: _.neq('completed'), oaAssignedTo: role, isDeleted: _.neq(true) };
           storedQuery = { oaStatus: 'none' };
@@ -396,13 +558,8 @@ exports.main = async (event, context) => {
               .get();
             completed = res.data;
           } else {
-            const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
             const res = await db.collection('shipments')
-              .where({
-                oaStatus: 'completed',
-                updatedAt: _.gte(sevenDaysAgo),
-                isDeleted: _.neq(true)
-              })
+              .where(completedQuery)
               .orderBy('updatedAt', 'desc')
               .limit(50)
               .get();
@@ -425,7 +582,8 @@ exports.main = async (event, context) => {
 
         let countQuery;
         if (role === 'warehouse') {
-          // 仓管员：与 workflowList 逻辑一致，统计待处理(pickup) + 已入库(yiwu_entry)
+          if (!isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可访问');
+          // 接单员：与 workflowList 逻辑一致，统计待处理(pickup) + 已收货(yiwu_entry)
           countQuery = {
             timeline: _.elemMatch({
               status: 'active',
@@ -434,17 +592,21 @@ exports.main = async (event, context) => {
             isDeleted: _.neq(true)
           };
         } else if (role === 'admin') {
-          // 管理员：统计所有有气泡的tab（待处理+已入库+已发账单）
-          countQuery = {
-            oaStatus: _.in(['measured_priced', 'admin_confirmed', 'billed']),
-            isDeleted: _.neq(true)
-          };
+          checkAdmin(currentUser);
+          // 管理员：统计所有有气泡的tab（待处理+已收货+已发账单）
+          countQuery = _.or([
+            { oaStatus: 'measured_priced', isDeleted: _.neq(true) },
+            {
+              oaStatus: 'admin_confirmed',
+              timeline: _.elemMatch({ status: 'active', nodeCode: 'yiwu_entry' }),
+              isDeleted: _.neq(true)
+            },
+            { oaStatus: 'billed', isDeleted: _.neq(true) }
+          ]);
+        } else if (role === 'salesman') {
+          return success({ count: 0 });
         } else {
-          countQuery = {
-            oaStatus: _.neq('completed'),
-            oaAssignedTo: role,
-            isDeleted: _.neq(true)
-          };
+          return paramError('不支持的角色类型');
         }
 
         const countRes = await db.collection('shipments')

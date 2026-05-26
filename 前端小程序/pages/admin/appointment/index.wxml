@@ -1,0 +1,106 @@
+<view class="container">
+  <view class="summary">
+    <view class="summary-item">
+      <text class="summary-number">{{pendingShipments.length}}</text>
+      <text class="summary-label">待预约</text>
+    </view>
+    <view class="summary-item">
+      <text class="summary-number done">{{completedShipments.length}}</text>
+      <text class="summary-label">已预约</text>
+    </view>
+  </view>
+
+  <view class="tab-bar">
+    <view class="tab-item {{activeTab === 'pending' ? 'active' : ''}}" bindtap="switchTab" data-tab="pending">
+      待预约
+      <text class="tab-count" wx:if="{{pendingShipments.length > 0}}">{{pendingShipments.length}}</text>
+    </view>
+    <view class="tab-item {{activeTab === 'completed' ? 'active' : ''}}" bindtap="switchTab" data-tab="completed">
+      已预约
+      <text class="tab-count" wx:if="{{completedShipments.length > 0}}">{{completedShipments.length}}</text>
+    </view>
+  </view>
+
+  <view class="list" wx:if="{{!loading && activeTab === 'pending'}}">
+    <view class="shipment-card" wx:for="{{pendingShipments}}" wx:key="_id">
+      <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
+        <text class="shipment-id">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
+        <view class="appointment-tag pending">{{item.appointmentTagText}}</view>
+      </view>
+      <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
+        <text class="creator-name">建单业务员：{{item.creatorName || item.contacts.contact1Name || '——'}}</text>
+        <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
+        <text class="cargo-info">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit || '件'}} / {{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit || 'KGS'}} / {{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit || 'CBM'}}</text>
+      </view>
+      <view class="card-footer">
+        <text class="create-time">{{item.createdAt || item.updatedAt || '时间未知'}}</text>
+        <view class="footer-actions">
+          <view class="btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">详情</view>
+          <view class="btn-primary" bindtap="openAppointment" data-id="{{item._id}}">去预约</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{pendingShipments.length === 0}}">
+      <view class="empty-icon empty-line-icon"></view>
+      <text class="empty-text">暂无待预约运单</text>
+    </view>
+  </view>
+
+  <view class="list" wx:if="{{!loading && activeTab === 'completed'}}">
+    <view class="shipment-card" wx:for="{{completedShipments}}" wx:key="_id">
+      <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
+        <text class="shipment-id">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
+        <view class="appointment-tag done">{{item.appointmentTagText}}</view>
+      </view>
+      <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
+        <text class="creator-name">建单业务员：{{item.creatorName || item.contacts.contact1Name || '——'}}</text>
+        <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
+        <text class="cargo-info">预约时间：{{item.appointmentTimeText}}</text>
+      </view>
+      <view class="card-footer">
+        <text class="create-time">{{item.createdAt || item.updatedAt || '时间未知'}}</text>
+        <view class="footer-actions">
+          <view class="btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">详情</view>
+          <view class="btn-primary" bindtap="openAppointment" data-id="{{item._id}}">修改</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="empty-state" wx:if="{{completedShipments.length === 0}}">
+      <view class="empty-icon empty-line-icon"></view>
+      <text class="empty-text">暂无已预约运单</text>
+    </view>
+  </view>
+
+  <view class="loading-state" wx:if="{{loading}}">
+    <view class="loading-spinner"></view>
+    <text>加载中...</text>
+  </view>
+
+  <view class="modal-mask" wx:if="{{showModal}}" bindtap="closeModal">
+    <view class="modal-content" catchtap="noop">
+      <view class="modal-title">预约进仓</view>
+      <view class="modal-shipment">{{currentShipment.cargoInfo.warehouseEntryNo || currentShipment.cargoInfo.waybillNo || currentShipment._id}}</view>
+
+      <view class="modal-row">
+        <text class="modal-label">预约日期</text>
+        <picker mode="date" value="{{appointmentForm.date}}" bindchange="onAppointmentDateChange">
+          <view class="picker-value">{{appointmentForm.date}}</view>
+        </picker>
+      </view>
+
+      <view class="modal-row">
+        <text class="modal-label">预约时间</text>
+        <picker mode="time" value="{{appointmentForm.time}}" bindchange="onAppointmentTimeChange">
+          <view class="picker-value">{{appointmentForm.time}}</view>
+        </picker>
+      </view>
+
+      <view class="modal-actions">
+        <view class="modal-btn cancel" bindtap="closeModal">取消</view>
+        <view class="modal-btn save" bindtap="saveAppointment">保存</view>
+      </view>
+    </view>
+  </view>
+</view>

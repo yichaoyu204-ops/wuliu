@@ -134,6 +134,30 @@
   border-top: 1rpx solid #f8f8f8;
 }
 
+.discount-summary {
+  margin: 12rpx 0;
+  padding: 12rpx 16rpx;
+  background: #fff7e8;
+  color: #b35b00;
+  border: 1rpx solid #ffd9a8;
+  border-radius: 10rpx;
+  font-size: 24rpx;
+  line-height: 1.4;
+}
+
+.amount-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.bill-original {
+  margin-bottom: 4rpx;
+  font-size: 22rpx;
+  color: #9aa3b2;
+  text-decoration: line-through;
+}
+
 .bill-type {
   font-size: 24rpx;
   color: #888;
@@ -145,8 +169,26 @@
   font-weight: bold;
 }
 
-.mark-paid-btn {
+.bill-actions {
+  display: flex;
+  gap: 16rpx;
   margin-top: 16rpx;
+}
+
+.discount-btn {
+  flex: 1;
+  text-align: center;
+  padding: 16rpx;
+  background: #fff7e8;
+  color: #d46b08;
+  border: 1rpx solid #ffd591;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+}
+
+.mark-paid-btn {
+  flex: 1;
   text-align: center;
   padding: 16rpx;
   background: #07c160;
@@ -256,6 +298,67 @@
   font-size: 28rpx;
   height: 40rpx;
   line-height: 40rpx;
+}
+
+.discount-bill-info {
+  display: flex;
+  flex-direction: column;
+  padding: 18rpx 20rpx;
+  margin-bottom: 24rpx;
+  background: #f8f7f4;
+  border-radius: 10rpx;
+}
+
+.discount-bill-id {
+  font-size: 24rpx;
+  color: #14213d;
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.discount-bill-amount {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #e53935;
+  font-weight: 600;
+}
+
+.discount-mode-row {
+  display: flex;
+  gap: 16rpx;
+  margin-bottom: 24rpx;
+}
+
+.discount-mode {
+  flex: 1;
+  text-align: center;
+  padding: 18rpx;
+  border-radius: 10rpx;
+  background: #f5f7fa;
+  color: #697386;
+  font-size: 27rpx;
+  font-weight: 600;
+}
+
+.discount-mode-active {
+  background: #fff7e8;
+  color: #d46b08;
+  border: 1rpx solid #ffd591;
+}
+
+.discount-tip {
+  margin: -8rpx 0 16rpx 160rpx;
+  font-size: 22rpx;
+  color: #8a94a6;
+}
+
+.discount-preview {
+  margin-top: 8rpx;
+  padding: 12rpx 16rpx;
+  background: #e8f5e9;
+  color: #17823b;
+  border-radius: 10rpx;
+  font-size: 24rpx;
 }
 
 .modal-actions {

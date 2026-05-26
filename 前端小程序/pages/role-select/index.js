@@ -6,6 +6,7 @@ Page({
     selectedRole: '',
     selectedRoleName: '',
     isAdmin: false,
+    needsPassword: false,
     phone: '',
     password: '',
     name: '',
@@ -25,14 +26,9 @@ Page({
   selectRole(e) {
     const { role } = e.currentTarget.dataset;
 
-    // ===== 测试模式：直接登录，固定姓名 =====
-    this.completeLogin(role, '13800000000', '系统用户');
-    // ===== 测试模式结束 =====
-
-    /* ===== 正常登录方式（恢复时请取消注释） =====
     const roleNameMap = {
       salesman: '业务员',
-      warehouse: '仓管员',
+      warehouse: '接单员',
       admin: '管理员'
     };
 
@@ -41,12 +37,12 @@ Page({
       selectedRole: role,
       selectedRoleName: roleNameMap[role] || role,
       isAdmin: role === 'admin',
+      needsPassword: role === 'admin' || role === 'warehouse',
       phone: '',
       password: '',
       name: '',
       useManualInput: false
     });
-    ===== 正常登录方式结束 ===== */
   },
 
   goBack() {
@@ -55,6 +51,7 @@ Page({
       selectedRole: '',
       selectedRoleName: '',
       isAdmin: false,
+      needsPassword: false,
       phone: '',
       password: '',
       name: '',
@@ -86,6 +83,11 @@ Page({
   async onGetPhoneNumber(e) {
     const { selectedRole, name } = this.data;
 
+    if (!name.trim()) {
+      wx.showToast({ title: '请先输入姓名', icon: 'none' });
+      return;
+    }
+
     if (e.detail.errMsg && e.detail.errMsg.includes('deny')) {
       wx.showToast({ title: '需要授权手机号才能登录', icon: 'none' });
       return;
@@ -116,8 +118,8 @@ Page({
       });
 
       if (res.result.code === 0) {
-        const { phone } = res.result.data;
-        await this.completeLogin(selectedRole, phone);
+        const userInfo = res.result.data || {};
+        await this.completeLogin(selectedRole, userInfo.phone, userInfo.name || name);
       } else {
         wx.showToast({ title: res.result.message || '登录失败', icon: 'none' });
         this.setData({ loggingIn: false });
@@ -128,9 +130,9 @@ Page({
     }
   },
 
-  // 管理员手动登录（手机号+密码）
+  // 管理员/接单员手动登录（手机号+密码）
   async doLogin() {
-    const { selectedRole, phone, password, name, isAdmin, loggingIn } = this.data;
+    const { selectedRole, phone, password, name, needsPassword, loggingIn } = this.data;
     if (loggingIn) return;
 
     if (!phone || phone.length < 11) {
@@ -138,8 +140,12 @@ Page({
       return;
     }
 
-    if (isAdmin && !password) {
+    if (needsPassword && !password) {
       wx.showToast({ title: '请输入密码', icon: 'none' });
+      return;
+    }
+    if (!name.trim()) {
+      wx.showToast({ title: '请输入姓名', icon: 'none' });
       return;
     }
 
@@ -177,6 +183,10 @@ Page({
 
     if (!phone || phone.length < 11) {
       wx.showToast({ title: '请输入正确的手机号', icon: 'none' });
+      return;
+    }
+    if (!name.trim()) {
+      wx.showToast({ title: '请输入姓名', icon: 'none' });
       return;
     }
 

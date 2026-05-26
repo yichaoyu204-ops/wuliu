@@ -389,6 +389,36 @@
   color: #07c160;
 }
 
+.shipment-tags {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8rpx;
+  flex-shrink: 0;
+  max-width: 260rpx;
+}
+
+.appointment-mini-tag {
+  max-width: 260rpx;
+  font-size: 21rpx;
+  padding: 5rpx 12rpx;
+  border-radius: 8rpx;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.appointment-mini-tag.done {
+  color: #0f766e;
+  background: #e6f6f3;
+}
+
+.appointment-mini-tag.pending {
+  color: #8a4b10;
+  background: #fff2d9;
+}
+
 .shipment-info {
   margin-bottom: 16rpx;
 }

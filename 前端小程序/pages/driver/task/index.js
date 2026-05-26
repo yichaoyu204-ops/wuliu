@@ -16,7 +16,7 @@ Page({
   search() {
     const k = this.data.keyword.trim();
     if (!k) {
-      wx.showToast({ title: '请输入业务编号', icon: 'none' });
+      wx.showToast({ title: '请输入进仓编号/业务参与编号', icon: 'none' });
       return;
     }
     this.queryShipment(k);

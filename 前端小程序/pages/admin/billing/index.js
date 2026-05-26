@@ -9,7 +9,13 @@ Page({
     monthlyModalVisible: false,
     monthlyBatch: '',
     monthlyPhone: '',
-    monthlySubmitting: false
+    monthlySubmitting: false,
+    discountModalVisible: false,
+    discountBill: null,
+    discountMode: 'rate',
+    discountValue: '',
+    discountPreviewText: '',
+    discountSubmitting: false
   },
 
   tabs: [
@@ -32,9 +38,10 @@ Page({
 
       if (res.result.code === 0) {
         const bills = res.result.data || [];
-        const totalUnpaid = bills.filter(b => b.status === 'unpaid').reduce((s, b) => s + (b.totalAmount || 0), 0);
-        const totalPaid = bills.filter(b => b.status === 'paid').reduce((s, b) => s + (b.paidAmount || 0), 0);
-        this.setData({ bills, totalUnpaid, totalPaid });
+        const normalizedBills = bills.map(bill => this.normalizeBill(bill));
+        const totalUnpaid = normalizedBills.filter(b => b.status === 'unpaid').reduce((s, b) => s + (b.totalAmount || 0), 0);
+        const totalPaid = normalizedBills.filter(b => b.status === 'paid').reduce((s, b) => s + (b.paidAmount || 0), 0);
+        this.setData({ bills: normalizedBills, totalUnpaid, totalPaid });
         this.filterBills(this.data.activeTab);
       } else {
         wx.showToast({ title: res.result.message || '加载失败', icon: 'none' });
@@ -43,6 +50,36 @@ Page({
       wx.showToast({ title: '网络错误', icon: 'none' });
     }
     this.setData({ loading: false });
+  },
+
+  getPaymentTypeLabel(paymentType) {
+    const map = {
+      monthly: '萌恒月结',
+      spot: '供应商现结',
+      supplier_monthly: '供应商月结'
+    };
+    return map[paymentType] || '萌恒月结';
+  },
+
+  normalizeBill(bill) {
+    const totalAmount = Number(bill.totalAmount || 0);
+    const discount = bill.discount || {};
+    const discountAmount = Number(discount.discountAmount || 0);
+    const originalAmount = Number(discount.originalAmount != null ? discount.originalAmount : (bill.originalAmount != null ? bill.originalAmount : totalAmount));
+    const hasDiscount = discountAmount > 0;
+    const adminDiscountText = hasDiscount
+      ? (discount.type === 'rate'
+        ? `已打${discount.rateLabel || '折扣'}，减免${discountAmount.toFixed(2)}元`
+        : `已减免${discountAmount.toFixed(2)}元`)
+      : '';
+
+    return {
+      ...bill,
+      paymentTypeLabel: this.getPaymentTypeLabel(bill.paymentType),
+      _totalAmountText: totalAmount.toFixed(2),
+      _originalAmountText: originalAmount.toFixed(2),
+      _adminDiscountText: adminDiscountText
+    };
   },
 
   switchTab(e) {
@@ -91,6 +128,101 @@ Page({
         }
       }
     });
+  },
+
+  showDiscountModal(e) {
+    const { id } = e.currentTarget.dataset;
+    const bill = this.data.bills.find(b => b._id === id);
+    if (!bill || bill.status !== 'unpaid') return;
+
+    this.setData({
+      discountModalVisible: true,
+      discountBill: bill,
+      discountMode: 'rate',
+      discountValue: '',
+      discountPreviewText: '',
+      discountSubmitting: false
+    });
+  },
+
+  hideDiscountModal() {
+    this.setData({
+      discountModalVisible: false,
+      discountBill: null,
+      discountValue: '',
+      discountPreviewText: '',
+      discountSubmitting: false
+    });
+  },
+
+  switchDiscountMode(e) {
+    const { mode } = e.currentTarget.dataset;
+    this.setData({ discountMode: mode, discountValue: '', discountPreviewText: '' });
+  },
+
+  onDiscountValueChange(e) {
+    const discountValue = e.detail.value;
+    this.setData({
+      discountValue,
+      discountPreviewText: this.getDiscountPreview(this.data.discountMode, discountValue, this.data.discountBill)
+    });
+  },
+
+  getDiscountPreview(mode, value, bill) {
+    if (!bill || value === '') return '';
+    const input = Number(value);
+    const originalAmount = Number(bill.discount?.originalAmount != null ? bill.discount.originalAmount : (bill.originalAmount != null ? bill.originalAmount : bill.totalAmount || 0));
+    if (!Number.isFinite(input) || input <= 0 || originalAmount <= 0) return '';
+
+    let discountAmount = 0;
+    let finalAmount = originalAmount;
+    if (mode === 'rate') {
+      const rate = input > 10 ? input / 100 : (input > 1 ? input / 10 : input);
+      if (rate <= 0 || rate >= 1) return '';
+      finalAmount = originalAmount * rate;
+      discountAmount = originalAmount - finalAmount;
+    } else {
+      discountAmount = Math.min(input, originalAmount);
+      finalAmount = originalAmount - discountAmount;
+    }
+
+    return `预计减免 ${discountAmount.toFixed(2)} 元，折后 ${finalAmount.toFixed(2)} 元`;
+  },
+
+  async doApplyDiscount() {
+    const { discountBill, discountMode, discountValue, discountSubmitting } = this.data;
+    if (discountSubmitting || !discountBill) return;
+    if (!discountValue) {
+      wx.showToast({ title: '请输入优惠数值', icon: 'none' });
+      return;
+    }
+
+    this.setData({ discountSubmitting: true });
+    try {
+      const result = await wx.cloud.callFunction({
+        name: 'billing-manage',
+        data: {
+          action: 'applyDiscount',
+          billId: discountBill._id,
+          data: {
+            type: discountMode,
+            value: discountValue
+          }
+        }
+      });
+
+      if (result.result.code === 0) {
+        wx.showToast({ title: '优惠已生效', icon: 'success' });
+        this.hideDiscountModal();
+        this.loadBills();
+      } else {
+        wx.showToast({ title: result.result.message || '优惠失败', icon: 'none' });
+        this.setData({ discountSubmitting: false });
+      }
+    } catch (e) {
+      wx.showToast({ title: '网络错误', icon: 'none' });
+      this.setData({ discountSubmitting: false });
+    }
   },
 
   showMonthlyModal() {
