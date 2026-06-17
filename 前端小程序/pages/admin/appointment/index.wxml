@@ -28,7 +28,7 @@
         <view class="appointment-tag pending">{{item.appointmentTagText}}</view>
       </view>
       <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
-        <text class="creator-name">建单业务员：{{item.creatorName || item.contacts.contact1Name || '——'}}</text>
+        <text class="creator-name">{{item.creatorRoleLabel}}：{{item.creatorName || item.contacts.contact1Name || '——'}}</text>
         <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
         <text class="cargo-info">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit || '件'}} / {{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit || 'KGS'}} / {{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit || 'CBM'}}</text>
       </view>
@@ -54,7 +54,7 @@
         <view class="appointment-tag done">{{item.appointmentTagText}}</view>
       </view>
       <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
-        <text class="creator-name">建单业务员：{{item.creatorName || item.contacts.contact1Name || '——'}}</text>
+        <text class="creator-name">{{item.creatorRoleLabel}}：{{item.creatorName || item.contacts.contact1Name || '——'}}</text>
         <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
         <text class="cargo-info">预约时间：{{item.appointmentTimeText}}</text>
       </view>

@@ -1,6 +1,8 @@
 {
   "pages": [
     "pages/role-select/index",
+    "pages/agreement/index",
+    "pages/privacy/index",
     "pages/index/index",
     "pages/detail/index",
     "pages/driver/task/index",

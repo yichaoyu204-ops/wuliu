@@ -17,6 +17,7 @@ Page({
     discountPreviewText: '',
     discountSubmitting: false,
     payingBillId: '',
+    exportingMonthKey: '',
     tabs: [
       { key: 'all', label: '全部' },
       { key: 'unpaid', label: '待付' },
@@ -46,8 +47,9 @@ Page({
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       const role = wx.getStorageSync('userRole') || '';
       const isAdmin = role === 'admin';
+      const isWarehouse = role === 'warehouse';
       this.setData({ role, isAdmin });
-      this.getTabBar().setData({ activeIndex: isAdmin ? 5 : 3 });
+      this.getTabBar().setData({ activeIndex: (isAdmin || isWarehouse) ? 4 : 3 });
       if (this.getTabBar().loadBadge) {
         this.getTabBar().loadBadge();
       }
@@ -150,10 +152,10 @@ Page({
       _monthKey: monthInfo.key,
       _monthLabel: monthInfo.label,
       _shipmentRows: this.buildShipmentRows(item, shipmentBrief),
-      _items: (item.items || []).map(fee => ({
+      _items: this.data.isAdmin ? (item.items || []).map(fee => ({
         ...fee,
         _amountText: Number(fee.amount || 0).toFixed(2)
-      })),
+      })) : [],
       _canConfirmPaid: item.status === 'unpaid' && (this.data.isAdmin || this.data.role === 'salesman')
     };
   },
@@ -276,6 +278,59 @@ Page({
         groupMap[key].bills.push(bill);
       });
     return groups;
+  },
+
+  async exportMonthBills(e) {
+    const { key } = e.currentTarget.dataset;
+    if (!this.data.isAdmin) {
+      wx.showToast({ title: '仅管理员可导出', icon: 'none' });
+      return;
+    }
+    if (!key || this.data.exportingMonthKey) return;
+
+    this.setData({ exportingMonthKey: key });
+    wx.showLoading({ title: '正在导出...', mask: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'billing-manage',
+        data: {
+          action: 'exportMonthlyBills',
+          monthKey: key,
+          status: this.data.activeTab,
+          role: this.data.role
+        }
+      });
+
+      if (res.result.code !== 0) {
+        wx.hideLoading();
+        wx.showToast({ title: res.result.message || '导出失败', icon: 'none' });
+        this.setData({ exportingMonthKey: '' });
+        return;
+      }
+
+      const { fileID, fileName } = res.result.data || {};
+      if (!fileID) throw new Error('导出文件不存在');
+
+      const downloadRes = await wx.cloud.downloadFile({ fileID });
+      wx.hideLoading();
+      await new Promise((resolve, reject) => {
+        wx.openDocument({
+          filePath: downloadRes.tempFilePath,
+          fileType: 'xlsx',
+          showMenu: true,
+          success: resolve,
+          fail: reject
+        });
+      });
+      wx.showToast({ title: fileName ? '导出完成' : '已打开Excel', icon: 'success' });
+    } catch (err) {
+      wx.hideLoading();
+      console.error('导出账单Excel失败:', err);
+      wx.showToast({ title: '导出失败，请重试', icon: 'none' });
+    }
+
+    this.setData({ exportingMonthKey: '' });
   },
 
   showDiscountModal(e) {

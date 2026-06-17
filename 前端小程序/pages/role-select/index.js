@@ -1,5 +1,13 @@
 const app = getApp();
 
+const PRESET_LOGIN_NAMES = {
+  'admin:18268685702': '管理员1',
+  'warehouse:18268685702': '虞一超',
+  'admin:18005745533': '虞宏伟',
+  'admin:15557041311': '姚慧',
+  'warehouse:13967854310': '袁午正'
+};
+
 Page({
   data: {
     showLoginForm: false,
@@ -11,7 +19,8 @@ Page({
     password: '',
     name: '',
     loggingIn: false,
-    useManualInput: false
+    useManualInput: false,
+    agreementChecked: false
   },
 
   onLoad() {
@@ -41,7 +50,8 @@ Page({
       phone: '',
       password: '',
       name: '',
-      useManualInput: false
+      useManualInput: false,
+      agreementChecked: false
     });
   },
 
@@ -55,7 +65,8 @@ Page({
       phone: '',
       password: '',
       name: '',
-      useManualInput: false
+      useManualInput: false,
+      agreementChecked: false
     });
   },
 
@@ -63,7 +74,7 @@ Page({
     this.setData({ useManualInput: true, phone: '' });
   },
 
-  switchToWechat() {
+  switchToQuickLogin() {
     this.setData({ useManualInput: false, phone: '' });
   },
 
@@ -79,9 +90,38 @@ Page({
     this.setData({ name: e.detail.value });
   },
 
-  // 微信一键登录：获取手机号
+  onAgreementChange(e) {
+    const values = e.detail.value || [];
+    this.setData({ agreementChecked: values.includes('agreed') });
+  },
+
+  openServiceAgreement() {
+    wx.navigateTo({ url: '/pages/agreement/index' });
+  },
+
+  openPrivacyPolicy() {
+    wx.navigateTo({ url: '/pages/privacy/index' });
+  },
+
+  ensureAgreement() {
+    if (this.data.agreementChecked) return true;
+    wx.showToast({ title: '请先阅读并同意协议', icon: 'none' });
+    return false;
+  },
+
+  validatePresetAccountName(role, phone, name) {
+    const expectedName = PRESET_LOGIN_NAMES[`${role}:${phone}`];
+    if (!expectedName) return true;
+    if (String(name || '').trim() === expectedName) return true;
+    wx.showToast({ title: '姓名、手机号或密码不匹配', icon: 'none' });
+    return false;
+  },
+
+  // 手机号快捷登录：获取手机号
   async onGetPhoneNumber(e) {
     const { selectedRole, name } = this.data;
+
+    if (!this.ensureAgreement()) return;
 
     if (!name.trim()) {
       wx.showToast({ title: '请先输入姓名', icon: 'none' });
@@ -97,7 +137,7 @@ Page({
       // 开发工具中无法获取 cloudID，提示使用手动输入
       wx.showModal({
         title: '提示',
-        content: '微信一键登录需在真机上使用。\n开发调试请切换为「手机号登录」',
+        content: '手机号快捷登录需在真机上使用。\n开发调试请切换为「手机号登录」',
         showCancel: false,
         confirmText: '我知道了'
       });
@@ -134,6 +174,7 @@ Page({
   async doLogin() {
     const { selectedRole, phone, password, name, needsPassword, loggingIn } = this.data;
     if (loggingIn) return;
+    if (!this.ensureAgreement()) return;
 
     if (!phone || phone.length < 11) {
       wx.showToast({ title: '请输入正确的手机号', icon: 'none' });
@@ -146,6 +187,9 @@ Page({
     }
     if (!name.trim()) {
       wx.showToast({ title: '请输入姓名', icon: 'none' });
+      return;
+    }
+    if (!this.validatePresetAccountName(selectedRole, phone, name)) {
       return;
     }
 
@@ -180,6 +224,7 @@ Page({
   async doLoginManual() {
     const { selectedRole, phone, name, loggingIn } = this.data;
     if (loggingIn) return;
+    if (!this.ensureAgreement()) return;
 
     if (!phone || phone.length < 11) {
       wx.showToast({ title: '请输入正确的手机号', icon: 'none' });

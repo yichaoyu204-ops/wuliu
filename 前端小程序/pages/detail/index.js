@@ -89,6 +89,7 @@ Page({
           }));
         }
         shipment.paymentTypeLabel = this.getPaymentTypeLabel(shipment.billing?.paymentType || 'monthly');
+        this.decorateAdminPriceDetails(shipment);
 
         const statusCard = this.getStatusCard(shipment);
         const timeline = shipment.timeline || [];
@@ -119,6 +120,63 @@ Page({
     }
 
     this.setData({ loading: false });
+  },
+
+  decorateAdminPriceDetails(shipment) {
+    if (!shipment || this.data.role !== 'admin') {
+      if (shipment) shipment.adminPriceItems = [];
+      return;
+    }
+
+    const quoteItems = shipment.quote?.items || [];
+    const feeItems = shipment.fees || [];
+    const pricingAmount = shipment.quote?.subtotal || shipment.pricing?.finalPrice || shipment.totalAmount || 0;
+
+    if (quoteItems.length > 0) {
+      shipment.adminPriceItems = quoteItems.map(item => ({
+        name: item.name || '费用',
+        calculationDetail: item.calculationDetail || item.detail || '',
+        amount: Number(item.amount || 0).toFixed(2),
+        isIncluded: item.isIncluded !== false
+      }));
+      shipment.adminPriceTotal = Number(pricingAmount || 0).toFixed(2);
+      shipment.adminPriceStatusText = shipment.quote.status === 'confirmed'
+        ? '已确认'
+        : (shipment.quote.status === 'sent' ? '已发送' : '草稿');
+      shipment.adminPriceStatusClass = shipment.quote.status || 'draft';
+      shipment.adminPriceNote = shipment.quote.note || '';
+      return;
+    }
+
+    if (feeItems.length > 0) {
+      shipment.adminPriceItems = feeItems.map(item => ({
+        name: item.name || '费用',
+        calculationDetail: item.calculationDetail || item.detail || '',
+        amount: Number(item.amount || 0).toFixed(2),
+        isIncluded: true
+      }));
+      shipment.adminPriceTotal = Number(shipment.totalAmount || pricingAmount || 0).toFixed(2);
+      shipment.adminPriceStatusText = '实测费用';
+      shipment.adminPriceStatusClass = 'draft';
+      shipment.adminPriceNote = '';
+      return;
+    }
+
+    if (Number(pricingAmount) > 0) {
+      shipment.adminPriceItems = [{
+        name: '运费',
+        calculationDetail: shipment.pricing ? `重量价:${shipment.pricing.weightPrice || 0} / 体积价:${shipment.pricing.volumePrice || 0}` : '',
+        amount: Number(pricingAmount || 0).toFixed(2),
+        isIncluded: true
+      }];
+      shipment.adminPriceTotal = Number(pricingAmount || 0).toFixed(2);
+      shipment.adminPriceStatusText = '最终价格';
+      shipment.adminPriceStatusClass = 'confirmed';
+      shipment.adminPriceNote = '';
+      return;
+    }
+
+    shipment.adminPriceItems = [];
   },
 
   decorateAppointment(shipment) {
@@ -329,8 +387,11 @@ Page({
       cancelText: '取消',
       success: (res) => {
         if (res.confirm) {
-          const qrUrl = '/images/pay-qr.png';
-          wx.previewImage({ urls: [qrUrl] });
+          const qrUrls = [
+            '/images/payment/wechat-pay.jpg',
+            '/images/payment/alipay.jpg'
+          ];
+          wx.previewImage({ current: qrUrls[0], urls: qrUrls });
         }
       }
     });

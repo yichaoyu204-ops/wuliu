@@ -1,0 +1,31 @@
+<view class="doc-page">
+  <view class="doc-card">
+    <text class="doc-title">用户服务协议</text>
+    <text class="doc-meta">更新日期：2026年6月15日</text>
+
+    <view class="doc-section">
+      <text class="section-title">一、服务内容</text>
+      <text class="section-text">义乌专线运输集成系统为业务员、接单员、管理员提供运单创建、货物状态查询、实测记录、报价审核、账单查看等物流业务协同服务。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">二、账号与登录</text>
+      <text class="section-text">你需要按页面提示选择身份，并提供姓名、手机号等必要信息完成登录或账号绑定。接单员、管理员可能需要使用管理员预置的账号密码登录。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">三、用户义务</text>
+      <text class="section-text">你应确保填写的信息真实、准确，不得冒用他人身份，不得上传违法、虚假或与物流业务无关的信息，不得干扰系统正常运行。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">四、业务数据</text>
+      <text class="section-text">系统中的运单、费用、账单、图片和操作记录仅用于物流业务流转、查询、对账和内部管理。你应根据自身权限查看和处理相关数据。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">五、协议更新</text>
+      <text class="section-text">如服务内容或合规要求发生变化，本协议可能进行更新。更新后的协议会在本页面展示，继续使用服务表示你已阅读并接受更新内容。</text>
+    </view>
+  </view>
+</view>

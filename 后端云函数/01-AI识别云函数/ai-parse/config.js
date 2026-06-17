@@ -188,7 +188,7 @@ module.exports = {
       calculationType: 'per_piece'
     },
     beilunDistribution: {
-      name: '北仑分拨费',
+      name: '其他-北仑分拨费',
       basePrice: 120,
       unit: '元/票',
       calculationType: 'fixed'

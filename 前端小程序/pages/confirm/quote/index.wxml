@@ -109,7 +109,7 @@ module.exports.money = function(n) {
 
   <!-- 底部按钮 -->
   <view class="footer">
-    <view class="btn-contact" bindtap="contactSales">联系业务员</view>
+    <view class="btn-contact" bindtap="contactSales">{{contactButtonText}}</view>
     <view class="btn-confirm {{loading ? 'btn-disabled' : ''}}" bindtap="onConfirm">
       {{loading ? '确认中...' : '确认报价并进账'}}
     </view>

@@ -35,7 +35,7 @@
         <view class="card-body">
           <view class="info-grid">
             <view class="info-item">
-              <text class="info-k">建单业务员</text>
+              <text class="info-k">{{item.creatorRoleLabel}}</text>
               <text class="info-v">{{item.creatorName || '——'}}</text>
             </view>
             <view class="info-item">

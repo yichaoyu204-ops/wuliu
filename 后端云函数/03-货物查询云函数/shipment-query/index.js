@@ -312,7 +312,7 @@ exports.main = async (event, context) => {
         return success({ list: adminRes.data, total: adminRes.data.length });
 
       case 'appointmentList': {
-        checkAdmin(currentUser);
+        if (!isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可访问预约');
         const apptRes = await db.collection('shipments')
           .where({ isDeleted: _.neq(true) })
           .orderBy('createdAt', 'desc')
@@ -337,7 +337,7 @@ exports.main = async (event, context) => {
       }
 
       case 'appointmentCount': {
-        checkAdmin(currentUser);
+        if (!isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可访问预约');
         const apptRes = await db.collection('shipments')
           .where({ isDeleted: _.neq(true) })
           .orderBy('createdAt', 'desc')

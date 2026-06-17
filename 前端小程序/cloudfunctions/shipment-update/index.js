@@ -31,10 +31,20 @@ function isMonthlyPayment(paymentType) {
   return paymentType === 'monthly' || paymentType === 'supplier_monthly';
 }
 
-async function getCurrentUser(openId) {
+async function getCurrentUser(openId, preferredRole = '') {
   if (!openId) return null;
-  const userRes = await db.collection('users').where({ openId }).limit(1).get();
-  return userRes.data[0] || null;
+
+  if (preferredRole) {
+    const roleRes = await db.collection('users').where({ openId, role: preferredRole }).limit(1).get();
+    if (roleRes.data[0]) return roleRes.data[0];
+  }
+
+  const userRes = await db.collection('users').where({ openId }).get();
+  const users = userRes.data || [];
+  return users.find(user => user.role === 'admin') ||
+    users.find(user => user.role === 'warehouse') ||
+    users[0] ||
+    null;
 }
 
 function isWarehouseOrAdmin(user) {
@@ -246,19 +256,20 @@ async function submitMeasurement(shipmentId, data, operatorOpenId) {
       updatedAt: now
     };
 
-    // 如果是供应商现结：直接标记已收款，跳过管理员确认，直接到 admin_confirmed
+    // 供应商现结：实测定价后进入待现场收款，确认收款后才标记 paid
     if (shipment.billing?.paymentType === 'spot') {
-      updateFields['billing.paymentStatus'] = 'paid';
-      updateFields['billing.paidAt'] = db.serverDate();
-      updateFields['billing.paidBy'] = operatorOpenId;
-      updateFields['billing.paidAmount'] = formatMoney(totalAmount || 0);
+      updateFields['billing.paymentStatus'] = 'unpaid';
+      updateFields['billing.paidAt'] = null;
+      updateFields['billing.paidBy'] = '';
+      updateFields['billing.paidAmount'] = 0;
+      updateFields['billing.spotPaymentConfirmed'] = false;
 
       updateFields.oaStatus = 'admin_confirmed';
-      updateFields.oaStatusName = '已实测定价并支付，待收货';
+      updateFields.oaStatusName = '已实测定价，待现场收款';
       updateFields.oaAssignedTo = 'warehouse';
       updateFields.oaHistory = db.command.push([{
         status: 'admin_confirmed',
-        statusName: '已实测定价并支付，待收货',
+        statusName: '已实测定价，待现场收款',
         operator: operatorOpenId,
         role: 'warehouse',
         timestamp: db.serverDate()
@@ -554,10 +565,9 @@ async function advanceNode(shipmentId, operatorOpenId) {
     currentNode.nodeCode === 'yiwu_entry' &&
     shipment.billing?.paymentType === 'spot'
   ) {
-    updates['billing.paymentStatus'] = 'paid';
-    updates['billing.paidAt'] = shipment.billing?.paidAt || db.serverDate();
-    updates['billing.paidBy'] = shipment.billing?.paidBy || operatorOpenId;
-    updates['billing.paidAmount'] = shipment.billing?.paidAmount || shipment.pricing?.finalPrice || shipment.totalAmount || 0;
+    if (shipment.billing?.paymentStatus !== 'paid' || shipment.billing?.spotPaymentConfirmed !== true) {
+      throw new Error('请先完成现场扫码收款后再确认发运');
+    }
     updates.oaStatus = 'completed';
     updates.oaStatusName = '已完结';
     updates.oaAssignedTo = '';
@@ -848,6 +858,9 @@ async function advanceOa(shipmentId, data, operatorOpenId) {
           'billing.paidAt': db.serverDate(),
           'billing.paidBy': operatorOpenId,
           'billing.paidAmount': formatMoney(amount),
+          'billing.spotPaymentConfirmed': true,
+          oaStatusName: '已实测定价并支付，待收货',
+          oaHistory: _.push([oaHistoryEntry('admin_confirmed', '已实测定价并支付，待收货', 'warehouse')]),
           updatedAt: now
         }
       });
@@ -872,7 +885,7 @@ async function advanceOa(shipmentId, data, operatorOpenId) {
       }
 
       // 现结必须已收款
-      if (isSpot && shipment.billing?.paymentStatus !== 'paid') {
+      if (isSpot && (shipment.billing?.paymentStatus !== 'paid' || shipment.billing?.spotPaymentConfirmed !== true)) {
         throw new Error('请先标记现结收款后再确认送达');
       }
 
@@ -1104,7 +1117,7 @@ exports.main = async (event, context) => {
   const { OPENID } = cloud.getWXContext();
 
   try {
-    const currentUser = await getCurrentUser(OPENID);
+    const currentUser = await getCurrentUser(OPENID, event.role || data?.role || '');
 
     switch (action) {
       case 'node':
@@ -1166,7 +1179,6 @@ exports.main = async (event, context) => {
         if (!shipmentId) return paramError('缺少 shipmentId 参数');
         if (!data) return paramError('缺少 data 参数');
         if (!isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可修改运单信息');
-        if (data.warehouseAppointment && !isAdmin(currentUser)) return error('权限不足：仅管理员可预约进仓');
         return success(await updateInfo(shipmentId, data, OPENID), '信息更新成功');
 
       case 'delete':

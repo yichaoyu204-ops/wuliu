@@ -78,7 +78,11 @@ Page({
       paymentTypeLabel: this.getPaymentTypeLabel(bill.paymentType),
       _totalAmountText: totalAmount.toFixed(2),
       _originalAmountText: originalAmount.toFixed(2),
-      _adminDiscountText: adminDiscountText
+      _adminDiscountText: adminDiscountText,
+      _items: (bill.items || []).map(item => ({
+        ...item,
+        _amountText: Number(item.amount || 0).toFixed(2)
+      }))
     };
   },
 

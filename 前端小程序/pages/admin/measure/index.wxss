@@ -159,6 +159,25 @@
   white-space: nowrap;
 }
 
+.main-fee-edit {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  flex-shrink: 0;
+}
+
+.fee-currency {
+  font-size: 28rpx;
+  color: #E53935;
+  font-weight: 500;
+}
+
+.main-fee-input {
+  width: 120rpx;
+  color: #E53935;
+  font-weight: 600;
+}
+
 /* 附加费用项 */
 .extra-fee-item {
   margin-bottom: 16rpx;
@@ -372,8 +391,9 @@
   position: relative;
   background: #fff;
   border-radius: 24rpx;
-  padding: 48rpx 40rpx;
-  width: 560rpx;
+  padding: 40rpx 32rpx 32rpx;
+  width: 620rpx;
+  max-height: 86vh;
   text-align: center;
   z-index: 1;
 }
@@ -395,23 +415,55 @@
 .pay-hint {
   font-size: 26rpx;
   color: #999;
-  margin-bottom: 32rpx;
+  margin-bottom: 24rpx;
 }
 
-.pay-qr-placeholder {
-  width: 320rpx;
-  height: 320rpx;
-  background: #f5f5f5;
-  border-radius: 16rpx;
-  margin: 0 auto 32rpx;
+.pay-qr-list {
+  max-height: 760rpx;
+  margin-bottom: 28rpx;
+}
+
+.pay-qr-card {
+  border: 1rpx solid #e8e1d8;
+  border-radius: 18rpx;
+  background: #fffefa;
+  padding: 20rpx;
+  margin-bottom: 20rpx;
+}
+
+.pay-qr-card.wechat {
+  border-color: #c8efd8;
+}
+
+.pay-qr-card.alipay {
+  border-color: #c9ddff;
+}
+
+.pay-qr-head {
   display: flex;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
+  gap: 16rpx;
+  margin-bottom: 14rpx;
 }
 
-.pay-qr-text {
-  font-size: 28rpx;
-  color: #999;
+.pay-qr-name {
+  font-size: 30rpx;
+  color: #14213d;
+  font-weight: 700;
+}
+
+.pay-qr-hint {
+  font-size: 22rpx;
+  color: #888;
+}
+
+.pay-qr-image {
+  width: 100%;
+  height: 430rpx;
+  display: block;
+  background: #fff;
+  border-radius: 12rpx;
 }
 
 .pay-actions {

@@ -47,11 +47,36 @@
   margin-bottom: 12rpx;
 }
 
-.month-title {
+.month-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
   padding: 10rpx 4rpx 16rpx;
+}
+
+.month-title {
+  flex: 1;
+  min-width: 0;
   font-size: 26rpx;
   color: #697386;
   font-weight: 700;
+}
+
+.month-export-btn {
+  flex-shrink: 0;
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: #ff6b00;
+  color: #fff;
+  font-size: 23rpx;
+  font-weight: 800;
+  line-height: 1.2;
+  box-shadow: 0 8rpx 18rpx rgba(255, 107, 0, 0.18);
+}
+
+.month-export-btn.btn-disabled {
+  opacity: 0.65;
 }
 
 .bill-card {

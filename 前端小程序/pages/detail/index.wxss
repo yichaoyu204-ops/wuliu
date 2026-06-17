@@ -490,6 +490,13 @@
   gap: 24rpx;
 }
 
+.quote-row.excluded .quote-name,
+.quote-row.excluded .quote-detail,
+.quote-row.excluded .quote-amount {
+  color: #98a2b3;
+  text-decoration: line-through;
+}
+
 .quote-left {
   flex: 1;
   min-width: 0;

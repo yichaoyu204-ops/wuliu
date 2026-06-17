@@ -44,6 +44,24 @@
       <view class="discount-summary" wx:if="{{item._adminDiscountText}}">
         <text>{{item._adminDiscountText}}</text>
       </view>
+      <view class="fee-detail" wx:if="{{item._items && item._items.length > 0}}">
+        <view class="fee-row" wx:for="{{item._items}}" wx:for-item="fee" wx:key="index">
+          <view class="fee-info">
+            <text class="fee-name">{{fee.name}}</text>
+            <text class="fee-calc" wx:if="{{fee.calculationDetail}}">{{fee.calculationDetail}}</text>
+          </view>
+          <text class="fee-amount {{fee.isIncluded === false ? 'fee-excluded' : ''}}">
+            {{fee.isIncluded === false ? '未计入 ' : ''}}¥{{fee._amountText}}
+          </text>
+        </view>
+        <view class="fee-total-row">
+          <text class="fee-total-label">合计</text>
+          <view class="fee-total-stack">
+            <text class="fee-original-amount" wx:if="{{item._adminDiscountText}}">原价 ¥{{item._originalAmountText}}</text>
+            <text class="fee-total-amount">¥{{item._totalAmountText}}</text>
+          </view>
+        </view>
+      </view>
       <view class="bill-footer">
         <text class="bill-type">{{item.paymentTypeLabel}}</text>
         <view class="amount-stack">

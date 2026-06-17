@@ -1,5 +1,5 @@
 <view class="container">
-  <view class="role-header">
+  <view class="role-header {{showLoginForm ? 'role-header-compact' : ''}}">
     <text class="role-eyebrow">YIWU LINE OPERATIONS</text>
     <text class="role-title">义乌专线运输集成系统</text>
     <text class="role-subtitle">选择身份后进入对应流程</text>
@@ -53,7 +53,23 @@
 
     <view class="login-title">
       <text>{{selectedRoleName}}</text>
-      <text class="login-subtitle">{{needsPassword ? '请输入手机号和密码' : (useManualInput ? '请输入手机号登录' : '微信一键登录')}}</text>
+      <text class="login-subtitle">{{needsPassword ? '请输入手机号和密码' : (useManualInput ? '请输入手机号登录' : '手机号快捷登录')}}</text>
+    </view>
+
+    <view class="privacy-panel">
+      <text class="privacy-title">信息使用说明</text>
+      <text class="privacy-desc">用于账号登录、身份识别、运单归属查询、账单展示和业务联系。阅读并同意后再继续。</text>
+      <checkbox-group bindchange="onAgreementChange">
+        <label class="agreement-row">
+          <checkbox value="agreed" checked="{{agreementChecked}}" color="#fca311" />
+          <text class="agreement-text">我已阅读并同意</text>
+        </label>
+      </checkbox-group>
+      <view class="agreement-links">
+        <text class="agreement-link" bindtap="openServiceAgreement">《用户服务协议》</text>
+        <text class="agreement-and">和</text>
+        <text class="agreement-link" bindtap="openPrivacyPolicy">《隐私政策》</text>
+      </view>
     </view>
 
     <!-- 管理员/接单员：账号密码登录 -->
@@ -65,6 +81,7 @@
           type="text"
           placeholder="请输入您的真实姓名"
           value="{{name}}"
+          disabled="{{!agreementChecked || loggingIn}}"
           bindinput="onNameInput"
         />
       </view>
@@ -77,6 +94,7 @@
           placeholder="请输入手机号"
           value="{{phone}}"
           maxlength="11"
+          disabled="{{!agreementChecked || loggingIn}}"
           bindinput="onPhoneInput"
         />
       </view>
@@ -89,16 +107,17 @@
           password="true"
           placeholder="请输入密码"
           value="{{password}}"
+          disabled="{{!agreementChecked || loggingIn}}"
           bindinput="onPasswordInput"
         />
       </view>
 
-      <view class="btn-login {{loggingIn ? 'btn-disabled' : ''}}" bindtap="doLogin">
+      <view class="btn-login {{loggingIn || !agreementChecked ? 'btn-disabled' : ''}}" bindtap="doLogin">
         {{loggingIn ? '登录中...' : '进入系统'}}
       </view>
     </view>
 
-    <!-- 业务员：微信一键登录 / 手动输入切换 -->
+    <!-- 业务员：手机号快捷登录 / 手动输入切换 -->
     <view wx:if="{{!needsPassword}}">
       <block wx:if="{{!useManualInput}}">
         <view class="input-group">
@@ -108,16 +127,18 @@
             type="text"
             placeholder="请输入您的真实姓名"
             value="{{name}}"
+            disabled="{{!agreementChecked || loggingIn}}"
             bindinput="onNameInput"
           />
         </view>
 
         <button
-          class="btn-wechat-login {{loggingIn ? 'btn-disabled' : ''}}"
+          class="btn-phone-login {{loggingIn || !agreementChecked ? 'btn-disabled' : ''}}"
           open-type="getPhoneNumber"
+          disabled="{{loggingIn || !agreementChecked}}"
           bind:getphonenumber="onGetPhoneNumber"
         >
-          {{loggingIn ? '登录中...' : '微信一键登录'}}
+          {{loggingIn ? '登录中...' : '手机号快捷登录'}}
         </button>
 
         <view class="manual-login-link" bindtap="switchToManual">使用手机号登录</view>
@@ -131,6 +152,7 @@
             type="text"
             placeholder="请输入您的真实姓名"
             value="{{name}}"
+            disabled="{{!agreementChecked || loggingIn}}"
             bindinput="onNameInput"
           />
         </view>
@@ -143,16 +165,18 @@
             placeholder="请输入手机号"
             value="{{phone}}"
             maxlength="11"
+            disabled="{{!agreementChecked || loggingIn}}"
             bindinput="onPhoneInput"
           />
         </view>
 
-        <view class="btn-login {{loggingIn ? 'btn-disabled' : ''}}" bindtap="doLoginManual">
+        <view class="btn-login {{loggingIn || !agreementChecked ? 'btn-disabled' : ''}}" bindtap="doLoginManual">
           {{loggingIn ? '登录中...' : '进入系统'}}
         </view>
 
-        <view class="manual-login-link" bindtap="switchToWechat">返回微信一键登录</view>
+        <view class="manual-login-link" bindtap="switchToQuickLogin">返回手机号快捷登录</view>
       </block>
     </view>
+    <view class="login-cancel-btn" bindtap="goBack">返回身份选择</view>
   </view>
 </view>

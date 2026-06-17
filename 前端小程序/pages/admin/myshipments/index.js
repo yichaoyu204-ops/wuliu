@@ -72,6 +72,7 @@ Page({
       const appointment = this.getAppointmentTag(item);
       return {
         ...item,
+        creatorRoleLabel: item.creatorRole === 'admin' ? '建单管理员' : '建单业务员',
         _createdTimeValue: createdTime ? createdTime.getTime() : 0,
         _createdTimeText: createdTime ? this.formatDateTime(createdTime) : (item.createdAt || '时间未知'),
         _monthKey: createdTime ? this.formatMonthKey(createdTime) : 'unknown',

@@ -21,6 +21,10 @@ function simpleHash(str) {
   return String(hash);
 }
 
+function normalizeName(name) {
+  return String(name || '').trim();
+}
+
 async function bindOpenIdToUser(user, updateData) {
   await db.collection('users').doc(user._id).update({
     data: {
@@ -32,7 +36,7 @@ async function bindOpenIdToUser(user, updateData) {
 
 async function requireAdmin(openId) {
   if (!openId) {
-    throw new Error('无法获取微信身份，请重新进入小程序');
+    throw new Error('无法完成身份校验，请重新进入小程序');
   }
 
   const userRes = await db.collection('users').where({
@@ -47,47 +51,70 @@ async function requireAdmin(openId) {
   return userRes.data[0];
 }
 
-// 管理员登录：验证手机号+密码，并绑定当前微信
+async function ensurePresetAccountForLogin(phone, role) {
+  const preset = PRESET_ACCOUNTS.find(account => account.phone === phone && account.role === role);
+  if (!preset) return null;
+
+  await upsertPresetAccount(preset);
+  const existRes = await db.collection('users').where({ phone, role }).limit(1).get();
+  if (existRes.data.length > 0) return existRes.data[0];
+
+  return null;
+}
+
+function isPresetAccount(phone, role) {
+  return PRESET_ACCOUNTS.some(account => account.phone === phone && account.role === role);
+}
+
+// 管理员登录：验证手机号+密码，并绑定当前登录身份
 async function adminLogin(phone, password, name, openId) {
   if (!phone || !password) {
     throw new Error('请输入手机号和密码');
   }
-  if (!openId) {
-    throw new Error('无法获取微信身份，请重新进入小程序');
+  const cleanName = normalizeName(name);
+  if (!cleanName) {
+    throw new Error('请输入姓名');
   }
+  if (!openId) {
+    throw new Error('无法完成身份校验，请重新进入小程序');
+  }
+
+  const presetUser = await ensurePresetAccountForLogin(phone, 'admin');
 
   const userRes = await db.collection('users').where({
     phone,
     role: 'admin'
   }).limit(1).get();
 
-  if (userRes.data.length === 0) {
+  const user = userRes.data[0] || presetUser;
+  if (!user) {
     throw new Error('管理员账号不存在');
   }
 
-  const user = userRes.data[0];
+  if (cleanName !== normalizeName(user.name)) {
+    throw new Error('姓名、手机号或密码不匹配');
+  }
+
   if (user.password !== password && user.password !== simpleHash(password)) {
     throw new Error('密码错误');
   }
 
-  if (user.openId && user.openId !== openId) {
-    throw new Error('该管理员账号已绑定其他微信');
+  if (user.openId && user.openId !== openId && !isPresetAccount(phone, 'admin')) {
+    throw new Error('该管理员账号已绑定其他登录身份');
   }
 
-  const updateData = { openId };
-  if (name && name !== user.name) updateData.name = name;
-  await bindOpenIdToUser(user, updateData);
+  await bindOpenIdToUser(user, { openId });
 
   return {
     userId: user._id,
     phone,
     role: 'admin',
-    name: name || user.name || '管理员',
+    name: user.name || '管理员',
     openId
   };
 }
 
-// 普通角色登录：业务员自动创建；接单员必须由后台预置并校验密码后再绑定微信
+// 普通角色登录：业务员自动创建；接单员必须由后台预置并校验密码后再绑定登录身份
 async function normalLogin(phone, role, name, openId, password) {
   if (!phone) {
     throw new Error('请输入手机号');
@@ -96,24 +123,32 @@ async function normalLogin(phone, role, name, openId, password) {
     throw new Error('请输入姓名');
   }
   if (!openId) {
-    throw new Error('无法获取微信身份，请重新进入小程序');
+    throw new Error('无法完成身份校验，请重新进入小程序');
   }
   if (!['salesman', 'warehouse'].includes(role)) {
     throw new Error('不支持的角色类型');
   }
 
-  const cleanName = String(name).trim();
+  const cleanName = normalizeName(name);
 
   const openIdRes = await db.collection('users').where({ openId, role }).limit(1).get();
   const phoneRes = await db.collection('users').where({ phone, role }).limit(1).get();
   const openIdUser = openIdRes.data[0];
-  const phoneUser = phoneRes.data[0];
+  let phoneUser = phoneRes.data[0];
+
+  if (role === 'warehouse') {
+    const presetUser = await ensurePresetAccountForLogin(phone, role);
+    if (presetUser) phoneUser = presetUser;
+  }
 
   if (role === 'warehouse' && !phoneUser) {
     throw new Error('接单员账号不存在，请联系管理员开通');
   }
 
   if (role === 'warehouse') {
+    if (cleanName !== normalizeName(phoneUser.name)) {
+      throw new Error('姓名、手机号或密码不匹配');
+    }
     if (!password) {
       throw new Error('请输入密码');
     }
@@ -122,11 +157,11 @@ async function normalLogin(phone, role, name, openId, password) {
     }
   }
 
-  if (phoneUser && phoneUser.openId && phoneUser.openId !== openId) {
-    throw new Error('该手机号已绑定其他微信');
+  if (phoneUser && phoneUser.openId && phoneUser.openId !== openId && !isPresetAccount(phone, role)) {
+    throw new Error('该手机号已绑定其他登录身份');
   }
   if (openIdUser && openIdUser.phone && openIdUser.phone !== phone && (!phoneUser || phoneUser._id !== openIdUser._id)) {
-    throw new Error('当前微信已绑定其他手机号');
+    throw new Error('当前登录身份已绑定其他手机号');
   }
 
   const targetUser = phoneUser || openIdUser;
@@ -154,10 +189,11 @@ async function normalLogin(phone, role, name, openId, password) {
       openId
     };
   } else {
+    const bindName = role === 'warehouse' ? phoneUser.name : cleanName;
     await bindOpenIdToUser(targetUser, {
       phone,
       role,
-      name: cleanName,
+      name: bindName,
       openId
     });
   }
@@ -166,7 +202,7 @@ async function normalLogin(phone, role, name, openId, password) {
     userId: targetUser._id,
     phone,
     role,
-    name: cleanName,
+    name: role === 'warehouse' ? phoneUser.name : cleanName,
     openId
   };
 }
@@ -241,6 +277,44 @@ async function listManagedAccounts(openId) {
   return success({ list }, '账号列表获取成功');
 }
 
+const PRESET_ACCOUNTS = [
+  { phone: '18268685702', password: '962504248yyc', name: '管理员1', role: 'admin' },
+  { phone: '18268685702', password: '962504248yyc', name: '虞一超', role: 'warehouse' },
+  { phone: '18005745533', password: 'yhw739739', name: '虞宏伟', role: 'admin' },
+  { phone: '15557041311', password: 'Yh240921', name: '姚慧', role: 'admin' },
+  { phone: '13967854310', password: '780412', name: '袁午正', role: 'warehouse' }
+];
+
+async function upsertPresetAccount(account) {
+  const existRes = await db.collection('users').where({
+    phone: account.phone,
+    role: account.role
+  }).limit(1).get();
+
+  const userData = {
+    phone: account.phone,
+    role: account.role,
+    password: simpleHash(account.password),
+    name: account.name,
+    updatedAt: db.serverDate()
+  };
+
+  if (existRes.data.length === 0) {
+    const addRes = await db.collection('users').add({
+      data: {
+        ...userData,
+        createdAt: db.serverDate()
+      }
+    });
+    return { ...account, userId: addRes._id, created: true, updated: false };
+  }
+
+  await db.collection('users').doc(existRes.data[0]._id).update({
+    data: userData
+  });
+  return { ...account, userId: existRes.data[0]._id, created: false, updated: true };
+}
+
 // 云函数入口
 exports.main = async (event, context) => {
   const { action, phone, password, role } = event;
@@ -262,7 +336,7 @@ exports.main = async (event, context) => {
       }
 
       case 'getPhone': {
-        // 微信一键登录：通过 cloudID 获取手机号
+        // 手机号快捷登录：通过 cloudID 获取手机号
         if (!role) return paramError('缺少角色参数');
         if (!event.cloudID) return paramError('缺少 cloudID');
 
@@ -329,59 +403,14 @@ exports.main = async (event, context) => {
 
       case 'init': {
         // 系统初始化：自动创建预设管理员/接单员账号
-        // 如需修改预设账号，请直接修改下方常量
-        const ADMIN_PHONE = '18268685702';
-        const ADMIN_PASSWORD = '962504248yyc';
-        const WAREHOUSE_PHONE = '18268685702';
-        const WAREHOUSE_PASSWORD = '962504248yyc';
-        const WAREHOUSE_NAME = '虞一超';
-
-        const result = {
-          admin: { phone: ADMIN_PHONE, created: false },
-          warehouse: { phone: WAREHOUSE_PHONE, name: WAREHOUSE_NAME, created: false }
-        };
-
-        const adminExistRes = await db.collection('users').where({ phone: ADMIN_PHONE, role: 'admin' }).limit(1).get();
-        if (adminExistRes.data.length === 0) {
-          await db.collection('users').add({
-            data: {
-              phone: ADMIN_PHONE,
-              role: 'admin',
-              password: simpleHash(ADMIN_PASSWORD),
-              name: '管理员1',
-              createdAt: db.serverDate(),
-              updatedAt: db.serverDate()
-            }
-          });
-          result.admin.created = true;
+        const accounts = [];
+        for (const account of PRESET_ACCOUNTS) {
+          accounts.push(await upsertPresetAccount(account));
         }
 
-        const warehouseExistRes = await db.collection('users').where({ phone: WAREHOUSE_PHONE, role: 'warehouse' }).limit(1).get();
-        if (warehouseExistRes.data.length === 0) {
-          await db.collection('users').add({
-            data: {
-              phone: WAREHOUSE_PHONE,
-              role: 'warehouse',
-              password: simpleHash(WAREHOUSE_PASSWORD),
-              name: WAREHOUSE_NAME,
-              createdAt: db.serverDate(),
-              updatedAt: db.serverDate()
-            }
-          });
-          result.warehouse.created = true;
-        } else {
-          const warehouseUser = warehouseExistRes.data[0];
-          await db.collection('users').doc(warehouseUser._id).update({
-            data: {
-              password: simpleHash(WAREHOUSE_PASSWORD),
-              name: WAREHOUSE_NAME,
-              updatedAt: db.serverDate()
-            }
-          });
-          result.warehouse.updated = true;
-        }
-
-        return success(result, '系统账号初始化成功');
+        return success({
+          accounts: accounts.map(({ password, ...account }) => account)
+        }, '系统账号初始化成功');
       }
 
       case 'resetPresetWarehouse': {

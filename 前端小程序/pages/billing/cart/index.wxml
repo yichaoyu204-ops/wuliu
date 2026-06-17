@@ -20,7 +20,15 @@
       wx:for-item="group"
       class="month-group"
     >
-      <view class="month-title">{{group.label}}</view>
+      <view class="month-title-row">
+        <view class="month-title">{{group.label}}</view>
+        <view
+          wx:if="{{isAdmin}}"
+          class="month-export-btn {{exportingMonthKey === group.key ? 'btn-disabled' : ''}}"
+          catchtap="exportMonthBills"
+          data-key="{{group.key}}"
+        >{{exportingMonthKey === group.key ? '导出中...' : '导出Excel'}}</view>
+      </view>
       <view
         wx:for="{{group.bills}}"
         wx:key="_id"
@@ -42,7 +50,7 @@
         </view>
 
         <!-- 费用明细 -->
-        <view class="fee-detail" wx:if="{{item._items && item._items.length > 0}}">
+        <view class="fee-detail" wx:if="{{isAdmin && item._items && item._items.length > 0}}">
           <view class="fee-row" wx:for="{{item._items}}" wx:for-item="fee" wx:key="index">
             <view class="fee-info">
               <text class="fee-name">{{fee.name}}</text>

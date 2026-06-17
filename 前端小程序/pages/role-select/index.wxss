@@ -114,11 +114,16 @@
 }
 
 .login-back {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   font-size: 28rpx;
-  color: #999;
+  color: #8a4b10;
   margin-bottom: 36rpx;
+  padding: 12rpx 18rpx;
+  background: #fff7e8;
+  border: 1rpx solid #ffd591;
+  border-radius: 999rpx;
+  font-weight: 700;
 }
 
 .back-arrow {
@@ -142,6 +147,62 @@
   font-weight: 400 !important;
   color: #999 !important;
   margin-top: 12rpx;
+}
+
+.privacy-panel {
+  padding: 22rpx 24rpx;
+  margin-bottom: 34rpx;
+  background: #f8fafc;
+  border: 1rpx solid #e6ebf1;
+  border-radius: 12rpx;
+}
+
+.privacy-title {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #14213d;
+  margin-bottom: 10rpx;
+}
+
+.privacy-desc {
+  display: block;
+  font-size: 24rpx;
+  line-height: 1.6;
+  color: #667085;
+  margin-bottom: 18rpx;
+}
+
+.agreement-row {
+  display: flex;
+  align-items: center;
+  min-height: 44rpx;
+}
+
+.agreement-text {
+  margin-left: 10rpx;
+  font-size: 24rpx;
+  color: #344054;
+}
+
+.agreement-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 10rpx;
+  padding-left: 56rpx;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.agreement-link {
+  color: #8a4b10;
+  font-weight: 600;
+}
+
+.agreement-and {
+  color: #667085;
+  margin: 0 6rpx;
 }
 
 .input-group {
@@ -168,6 +229,11 @@
   border: 1rpx solid #e6ebf1;
 }
 
+.login-input[disabled] {
+  color: #98a2b3;
+  background: #f1f5f9;
+}
+
 .btn-login {
   width: 100%;
   height: 96rpx;
@@ -182,11 +248,11 @@
   box-shadow: 0 10rpx 22rpx rgba(252, 163, 17, 0.22);
 }
 
-.btn-wechat-login {
+.btn-phone-login {
   width: 100%;
   height: 96rpx;
-  background: #07C160;
-  color: #fff;
+  background: #fca311;
+  color: #14213d;
   border-radius: 8rpx;
   text-align: center;
   line-height: 96rpx;
@@ -199,10 +265,10 @@
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  box-shadow: 0 8rpx 18rpx rgba(7, 193, 96, 0.18);
+  box-shadow: 0 10rpx 22rpx rgba(252, 163, 17, 0.22);
 }
 
-.btn-wechat-login::after {
+.btn-phone-login::after {
   border: none;
 }
 
@@ -227,8 +293,22 @@
   color: #8a4b10;
 }
 
+.login-cancel-btn {
+  height: 84rpx;
+  margin-top: 22rpx;
+  border: 2rpx solid #fca311;
+  border-radius: 10rpx;
+  text-align: center;
+  line-height: 84rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #8a4b10;
+  background: #fffaf2;
+}
+
 .btn-disabled {
   opacity: 0.6;
+  box-shadow: none;
 }
 
 /* === Yiwu Line UI Polish v2 === */
@@ -783,3 +863,144 @@
 }
 
 /* === End Full Status Label Visibility === */
+
+/* === Compact Login Compliance Layout === */
+.container {
+  padding: 22rpx 32rpx 56rpx;
+}
+
+.role-header.role-header-compact {
+  margin: 12rpx 0 22rpx;
+  padding: 24rpx 28rpx 24rpx 38rpx;
+  border-radius: 16rpx;
+  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.05);
+}
+
+.role-header.role-header-compact::before {
+  left: 22rpx;
+  top: 28rpx;
+  height: 76rpx;
+}
+
+.role-header.role-header-compact::after {
+  width: 54rpx;
+  height: 5rpx;
+  margin-top: 16rpx;
+}
+
+.role-header.role-header-compact .role-eyebrow {
+  margin-bottom: 6rpx;
+  font-size: 18rpx;
+}
+
+.role-header.role-header-compact .role-title {
+  font-size: 34rpx;
+  line-height: 1.22;
+}
+
+.role-header.role-header-compact .role-subtitle {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+}
+
+.login-form {
+  padding: 30rpx 28rpx 34rpx;
+  margin-top: 0;
+  border-radius: 16rpx;
+}
+
+.login-back {
+  margin-bottom: 24rpx;
+  color: #8a4b10;
+}
+
+.login-title {
+  margin-bottom: 26rpx;
+}
+
+.login-title text {
+  font-size: 36rpx;
+  line-height: 1.25;
+}
+
+.login-subtitle {
+  margin-top: 8rpx;
+  font-size: 26rpx !important;
+}
+
+.privacy-panel {
+  padding: 18rpx 20rpx;
+  margin-bottom: 26rpx;
+  background: #fffaf2;
+  border-color: #f1dfc9;
+  border-radius: 12rpx;
+}
+
+.privacy-title {
+  font-size: 25rpx;
+  margin-bottom: 8rpx;
+}
+
+.privacy-desc {
+  font-size: 23rpx;
+  line-height: 1.55;
+  margin-bottom: 14rpx;
+}
+
+.agreement-row {
+  min-height: 40rpx;
+}
+
+.agreement-text,
+.agreement-links {
+  font-size: 23rpx;
+}
+
+.agreement-links {
+  margin-top: 6rpx;
+  padding-left: 52rpx;
+}
+
+.input-group {
+  margin-bottom: 24rpx;
+}
+
+.input-label {
+  margin-bottom: 10rpx;
+  font-size: 26rpx;
+}
+
+.login-input {
+  height: 84rpx;
+  font-size: 30rpx;
+}
+
+.btn-phone-login,
+.btn-login {
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 30rpx;
+  border-radius: 10rpx;
+}
+
+.btn-phone-login {
+  margin-top: 18rpx;
+}
+
+.btn-login {
+  margin-top: 30rpx;
+}
+
+.manual-login-link {
+  margin-top: 26rpx;
+  font-size: 26rpx;
+}
+
+.login-cancel-btn {
+  height: 80rpx;
+  line-height: 80rpx;
+  margin-top: 20rpx;
+  font-size: 28rpx;
+}
+
+/* === End Compact Login Compliance Layout === */

@@ -102,7 +102,7 @@ const DEFAULT_CATEGORIES = [
   },
   {
     _id: 'cat_beilun_distribution',
-    name: '北仑分拨费',
+    name: '其他-北仑分拨费',
     type: 'beilunDistribution',
     calculationType: 'fixed',
     basePrice: 120,
@@ -172,6 +172,13 @@ function calculateAmount(category, measurement) {
   }
 }
 
+function normalizeCategory(category) {
+  if (category?._id === 'cat_beilun_distribution' || category?.type === 'beilunDistribution') {
+    return { ...category, name: '其他-北仑分拨费' };
+  }
+  return category;
+}
+
 // 权限校验：OPENID 来自云函数上下文，前端无法伪造
 // 代码白名单 + 环境变量 ADMIN_LIST（逗号分隔），云后台可动态修改无需发版
 function checkAdmin(openId) {
@@ -214,7 +221,16 @@ async function listCategories(measurement) {
       categories = DEFAULT_CATEGORIES;
     }
 
-    return categories.map(cat => ({
+    const normalizedCategories = categories.map(normalizeCategory);
+    normalizedCategories.forEach(cat => {
+      if ((cat._id === 'cat_beilun_distribution' || cat.type === 'beilunDistribution') && cat.name !== categories.find(item => item._id === cat._id)?.name) {
+        db.collection('fee_categories').doc(cat._id).update({
+          data: { name: cat.name, updatedAt: db.serverDate() }
+        }).catch(err => console.warn('同步费用类目名称失败:', cat._id, err.message));
+      }
+    });
+
+    return normalizedCategories.map(cat => ({
       ...cat,
       calculatedAmount: measurement ? calculateAmount(cat, measurement) : null
     }));

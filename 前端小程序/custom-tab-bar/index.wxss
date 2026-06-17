@@ -48,14 +48,23 @@
 .t4 { display: none; }
 .t5 { left: 562.5rpx; }
 
-/* 管理员6个tab */
-.bar.is-admin .item { width: 125rpx; }
+/* 管理员5个tab：查单/建单/全部运单/流程/账单 */
+.bar.is-admin .item { width: 150rpx; }
 .bar.is-admin .t0 { left: 0; }
-.bar.is-admin .t1 { left: 125rpx; }
-.bar.is-admin .t2 { left: 250rpx; display: block; }
-.bar.is-admin .t3 { left: 375rpx; }
-.bar.is-admin .t4 { left: 500rpx; display: block; }
-.bar.is-admin .t5 { left: 625rpx; }
+.bar.is-admin .t1 { left: 150rpx; }
+.bar.is-admin .t2 { left: 300rpx; display: block; }
+.bar.is-admin .t3 { left: 450rpx; }
+.bar.is-admin .t4 { display: none; }
+.bar.is-admin .t5 { left: 600rpx; }
+
+/* 接单员5个tab：查单/建单/流程/预约进仓/账单 */
+.bar.is-warehouse .item { width: 150rpx; }
+.bar.is-warehouse .t0 { left: 0; }
+.bar.is-warehouse .t1 { left: 150rpx; }
+.bar.is-warehouse .t2 { display: none; }
+.bar.is-warehouse .t3 { left: 300rpx; }
+.bar.is-warehouse .t4 { left: 450rpx; display: block; }
+.bar.is-warehouse .t5 { left: 600rpx; }
 
 /* ---- 图标区域 ---- */
 .icon {
@@ -70,14 +79,19 @@
   left: 77.5rpx;
 }
 
-/* 管理员居中： (125 - 32) / 2 = 46.5rpx */
+/* 5栏居中： (150 - 32) / 2 = 59rpx */
 .bar.is-admin .t0 .icon,
 .bar.is-admin .t1 .icon,
 .bar.is-admin .t2 .icon,
 .bar.is-admin .t3 .icon,
 .bar.is-admin .t4 .icon,
-.bar.is-admin .t5 .icon {
-  left: 46.5rpx;
+.bar.is-admin .t5 .icon,
+.bar.is-warehouse .t0 .icon,
+.bar.is-warehouse .t1 .icon,
+.bar.is-warehouse .t3 .icon,
+.bar.is-warehouse .t4 .icon,
+.bar.is-warehouse .t5 .icon {
+  left: 59rpx;
 }
 
 .badge {
@@ -220,8 +234,9 @@
   color: #98a2b3;
 }
 
-.bar.is-admin .label {
-  width: 125rpx;
+.bar.is-admin .label,
+.bar.is-warehouse .label {
+  width: 150rpx;
   font-size: 20rpx;
 }
 
@@ -246,14 +261,19 @@
   left: 90.5rpx;
 }
 
-/* 管理员居中： (125 - 6) / 2 = 59.5rpx */
+/* 5栏居中： (150 - 6) / 2 = 72rpx */
 .bar.is-admin .t0 .dot,
 .bar.is-admin .t1 .dot,
 .bar.is-admin .t2 .dot,
 .bar.is-admin .t3 .dot,
 .bar.is-admin .t4 .dot,
-.bar.is-admin .t5 .dot {
-  left: 59.5rpx;
+.bar.is-admin .t5 .dot,
+.bar.is-warehouse .t0 .dot,
+.bar.is-warehouse .t1 .dot,
+.bar.is-warehouse .t3 .dot,
+.bar.is-warehouse .t4 .dot,
+.bar.is-warehouse .t5 .dot {
+  left: 72rpx;
 }
 
 .dot.on {

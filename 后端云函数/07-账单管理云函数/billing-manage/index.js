@@ -71,6 +71,31 @@ function calculateDiscountPayload(data = {}, originalAmount = 0) {
   };
 }
 
+function buildShipmentBrief(shipment = {}) {
+  const cargoInfo = shipment.cargoInfo || {};
+  const routing = shipment.routing || {};
+  return {
+    shipmentId: shipment._id || '',
+    waybillNo: cargoInfo.waybillNo || '',
+    warehouseEntryNo: cargoInfo.warehouseEntryNo || '',
+    pieces: cargoInfo.pieces || 0,
+    piecesUnit: cargoInfo.piecesUnit || '件',
+    grossWeight: cargoInfo.grossWeight || 0,
+    weightUnit: cargoInfo.weightUnit || 'KGS',
+    volume: cargoInfo.volume || 0,
+    volumeUnit: cargoInfo.volumeUnit || 'CBM',
+    marks: cargoInfo.marks || '',
+    warehouseName: routing.warehouseName || '',
+    destinationPort: routing.destinationPort || '',
+    entryTime: routing.entryTime || null,
+    departureTime: routing.departureTime || null,
+    latestDeliveryTime: routing.latestDeliveryTime || null,
+    currentNodeName: shipment.currentNodeName || '',
+    createdAt: shipment.createdAt || shipment._createTime || null,
+    updatedAt: shipment.updatedAt || null
+  };
+}
+
 async function enrichBillsWithWaybillNos(bills = []) {
   const shipmentIds = bills.flatMap(bill => [
     bill.shipmentId,
@@ -240,6 +265,41 @@ function billBelongsToCurrentUser(bill, phone, creatorShipmentIds) {
   );
 }
 
+function paidSpotShipmentToBill(item) {
+  const amount = item.billing?.payableAmount || item.pricing?.finalPrice || item.quote?.subtotal || item.totalAmount || 0;
+  const paidAmount = item.billing?.paidAmount || amount;
+  return {
+    _id: item.billing?.billId || `SPOT-${item._id}`,
+    billType: 'spot',
+    shipmentId: item._id,
+    waybillNo: item.cargoInfo?.waybillNo || '',
+    warehouseEntryNo: item.cargoInfo?.warehouseEntryNo || '',
+    shipmentBrief: buildShipmentBrief(item),
+    shipmentBriefs: [buildShipmentBrief(item)],
+    clientPhone: item.managerPhone || item.contacts?.contact1Phone || '',
+    clientName: item.clientName || item.contacts?.contact1Name || '',
+    factoryName: item.factoryName || item.creatorName || '',
+    contacts: item.contacts || {},
+    totalAmount: formatMoney(amount) || 0,
+    paidAmount: formatMoney(paidAmount) || 0,
+    status: 'paid',
+    paymentType: 'spot',
+    items: item.quote?.items || (item.pricing ? [{
+      name: '运费',
+      calculationDetail: `重量价:${item.pricing.weightPrice || 0} / 体积价:${item.pricing.volumePrice || 0}`,
+      amount: formatMoney(amount) || 0
+    }] : []),
+    payments: [{
+      amount: formatMoney(paidAmount) || 0,
+      paidAt: item.billing?.paidAt || item.updatedAt || item._createTime,
+      markedBy: item.billing?.paidBy || '',
+      note: '供应商现结收款'
+    }],
+    createdAt: item.billing?.paidAt || item.updatedAt || item._createTime || db.serverDate(),
+    updatedAt: item.billing?.paidAt || item.updatedAt || db.serverDate()
+  };
+}
+
 async function checkMarkPaidPermission(billId, role, phone, operatorOpenId) {
   if (role === 'admin') {
     checkAdmin(operatorOpenId);
@@ -256,8 +316,8 @@ async function checkMarkPaidPermission(billId, role, phone, operatorOpenId) {
   }
 }
 
-async function billList(phone, status, page = 1, pageSize = 20, operatorOpenId) {
-  const match = { isDeleted: _.neq(true), paymentType: _.neq('spot') };
+async function billList(phone, status, page = 1, pageSize = 20, role, operatorOpenId) {
+  const match = { isDeleted: _.neq(true) };
   if (status) match.status = status;
 
   const res = await db.collection('bills')
@@ -267,10 +327,39 @@ async function billList(phone, status, page = 1, pageSize = 20, operatorOpenId) 
     .get();
 
   const creatorShipmentIds = await getCreatorShipmentIds(operatorOpenId);
-  const visibleBills = (res.data || []).filter(bill => billBelongsToCurrentUser(bill, phone, creatorShipmentIds));
+  const visibleBills = (res.data || [])
+    .filter(bill => bill.paymentType !== 'spot')
+    .filter(bill => role === 'admin' || billBelongsToCurrentUser(bill, phone, creatorShipmentIds));
+
+  let paidSpotBills = [];
+  if (!status || status === 'paid') {
+    const spotRes = await db.collection('shipments')
+      .where({
+        'billing.paymentType': 'spot',
+        'billing.paymentStatus': 'paid',
+        'billing.spotPaymentConfirmed': true,
+        isDeleted: _.neq(true)
+      })
+      .orderBy('updatedAt', 'desc')
+      .limit(100)
+      .get();
+
+    paidSpotBills = (spotRes.data || [])
+      .map(item => paidSpotShipmentToBill(item))
+      .filter(bill => role === 'admin' || billBelongsToCurrentUser(bill, phone, creatorShipmentIds));
+  }
+
   const start = (page - 1) * pageSize;
 
-  return enrichBillsWithWaybillNos(visibleBills.slice(start, start + pageSize));
+  const mergedBills = visibleBills
+    .concat(paidSpotBills)
+    .sort((a, b) => {
+      const timeA = Date.parse(a.updatedAt || a.createdAt || 0) || 0;
+      const timeB = Date.parse(b.updatedAt || b.createdAt || 0) || 0;
+      return timeB - timeA;
+    });
+
+  return enrichBillsWithWaybillNos(mergedBills.slice(start, start + pageSize));
 }
 
 // ── 管理端：所有账单（分页）──
@@ -381,7 +470,7 @@ exports.main = async (event, context) => {
         return success(await applyDiscount(billId, data, OPENID), '优惠已生效');
 
       case 'billList':
-        return success(await billList(phone, status, page, pageSize, OPENID));
+        return success(await billList(phone, status, page, pageSize, role, OPENID));
 
       case 'pendingBills':
         checkAdmin(OPENID);

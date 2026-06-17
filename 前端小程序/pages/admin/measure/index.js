@@ -6,8 +6,13 @@ Page({
     shipment: null,
     loading: false,
     submitting: false,
+    confirmingPaid: false,
     showPayModal: false,
     payAmount: 0,
+    paymentQrs: [
+      { type: 'wechat', name: '微信支付', hint: '推荐使用微信支付', url: '/images/payment/wechat-pay.jpg' },
+      { type: 'alipay', name: '支付宝', hint: '打开支付宝扫一扫', url: '/images/payment/alipay.jpg' }
+    ],
     form: {
       pieces: '',
       weight: '',
@@ -20,9 +25,20 @@ Page({
     mainFees: [
       { name: '进仓运费', amount: 0, detail: '' }
     ],
+    distributionFee: {
+      name: '分拨费',
+      amount: 0,
+      customAmount: '',
+      inputAmount: '',
+      defaultAmount: 0,
+      manuallyEdited: false,
+      rate: 160,
+      cars: 1,
+      detail: ''
+    },
     collectionFee: { name: '代收款', amount: 0, enabled: false },
     extraFees: [
-      { code: 'beilun_distribution', name: '北仑分拨费', amount: 0, enabled: false, tickets: '' },
+      { code: 'beilun_distribution', name: '其他-北仑分拨费', amount: 0, enabled: false, tickets: '' },
       { code: 'pickup', name: '上门提货费', amount: 0, enabled: false, times: '' },
       { code: 'storage', name: '集货点堆存费', amount: 0, enabled: false, days: '' },
       { code: 'relabel', name: '贴唛改唛费', amount: 0, enabled: false, pieces: '' },
@@ -33,6 +49,37 @@ Page({
     collectionItems: [], // 代收费子项，按路线动态生成
     routeFeeProfile: null,
     totalAmount: 0,
+  },
+
+  getSpotPaymentPendingKey(shipmentId = this.data.shipmentId) {
+    return `spotPaymentPending_${shipmentId}`;
+  },
+
+  getSpotPaymentConfirmedKey(shipmentId = this.data.shipmentId) {
+    return `spotPaymentConfirmed_${shipmentId}`;
+  },
+
+  markSpotPaymentPending() {
+    if (!this.data.shipmentId) return;
+    wx.removeStorageSync(this.getSpotPaymentConfirmedKey());
+    wx.setStorageSync(this.getSpotPaymentPendingKey(), {
+      shipmentId: this.data.shipmentId,
+      amount: this.data.payAmount || this.data.totalAmount || 0,
+      createdAt: Date.now()
+    });
+  },
+
+  clearSpotPaymentPending() {
+    if (!this.data.shipmentId) return;
+    wx.removeStorageSync(this.getSpotPaymentPendingKey());
+  },
+
+  markSpotPaymentConfirmed() {
+    if (!this.data.shipmentId) return;
+    wx.setStorageSync(this.getSpotPaymentConfirmedKey(), {
+      shipmentId: this.data.shipmentId,
+      confirmedAt: Date.now()
+    });
   },
 
   onLoad(options) {
@@ -91,20 +138,38 @@ Page({
   getRouteFeeProfile(shipment) {
     const routeId = shipment?.routeId || '';
     const routeName = shipment?.routeSnapshot?.name || shipment?.routeName || '';
+    const warehouseName = shipment?.routing?.warehouseName || '';
     const isHaitong = routeId.includes('haitong') || routeName.includes('海通');
     return isHaitong
       ? {
           isHaitong: true,
+          warehouseName: warehouseName || '海通安达',
           lineName: '义乌集货点→海通安达仓库',
           volumeRate: 55,
-          weightRate: 185
+          weightRate: 185,
+          distributionRate: 160
         }
       : {
           isHaitong: false,
+          warehouseName: warehouseName || '其他仓库',
           lineName: '义乌集货点→宁波北仑仓库',
           volumeRate: 65,
-          weightRate: 190
+          weightRate: 190,
+          distributionRate: 150
         };
+  },
+
+  getBillableVolume(volume) {
+    const numericVolume = parseFloat(volume) || 0;
+    if (numericVolume > 0 && numericVolume < 1) return 1;
+    return numericVolume;
+  },
+
+  getVolumeText(actualVolume, billableVolume) {
+    if (actualVolume > 0 && billableVolume !== actualVolume) {
+      return `${actualVolume}立方（不足1方按1方计费）`;
+    }
+    return `${billableVolume}立方`;
   },
 
   // 初始化代收费子项（按路线区分）
@@ -130,40 +195,44 @@ Page({
     const { form, shipment, extraFees, collectionItems } = this.data;
     const weightKg = parseFloat(form.weight) || 0;
     const volume = parseFloat(form.volume) || 0;
+    const billableVolume = this.getBillableVolume(volume);
     const profile = this.data.routeFeeProfile || this.getRouteFeeProfile(shipment);
 
     // 1. 进仓运费
     let transportFee = 0;
     let transportDetail = '';
-    if (weightKg > 0 && volume > 0) {
+    if (weightKg > 0 && billableVolume > 0) {
       const weightTons = weightKg / 1000; // 公斤 → 吨
-      const ratio = volume / weightTons;  // 每吨货物占多少立方
+      const ratio = billableVolume / weightTons;  // 每吨货物占多少计费立方
+      const volumeText = this.getVolumeText(volume, billableVolume);
       if (ratio >= 4) {
-        transportFee = volume * profile.volumeRate;
-        transportDetail = `${profile.lineName}：${volume}立方 × ${profile.volumeRate}元/立方（每吨${ratio.toFixed(2)}立方，≥4按立方）`;
+        transportFee = billableVolume * profile.volumeRate;
+        transportDetail = `${profile.lineName}：${volumeText} × ${profile.volumeRate}元/立方（每吨${ratio.toFixed(2)}计费立方，≥4按立方）`;
       } else {
         transportFee = weightTons * profile.weightRate;
-        transportDetail = `${profile.lineName}：${weightTons.toFixed(3)}吨 × ${profile.weightRate}元/吨（每吨${ratio.toFixed(2)}立方，<4按重量）`;
+        transportDetail = `${profile.lineName}：${weightTons.toFixed(3)}吨 × ${profile.weightRate}元/吨（每吨${ratio.toFixed(2)}计费立方，<4按重量）`;
       }
     }
 
+    const distributionFee = this.getDistributionFee(profile);
     const mainFees = [
-      { name: '进仓运费', amount: this.round2(transportFee), detail: transportDetail }
+      { code: 'inbound_transport', name: '进仓运费', amount: this.round2(transportFee), detail: transportDetail },
+      { code: 'main_distribution', name: distributionFee.name, amount: distributionFee.amount, detail: distributionFee.detail, editable: true }
     ];
 
     // 2. 代收款：常规费用，展示在附加费用上方
     let collectionAmount = 0;
     if (this.data.collectionFee.enabled) {
       collectionAmount = collectionItems.reduce((sum, item) => {
-        const qty = item.qtySource === 'volume' ? volume : (parseFloat(item.qty) || 0);
-        item.qty = item.qtySource === 'volume' ? volume : item.qty;
+        const qty = item.qtySource === 'volume' ? billableVolume : (parseFloat(item.qty) || 0);
+        item.qty = item.qtySource === 'volume' ? billableVolume : item.qty;
         item.amount = this.round2((parseFloat(item.price) || 0) * qty);
         return sum + item.amount;
       }, 0);
     }
     const nextCollectionFee = { ...this.data.collectionFee, amount: this.round2(collectionAmount) };
 
-    // 3. 北仑分拨费：附加费用第一项
+    // 3. 其他-北仑分拨费：附加费用第一项
     const distributionTickets = parseInt(extraFees[0].tickets) || 0;
     extraFees[0].amount = extraFees[0].enabled ? this.round2(distributionTickets * 120) : 0;
 
@@ -189,15 +258,15 @@ Page({
 
     // 7. 义乌地区转运费
     let yiwuTransferFee = 0;
-    extraFees[4].needsCustom = volume > 20;
+    extraFees[4].needsCustom = billableVolume > 20;
     if (extraFees[4].enabled) {
-      if (volume > 20) {
+      if (billableVolume > 20) {
         yiwuTransferFee = parseFloat(extraFees[4].customAmount) || 0;
-      } else if (volume >= 10) {
+      } else if (billableVolume >= 10) {
         yiwuTransferFee = 280;
-      } else if (volume >= 5) {
+      } else if (billableVolume >= 5) {
         yiwuTransferFee = 220;
-      } else if (volume > 0) {
+      } else if (billableVolume > 0) {
         yiwuTransferFee = 180;
       }
     }
@@ -214,7 +283,31 @@ Page({
                         (nextCollectionFee.enabled ? nextCollectionFee.amount : 0) +
                         extraFees.reduce((s, f) => f.enabled ? s + f.amount : s, 0);
 
-    this.setData({ mainFees, collectionFee: nextCollectionFee, extraFees, collectionItems, routeFeeProfile: profile, totalAmount: this.round2(totalAmount) });
+    this.setData({ mainFees, distributionFee, collectionFee: nextCollectionFee, extraFees, collectionItems, routeFeeProfile: profile, totalAmount: this.round2(totalAmount) });
+  },
+
+  getDistributionFee(profile) {
+    const current = this.data.distributionFee || {};
+    const cars = parseFloat(current.cars) || 1;
+    const rate = profile.distributionRate || (profile.isHaitong ? 160 : 150);
+    const defaultAmount = this.round2(cars * rate);
+    const customAmount = current.customAmount;
+    const manuallyEdited = current.manuallyEdited === true;
+    const amount = manuallyEdited ? this.round2(parseFloat(customAmount) || 0) : defaultAmount;
+    const warehouseText = profile.isHaitong ? '海通安达' : (profile.warehouseName || '其他仓库');
+
+    return {
+      ...current,
+      name: '分拨费',
+      cars,
+      rate,
+      defaultAmount,
+      customAmount,
+      inputAmount: manuallyEdited ? customAmount : String(defaultAmount),
+      manuallyEdited,
+      amount,
+      detail: `${warehouseText}：${cars}车 × ${rate}元/车${manuallyEdited ? '（已修改）' : '（自动匹配，可修改）'}`
+    };
   },
 
   round2(n) {
@@ -269,19 +362,70 @@ Page({
     });
   },
 
+  onDistributionAmountChange(e) {
+    this.setData({
+      'distributionFee.customAmount': e.detail.value,
+      'distributionFee.manuallyEdited': true
+    }, () => {
+      this.calculateAllFees();
+    });
+  },
+
   // 关闭支付弹窗
   closePayModal() {
     this.setData({ showPayModal: false });
-    wx.switchTab({ url: '/pages/workflow/index' });
   },
 
   // 确认已支付
-  confirmPaid() {
-    this.setData({ showPayModal: false });
-    wx.showToast({ title: '收款完成', icon: 'success' });
-    setTimeout(() => {
-      wx.switchTab({ url: '/pages/workflow/index' });
-    }, 1200);
+  async confirmPaid() {
+    if (this.data.confirmingPaid) return;
+    this.setData({ confirmingPaid: true });
+
+    try {
+      const res = await wx.cloud.callFunction({
+        name: 'shipment-update',
+        data: {
+          action: 'advanceOa',
+          shipmentId: this.data.shipmentId,
+          role: wx.getStorageSync('userRole') || 'warehouse',
+          data: { oaAction: 'markSpotPaid' }
+        }
+      });
+
+      if (res.result.code === 0) {
+        this.clearSpotPaymentPending();
+        this.markSpotPaymentConfirmed();
+        this.setData({ showPayModal: false, confirmingPaid: false });
+        wx.showToast({ title: '收款完成', icon: 'success' });
+        setTimeout(() => {
+          wx.switchTab({ url: '/pages/workflow/index' });
+        }, 1200);
+      } else {
+        const message = res.result.message || '确认失败';
+        if (message.includes('已标记')) {
+          this.clearSpotPaymentPending();
+          this.markSpotPaymentConfirmed();
+          this.setData({ showPayModal: false, confirmingPaid: false });
+          wx.showToast({ title: '收款完成', icon: 'success' });
+          setTimeout(() => {
+            wx.switchTab({ url: '/pages/workflow/index' });
+          }, 1200);
+        } else {
+          wx.showToast({ title: message, icon: 'none' });
+          this.setData({ confirmingPaid: false });
+        }
+      }
+    } catch (e) {
+      console.error('确认收款失败:', e);
+      wx.showToast({ title: '确认失败', icon: 'none' });
+      this.setData({ confirmingPaid: false });
+    }
+  },
+
+  previewPaymentQr(e) {
+    const current = e.currentTarget.dataset.url;
+    const urls = this.data.paymentQrs.map(item => item.url);
+    wx.previewImage({ current, urls });
   },
 
   // 带防呆校验：发现异常误差时弹窗二次确认
@@ -352,6 +496,7 @@ Page({
         data: {
           action: 'measurement',
           shipmentId,
+          role: wx.getStorageSync('userRole') || 'warehouse',
           data: {
             pieces: form.pieces ? parseInt(form.pieces, 10) : null,
             weight: parseFloat(form.weight),
@@ -369,7 +514,9 @@ Page({
         // 供应商现结：弹出支付二维码
         const isSpot = this.data.shipment?.billing?.paymentType === 'spot';
         if (isSpot) {
-          this.setData({ submitting: false, showPayModal: true, payAmount: totalAmount });
+          this.setData({ submitting: false, showPayModal: true, payAmount: totalAmount }, () => {
+            this.markSpotPaymentPending();
+          });
         } else {
           wx.showToast({ title: '实测数据已保存', icon: 'success' });
           setTimeout(() => {

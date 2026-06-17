@@ -5,6 +5,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const XLSX = require('xlsx');
 const { success, error, paramError } = require('./utils/response');
 const { formatMoney } = require('./utils/formatMoney');
 
@@ -39,6 +40,41 @@ function buildBillVisibility(source = {}) {
       source.contacts?.contact2Phone
     ])
   };
+}
+
+function toDate(value) {
+  if (!value) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (typeof value === 'number') {
+    const date = new Date(value);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) return date;
+    const fallbackDate = new Date(value.replace(/-/g, '/'));
+    return Number.isNaN(fallbackDate.getTime()) ? null : fallbackDate;
+  }
+  if (value.$date) return toDate(value.$date);
+  if (value.seconds) return toDate(value.seconds * 1000);
+  if (value._seconds) return toDate(value._seconds * 1000);
+  return null;
+}
+
+function padTime(value) {
+  return value < 10 ? `0${value}` : String(value);
+}
+
+function formatDateTime(value) {
+  const date = toDate(value);
+  if (!date) return '';
+  return `${date.getFullYear()}-${padTime(date.getMonth() + 1)}-${padTime(date.getDate())} ${padTime(date.getHours())}:${padTime(date.getMinutes())}`;
+}
+
+function getMonthKey(value) {
+  const date = toDate(value);
+  if (!date) return 'unknown';
+  return `${date.getFullYear()}-${padTime(date.getMonth() + 1)}`;
 }
 
 function getOriginalAmount(bill = {}) {
@@ -115,6 +151,31 @@ function buildShipmentBrief(shipment = {}) {
   };
 }
 
+function buildPriceItemsFromShipment(shipment = {}) {
+  if (shipment.quote?.items?.length > 0) return shipment.quote.items;
+
+  if (shipment.fees?.length > 0) {
+    return shipment.fees.map(fee => ({
+      name: fee.name || '费用',
+      calculationDetail: fee.calculationDetail || fee.detail || '',
+      amount: formatMoney(fee.amount || 0),
+      isIncluded: true
+    }));
+  }
+
+  const amount = shipment.pricing?.finalPrice || shipment.quote?.subtotal || shipment.totalAmount || 0;
+  if (amount) {
+    return [{
+      name: '运费',
+      calculationDetail: shipment.pricing ? `重量价:${shipment.pricing.weightPrice || 0} / 体积价:${shipment.pricing.volumePrice || 0}` : '',
+      amount: formatMoney(amount),
+      isIncluded: true
+    }];
+  }
+
+  return [];
+}
+
 async function enrichBillsWithShipmentInfo(bills = []) {
   const shipmentIds = bills.flatMap(bill => [
     bill.shipmentId,
@@ -129,7 +190,10 @@ async function enrichBillsWithShipmentInfo(bills = []) {
 
   const shipmentMap = {};
   (shipmentRes.data || []).forEach(shipment => {
-    shipmentMap[shipment._id] = buildShipmentBrief(shipment);
+    shipmentMap[shipment._id] = {
+      brief: buildShipmentBrief(shipment),
+      priceItems: buildPriceItemsFromShipment(shipment)
+    };
   });
 
   return bills.map(bill => {
@@ -137,12 +201,15 @@ async function enrichBillsWithShipmentInfo(bills = []) {
       bill.shipmentId,
       ...(bill.shipmentIds || [])
     ].filter(Boolean);
-    const shipmentBriefs = billShipmentIds.map(id => shipmentMap[id]).filter(Boolean);
+    const shipmentInfos = billShipmentIds.map(id => shipmentMap[id]).filter(Boolean);
+    const shipmentBriefs = shipmentInfos.map(item => item.brief).filter(Boolean);
     const waybillNos = shipmentBriefs.map(item => item.waybillNo).filter(Boolean);
     const warehouseEntryNos = shipmentBriefs.map(item => item.warehouseEntryNo).filter(Boolean);
+    const fallbackItems = shipmentInfos.find(item => item.priceItems?.length > 0)?.priceItems || [];
 
     return {
       ...bill,
+      items: bill.items?.length > 0 ? bill.items : fallbackItems,
       waybillNo: bill.waybillNo || waybillNos[0] || '',
       waybillNos,
       warehouseEntryNo: bill.warehouseEntryNo || warehouseEntryNos[0] || '',
@@ -285,6 +352,51 @@ function billBelongsToCurrentUser(bill, phone, creatorShipmentIds) {
   );
 }
 
+function sanitizeBillForRole(bill, role) {
+  if (role === 'admin') return bill;
+  return {
+    ...bill,
+    items: []
+  };
+}
+
+function paidSpotShipmentToBill(item) {
+  const amount = item.billing?.payableAmount || item.pricing?.finalPrice || item.quote?.subtotal || item.totalAmount || 0;
+  const paidAmount = item.billing?.paidAmount || amount;
+  const visibility = buildBillVisibility(item);
+  return {
+    _id: item.billing?.billId || `SPOT-${item._id}`,
+    billType: 'spot',
+    shipmentId: item._id,
+    waybillNo: item.cargoInfo?.waybillNo || '',
+    warehouseEntryNo: item.cargoInfo?.warehouseEntryNo || '',
+    shipmentBrief: buildShipmentBrief(item),
+    shipmentBriefs: [buildShipmentBrief(item)],
+    clientPhone: item.managerPhone || item.contacts?.contact1Phone || '',
+    clientName: item.clientName || item.contacts?.contact1Name || '',
+    factoryName: item.factoryName || item.creatorName || '',
+    contacts: item.contacts || {},
+    totalAmount: formatMoney(amount) || 0,
+    paidAmount: formatMoney(paidAmount) || 0,
+    status: 'paid',
+    paymentType: 'spot',
+    ...visibility,
+    items: item.quote?.items?.length > 0 ? item.quote.items : (item.pricing ? [{
+      name: '运费',
+      calculationDetail: `重量价:${item.pricing.weightPrice || 0} / 体积价:${item.pricing.volumePrice || 0}`,
+      amount: formatMoney(amount) || 0
+    }] : []),
+    payments: [{
+      amount: formatMoney(paidAmount) || 0,
+      paidAt: item.billing?.paidAt || item.updatedAt || item._createTime,
+      markedBy: item.billing?.paidBy || '',
+      note: '供应商现结收款'
+    }],
+    createdAt: item.billing?.paidAt || item.updatedAt || item._createTime || db.serverDate(),
+    updatedAt: item.billing?.paidAt || item.updatedAt || db.serverDate()
+  };
+}
+
 async function checkMarkPaidPermission(billId, role, phone, operatorOpenId) {
   if (role === 'admin') {
     checkAdmin(operatorOpenId);
@@ -316,13 +428,45 @@ async function billList(phone, status, page = 1, pageSize = 20, role, operatorOp
 
   const creatorShipmentIds = await getCreatorShipmentIds(operatorOpenId);
   const visibleBills = (res.data || []).filter(bill => (
-    role === 'admin' && !phone && creatorShipmentIds.length === 0
+    role === 'admin'
       ? true
       : billBelongsToCurrentUser(bill, phone, creatorShipmentIds)
   ));
+
+  let paidSpotBills = [];
+  if (!status || status === 'paid') {
+    const spotRes = await db.collection('shipments')
+      .where({
+        'billing.paymentType': 'spot',
+        'billing.paymentStatus': 'paid',
+        'billing.spotPaymentConfirmed': true,
+        isDeleted: _.neq(true)
+      })
+      .orderBy('updatedAt', 'desc')
+      .limit(100)
+      .get();
+
+    paidSpotBills = (spotRes.data || [])
+      .map(item => paidSpotShipmentToBill(item))
+      .filter(bill => (
+        role === 'admin'
+          ? true
+          : billBelongsToCurrentUser(bill, phone, creatorShipmentIds)
+      ));
+  }
+
   const start = (page - 1) * pageSize;
 
-  return enrichBillsWithShipmentInfo(visibleBills.slice(start, start + pageSize));
+  const mergedBills = visibleBills
+    .concat(paidSpotBills)
+    .sort((a, b) => {
+      const timeA = Date.parse(a.updatedAt || a.createdAt || 0) || 0;
+      const timeB = Date.parse(b.updatedAt || b.createdAt || 0) || 0;
+      return timeB - timeA;
+    });
+
+  const enrichedBills = await enrichBillsWithShipmentInfo(mergedBills.slice(start, start + pageSize));
+  return enrichedBills.map(bill => sanitizeBillForRole(bill, role));
 }
 
 // ── 管理端：所有账单（分页）──
@@ -334,7 +478,7 @@ async function pendingBills(page = 1, pageSize = 20) {
     .limit(pageSize)
     .get();
 
-  const bills = (res.data || []).filter(item => item.paymentType !== 'spot');
+  const bills = (res.data || []).filter(item => item.paymentType !== 'spot' || item.status === 'paid');
   const billShipmentIds = bills.map(item => item.shipmentId).filter(Boolean);
 
   const billedShipmentsRes = await db.collection('shipments')
@@ -378,7 +522,261 @@ async function pendingBills(page = 1, pageSize = 20) {
       };
     });
 
-  return bills.concat(orphanBills);
+  const paidSpotRes = await db.collection('shipments')
+    .where({
+      'billing.paymentType': 'spot',
+      'billing.paymentStatus': 'paid',
+      'billing.spotPaymentConfirmed': true,
+      isDeleted: _.neq(true)
+    })
+    .orderBy('updatedAt', 'desc')
+    .limit(100)
+    .get();
+
+  const paidSpotBills = (paidSpotRes.data || [])
+    .filter(item => !item.billing?.billId || !billShipmentIds.includes(item._id))
+    .map(item => paidSpotShipmentToBill(item));
+
+  return bills.concat(orphanBills, paidSpotBills);
+}
+
+function safeSheetName(rawName, fallback, usedNames) {
+  const base = String(rawName || fallback || '运单')
+    .replace(/[\\/?*\[\]:]/g, '-')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 28) || '运单';
+  let name = base;
+  let index = 2;
+  while (usedNames.has(name)) {
+    const suffix = `-${index}`;
+    name = `${base.slice(0, 31 - suffix.length)}${suffix}`;
+    index += 1;
+  }
+  usedNames.add(name);
+  return name;
+}
+
+function getBillTime(bill = {}) {
+  const shipmentBrief = bill.shipmentBrief || bill.shipmentBriefs?.[0] || {};
+  return bill.sentAt || bill.createdAt || bill.updatedAt || shipmentBrief.createdAt;
+}
+
+function getPaymentTypeLabel(paymentType) {
+  const map = {
+    monthly: '萌恒月结',
+    spot: '供应商现结',
+    supplier_monthly: '供应商月结'
+  };
+  return map[paymentType] || '萌恒月结';
+}
+
+function billDisplayId(bill = {}) {
+  return `Bill-${bill.warehouseEntryNo || bill.waybillNo || bill._id || ''}`;
+}
+
+function buildPriceCompositionText(bill = {}) {
+  const items = bill.items || [];
+  if (items.length === 0) return '';
+  return items.map(item => {
+    const includeText = item.isIncluded === false ? '未计入' : '计入';
+    const detail = item.calculationDetail || item.detail || '';
+    return [
+      item.name || '费用',
+      detail ? `(${detail})` : '',
+      `${includeText} ${formatMoney(item.amount || 0)}`
+    ].filter(Boolean).join(' ');
+  }).join('；');
+}
+
+function buildSummaryRows(bills = [], monthKey = '') {
+  const totalAmount = bills.reduce((sum, bill) => sum + Number(bill.totalAmount || 0), 0);
+  const paidAmount = bills.reduce((sum, bill) => sum + Number(bill.paidAmount || 0), 0);
+  const rows = [
+    ['月份', monthKey || '时间未确定'],
+    ['票数', bills.length],
+    ['应收合计', formatMoney(totalAmount)],
+    ['已收合计', formatMoney(paidAmount)],
+    [],
+    ['账单号', '状态', '付款方式', '客户/联系人', '进仓编号', '业务参与编号', '货物', '价格组成', '应收金额', '已收金额', '账单时间']
+  ];
+
+  bills.forEach(bill => {
+    const brief = bill.shipmentBrief || bill.shipmentBriefs?.[0] || {};
+    const cargo = [
+      brief.pieces ? `${brief.pieces}${brief.piecesUnit || '件'}` : '',
+      brief.grossWeight ? `${brief.grossWeight}${brief.weightUnit || 'KGS'}` : '',
+      brief.volume ? `${brief.volume}${brief.volumeUnit || 'CBM'}` : ''
+    ].filter(Boolean).join(' / ');
+    rows.push([
+      billDisplayId(bill),
+      bill.status === 'paid' ? '已付' : '待付',
+      getPaymentTypeLabel(bill.paymentType),
+      bill.contacts?.contact1Name || bill.clientName || bill.factoryName || '',
+      bill.warehouseEntryNo || brief.warehouseEntryNo || '',
+      bill.waybillNo || brief.waybillNo || '',
+      cargo,
+      buildPriceCompositionText(bill),
+      formatMoney(bill.totalAmount || 0),
+      formatMoney(bill.paidAmount || 0),
+      formatDateTime(getBillTime(bill))
+    ]);
+  });
+
+  return rows;
+}
+
+function buildShipmentSheetRows(bill = {}, shipmentBrief = {}) {
+  const feeItems = bill.items || [];
+  const rows = [
+    ['基础信息', ''],
+    ['账单号', billDisplayId(bill)],
+    ['账单状态', bill.status === 'paid' ? '已付' : '待付'],
+    ['付款方式', getPaymentTypeLabel(bill.paymentType)],
+    ['客户/联系人', bill.contacts?.contact1Name || bill.clientName || bill.factoryName || ''],
+    ['联系电话', bill.clientPhone || bill.contacts?.contact1Phone || ''],
+    ['应收金额', formatMoney(bill.totalAmount || 0)],
+    ['已收金额', formatMoney(bill.paidAmount || 0)],
+    ['账单时间', formatDateTime(getBillTime(bill))],
+    [],
+    ['货物信息', ''],
+    ['进仓编号', shipmentBrief.warehouseEntryNo || bill.warehouseEntryNo || ''],
+    ['业务参与编号', shipmentBrief.waybillNo || bill.waybillNo || ''],
+    ['件数', shipmentBrief.pieces || ''],
+    ['件数单位', shipmentBrief.piecesUnit || ''],
+    ['毛重', shipmentBrief.grossWeight || ''],
+    ['重量单位', shipmentBrief.weightUnit || ''],
+    ['体积', shipmentBrief.volume || ''],
+    ['体积单位', shipmentBrief.volumeUnit || ''],
+    ['仓库', shipmentBrief.warehouseName || ''],
+    ['目的港', shipmentBrief.destinationPort || ''],
+    ['唛头', shipmentBrief.marks || ''],
+    ['建单时间', formatDateTime(shipmentBrief.createdAt)],
+    ['入仓时间', formatDateTime(shipmentBrief.entryTime)],
+    ['出运时间', formatDateTime(shipmentBrief.departureTime)],
+    ['最晚送达', formatDateTime(shipmentBrief.latestDeliveryTime)],
+    [],
+    ['费用明细', '', '', ''],
+    ['费用名称', '计费说明', '是否计入', '金额']
+  ];
+
+  if (feeItems.length === 0) {
+    rows.push(['运费', '', '是', formatMoney(bill.totalAmount || 0)]);
+  } else {
+    feeItems.forEach(item => {
+      rows.push([
+        item.name || '',
+        item.calculationDetail || item.detail || '',
+        item.isIncluded === false ? '否' : '是',
+        formatMoney(item.amount || 0)
+      ]);
+    });
+  }
+
+  rows.push([]);
+  rows.push(['合计', '', '', formatMoney(bill.totalAmount || 0)]);
+  return rows;
+}
+
+async function fetchAllDocuments(collectionName, match, orderField) {
+  const batchSize = 100;
+  const all = [];
+  let skip = 0;
+
+  while (true) {
+    const res = await db.collection(collectionName)
+      .where(match)
+      .orderBy(orderField, 'desc')
+      .skip(skip)
+      .limit(batchSize)
+      .get();
+    const data = res.data || [];
+    all.push(...data);
+    if (data.length < batchSize) break;
+    skip += batchSize;
+  }
+
+  return all;
+}
+
+async function getExportBills(normalizedStatus) {
+  const billMatch = {
+    isDeleted: _.neq(true),
+    paymentType: _.neq('spot')
+  };
+  if (normalizedStatus) billMatch.status = normalizedStatus;
+
+  const regularBills = await fetchAllDocuments('bills', billMatch, 'createdAt');
+
+  let paidSpotBills = [];
+  if (!normalizedStatus || normalizedStatus === 'paid') {
+    const spotShipments = await fetchAllDocuments('shipments', {
+      'billing.paymentType': 'spot',
+      'billing.paymentStatus': 'paid',
+      'billing.spotPaymentConfirmed': true,
+      isDeleted: _.neq(true)
+    }, 'updatedAt');
+    paidSpotBills = spotShipments.map(item => paidSpotShipmentToBill(item));
+  }
+
+  const mergedBills = regularBills
+    .concat(paidSpotBills)
+    .sort((a, b) => {
+      const timeA = toDate(a.updatedAt || a.createdAt)?.getTime() || 0;
+      const timeB = toDate(b.updatedAt || b.createdAt)?.getTime() || 0;
+      return timeB - timeA;
+    });
+
+  return enrichBillsWithShipmentInfo(mergedBills);
+}
+
+async function exportMonthlyBills(monthKey, status) {
+  if (!monthKey) throw new Error('缺少导出月份');
+  const normalizedStatus = status && status !== 'all' ? status : '';
+  const bills = await getExportBills(normalizedStatus);
+  const monthBills = bills.filter(bill => getMonthKey(getBillTime(bill)) === monthKey);
+  if (monthBills.length === 0) throw new Error('该月份暂无可导出的账单');
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(
+    workbook,
+    XLSX.utils.aoa_to_sheet(buildSummaryRows(monthBills, monthKey)),
+    '月度汇总'
+  );
+
+  const usedNames = new Set(['月度汇总']);
+  monthBills.forEach((bill, billIndex) => {
+    const briefs = bill.shipmentBriefs?.length
+      ? bill.shipmentBriefs
+      : [bill.shipmentBrief || {}];
+    briefs.forEach((brief, briefIndex) => {
+      const sheetName = safeSheetName(
+        brief.warehouseEntryNo || brief.waybillNo || bill.warehouseEntryNo || bill.waybillNo,
+        `运单${billIndex + 1}-${briefIndex + 1}`,
+        usedNames
+      );
+      XLSX.utils.book_append_sheet(
+        workbook,
+        XLSX.utils.aoa_to_sheet(buildShipmentSheetRows(bill, brief)),
+        sheetName
+      );
+    });
+  });
+
+  const buffer = XLSX.write(workbook, { type: 'buffer', bookType: 'xlsx' });
+  const fileName = `账单汇总-${monthKey}-${normalizedStatus || 'all'}.xlsx`;
+  const cloudPath = `exports/billing/${monthKey}/${Date.now()}-billing-${monthKey}-${normalizedStatus || 'all'}.xlsx`;
+  const uploadRes = await cloud.uploadFile({
+    cloudPath,
+    fileContent: buffer
+  });
+
+  return {
+    fileID: uploadRes.fileID,
+    cloudPath,
+    fileName,
+    billCount: monthBills.length
+  };
 }
 
 // ── 月结合并（事务）──
@@ -483,7 +881,7 @@ async function cleanupPaidBills() {
 
 // ── 入口 ──
 exports.main = async (event, context) => {
-  const { action, billId, data, phone, status, monthlyBatch, page, pageSize, role } = event;
+  const { action, billId, data, phone, status, monthKey, monthlyBatch, page, pageSize, role } = event;
   const { OPENID } = cloud.getWXContext();
 
   try {
@@ -502,6 +900,10 @@ exports.main = async (event, context) => {
       case 'pendingBills':
         checkAdmin(OPENID);
         return success(await pendingBills(page, pageSize));
+
+      case 'exportMonthlyBills':
+        checkAdmin(OPENID);
+        return success(await exportMonthlyBills(monthKey, status), '导出成功');
 
       case 'createMonthlyBill':
         checkAdmin(OPENID);
@@ -531,7 +933,7 @@ exports.main = async (event, context) => {
         return success(await cleanupPaidBills(), '清理任务执行完毕');
 
       default:
-        return paramError('未知的 action，支持：markPaid / applyDiscount / billList / pendingBills / createMonthlyBill / cleanupPaidBills / unpaidCount');
+        return paramError('未知的 action，支持：markPaid / applyDiscount / billList / pendingBills / exportMonthlyBills / createMonthlyBill / cleanupPaidBills / unpaidCount');
     }
   } catch (err) {
     console.error(`[billing-manage][${action}] Error:`, err);

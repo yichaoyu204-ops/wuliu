@@ -10,7 +10,7 @@
       <text class="info-value mono">{{shipment.cargoInfo.waybillNo || '——'}}</text>
     </view>
     <view class="info-row">
-      <text class="info-label">业务员</text>
+      <text class="info-label">{{shipment.creatorRole === 'admin' ? '建单管理员' : '建单业务员'}}</text>
       <text class="info-value">{{shipment.creatorName || '——'}}</text>
     </view>
     <view class="info-row">
@@ -65,7 +65,16 @@
           <text class="fee-name">{{item.name}}</text>
           <text class="fee-detail" wx:if="{{item.detail}}">{{item.detail}}</text>
         </view>
-        <text class="fee-amount">¥{{item.amount}}</text>
+        <view wx:if="{{item.code === 'main_distribution'}}" class="main-fee-edit">
+          <text class="fee-currency">¥</text>
+          <input
+            class="inline-input main-fee-input"
+            type="digit"
+            value="{{distributionFee.inputAmount}}"
+            bindinput="onDistributionAmountChange"
+          />
+        </view>
+        <text wx:else class="fee-amount">¥{{item.amount}}</text>
       </view>
     </view>
 
@@ -88,7 +97,7 @@
               <text class="sub-unit">元/{{item.unit}}</text>
               <text class="sub-multiply">×</text>
               <input wx:if="{{!item.qtySource}}" class="sub-input qty" type="digit" value="{{item.qty}}" bindinput="onCollectionQtyChange" data-idx="{{index}}" />
-              <text wx:else class="sub-input qty">{{form.volume || 0}}</text>
+              <text wx:else class="sub-input qty">{{item.qty || 0}}</text>
               <text class="sub-unit">{{item.unit}}</text>
               <text class="sub-equals">=</text>
               <text class="sub-amount">¥{{item.amount}}</text>
@@ -102,13 +111,13 @@
     <view class="fee-group">
       <view class="fee-group-title">附加费用</view>
 
-      <!-- 北仑分拨费 -->
+      <!-- 其他-北仑分拨费 -->
       <view class="extra-fee-item">
         <view class="extra-fee-header" bindtap="toggleExtraFee" data-idx="0">
           <view class="checkbox {{extraFees[0].enabled ? 'checked' : ''}}">
             <text wx:if="{{extraFees[0].enabled}}">✓</text>
           </view>
-          <text class="extra-fee-name">北仑分拨费</text>
+          <text class="extra-fee-name">其他-北仑分拨费</text>
           <text class="extra-fee-amount" wx:if="{{extraFees[0].enabled}}">¥{{extraFees[0].amount}}</text>
         </view>
         <view class="extra-fee-body" wx:if="{{extraFees[0].enabled}}">
@@ -260,13 +269,27 @@
     <view class="pay-content">
       <view class="pay-title">现场扫码收款</view>
       <view class="pay-amount">¥{{payAmount}}</view>
-      <view class="pay-hint">请向客户展示收款码</view>
-      <view class="pay-qr-placeholder">
-        <text class="pay-qr-text">[收款码占位]</text>
-      </view>
+      <view class="pay-hint">请向客户展示收款码，点击图片可放大</view>
+      <scroll-view scroll-y class="pay-qr-list">
+        <view
+          class="pay-qr-card {{item.type}}"
+          wx:for="{{paymentQrs}}"
+          wx:key="type"
+          bindtap="previewPaymentQr"
+          data-url="{{item.url}}"
+        >
+          <view class="pay-qr-head">
+            <text class="pay-qr-name">{{item.name}}</text>
+            <text class="pay-qr-hint">{{item.hint}}</text>
+          </view>
+          <image class="pay-qr-image" src="{{item.url}}" mode="aspectFit" />
+        </view>
+      </scroll-view>
       <view class="pay-actions">
         <view class="pay-btn pay-btn-secondary" bindtap="closePayModal">取消</view>
-        <view class="pay-btn pay-btn-primary" bindtap="confirmPaid">确认已收款</view>
+        <view class="pay-btn pay-btn-primary {{confirmingPaid ? 'btn-disabled' : ''}}" bindtap="confirmPaid">
+          {{confirmingPaid ? '确认中...' : '确认已收款'}}
+        </view>
       </view>
     </view>
   </view>

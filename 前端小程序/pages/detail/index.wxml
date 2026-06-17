@@ -50,15 +50,15 @@
           </block>
         </view>
 
-        <!-- 建单业务员 -->
+        <!-- 建单人 -->
         <view class="info-row">
-          <text class="info-label">建单业务员</text>
+          <text class="info-label">{{shipment.creatorRole === 'admin' ? '建单管理员' : '建单业务员'}}</text>
           <text class="info-value">{{shipment.creatorName || '——'}}</text>
         </view>
 
-        <!-- 业务员手机号 -->
+        <!-- 建单人手机号 -->
         <view class="info-row">
-          <text class="info-label">业务员手机号</text>
+          <text class="info-label">{{shipment.creatorRole === 'admin' ? '管理员手机号' : '业务员手机号'}}</text>
           <text class="info-value mono">{{shipment.creatorPhone || '——'}}</text>
         </view>
 
@@ -256,19 +256,31 @@
       </view>
     </view>
 
-    <!-- 费用信息 -->
-    <view class="section" wx:if="{{shipment.fees && shipment.fees.length > 0}}">
-      <view class="section-title">费用明细</view>
-      <view class="fee-card">
-        <view class="fee-row" wx:for="{{shipment.fees}}" wx:key="addedAt">
-          <text class="fee-name">{{item.name}}</text>
-          <text class="fee-amount">¥{{item.amount}}</text>
+    <!-- 管理员价格复核 -->
+    <view class="section" wx:if="{{role === 'admin' && shipment.adminPriceItems && shipment.adminPriceItems.length > 0}}">
+      <view class="section-title">
+        <text>费用明细</text>
+        <text class="quote-status {{shipment.adminPriceStatusClass || 'draft'}}">{{shipment.adminPriceStatusText}}</text>
+      </view>
+      <view class="quote-card">
+        <view
+          class="quote-row {{priceItem.isIncluded === false ? 'excluded' : ''}}"
+          wx:for="{{shipment.adminPriceItems}}"
+          wx:for-item="priceItem"
+          wx:key="index"
+        >
+          <view class="quote-left">
+            <text class="quote-name">{{priceItem.name}}</text>
+            <text class="quote-detail" wx:if="{{priceItem.calculationDetail}}">{{priceItem.calculationDetail}}</text>
+          </view>
+          <text class="quote-amount">{{priceItem.isIncluded === false ? '未计入 ' : ''}}¥{{priceItem.amount}}</text>
         </view>
-        <view class="fee-divider"></view>
-        <view class="fee-total">
-          <text class="fee-total-label">合计</text>
-          <text class="fee-total-amount">¥{{shipment.totalAmount || 0}}</text>
+        <view class="quote-divider"></view>
+        <view class="quote-total">
+          <text class="quote-total-label">合计</text>
+          <text class="quote-total-amount">¥{{shipment.adminPriceTotal}}</text>
         </view>
+        <view class="quote-note" wx:if="{{shipment.adminPriceNote}}">备注：{{shipment.adminPriceNote}}</view>
       </view>
     </view>
 

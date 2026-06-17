@@ -29,6 +29,9 @@
     "ignore": [],
     "include": []
   },
+  "miniprogramRoot": "前端小程序/",
+  "cloudfunctionRoot": "前端小程序/cloudfunctions/",
+  "cloudfunctionTemplateRoot": "前端小程序/cloudfunctionTemplate/",
   "appid": "wxfa4f013d78c92944",
   "editorSetting": {},
   "libVersion": "3.16.0"

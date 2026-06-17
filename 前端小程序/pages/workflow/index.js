@@ -4,14 +4,23 @@ Page({
   data: {
     role: '',
     roleName: '',
+    userName: '',
     shipments: [],
     storedShipments: [],
     billShipments: [],
     completedShipments: [],
     loading: false,
+    showPayModal: false,
+    payingShipmentId: '',
+    payAmount: 0,
+    confirmingPaid: false,
     activeTab: 'pending',
     isSalesman: false,
     isAdmin: false,
+    paymentQrs: [
+      { type: 'wechat', name: '微信支付', hint: '推荐使用微信支付', url: '/images/payment/wechat-pay.jpg' },
+      { type: 'alipay', name: '支付宝', hint: '打开支付宝扫一扫', url: '/images/payment/alipay.jpg' }
+    ],
     paymentTypeNameMap: {
       monthly: '萌恒月结',
       spot: '供应商现结',
@@ -28,6 +37,8 @@ Page({
 
   onLoad() {
     const role = wx.getStorageSync('userRole') || '';
+    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
+    const userName = userInfo.name || wx.getStorageSync('userName') || '';
     const roleNameMap = {
       salesman: '业务员',
       warehouse: '接单员',
@@ -36,12 +47,18 @@ Page({
     this.setData({
       role,
       roleName: roleNameMap[role] || role,
+      userName,
       isSalesman: role === 'salesman',
       isAdmin: role === 'admin'
     });
   },
 
   onShow() {
+    const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo') || {};
+    const userName = userInfo.name || wx.getStorageSync('userName') || '';
+    if (userName !== this.data.userName) {
+      this.setData({ userName });
+    }
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
       const role = wx.getStorageSync('userRole') || '';
       const isAdmin = role === 'admin';
@@ -142,13 +159,61 @@ Page({
     return paymentType === 'monthly' || paymentType === 'supplier_monthly';
   },
 
+  getCreatorRoleLabel(item = {}) {
+    return item.creatorRole === 'admin' ? '建单管理员' : '建单业务员';
+  },
+
+  getSpotPaymentPendingKey(shipmentId) {
+    return `spotPaymentPending_${shipmentId}`;
+  },
+
+  getSpotPaymentConfirmedKey(shipmentId) {
+    return `spotPaymentConfirmed_${shipmentId}`;
+  },
+
+  getLocalSpotPaymentPending(shipmentId) {
+    if (!shipmentId) return null;
+    return wx.getStorageSync(this.getSpotPaymentPendingKey(shipmentId)) || null;
+  },
+
+  getLocalSpotPaymentConfirmed(shipmentId) {
+    if (!shipmentId) return null;
+    return wx.getStorageSync(this.getSpotPaymentConfirmedKey(shipmentId)) || null;
+  },
+
+  clearLocalSpotPaymentPending(shipmentId) {
+    if (!shipmentId) return;
+    wx.removeStorageSync(this.getSpotPaymentPendingKey(shipmentId));
+  },
+
+  markLocalSpotPaymentConfirmed(shipmentId) {
+    if (!shipmentId) return;
+    wx.setStorageSync(this.getSpotPaymentConfirmedKey(shipmentId), {
+      shipmentId,
+      confirmedAt: Date.now()
+    });
+  },
+
   enrichShipment(item) {
     const paymentType = item.billing?.paymentType || 'monthly';
+    const localPendingPayment = this.getLocalSpotPaymentPending(item._id);
+    const localConfirmedPayment = this.getLocalSpotPaymentConfirmed(item._id);
+    const spotPaymentConfirmed = item.billing?.spotPaymentConfirmed === true || !!localConfirmedPayment;
+    const requiresSpotPayment = paymentType === 'spot' && (
+      item.billing?.paymentStatus !== 'paid' ||
+      !spotPaymentConfirmed ||
+      !!localPendingPayment
+    );
     const appointment = this.getAppointmentDisplay(item);
     return {
       ...item,
       paymentTypeLabel: this.getPaymentTypeLabel(paymentType),
       isMonthlyPayment: this.isMonthlyPayment(paymentType),
+      requiresSpotPayment,
+      canReturnPayment: this.data.role === 'warehouse' && requiresSpotPayment && item.oaStatus !== 'created',
+      displayOaStatusName: requiresSpotPayment ? '已取消收款，待继续实测定价' : item.oaStatusName,
+      paymentAmount: localPendingPayment?.amount || item.pricing?.finalPrice || item.totalAmount || item.quote?.subtotal || 0,
+      creatorRoleLabel: this.getCreatorRoleLabel(item),
       appointmentTagText: appointment.text,
       appointmentTagClass: appointment.className
     };
@@ -215,13 +280,15 @@ Page({
         const { pending = [], stored = [], billing = [], completed = [] } = res.result.data || {};
 
         const processList = (list) => list.map(item => {
+          const enriched = this.enrichShipment(item);
           const timeline = item.timeline || [];
           const activeNode = timeline.find(n => n.status === 'active');
           const nodeCode = activeNode ? activeNode.nodeCode : '';
           const btnMap = { pickup: '确认收货', yiwu_entry: '确认发运', mainline: '确认到达' };
           const canConfirmOutbound = this.data.role === 'warehouse' &&
             nodeCode === 'yiwu_entry' &&
-            (item.oaStatus === 'admin_confirmed' || item.oaStatus === 'billed');
+            (item.oaStatus === 'admin_confirmed' || item.oaStatus === 'billed') &&
+            !enriched.requiresSpotPayment;
           const isSpotBusinessCompleted = item.billing?.paymentType === 'spot' &&
             item.oaStatus === 'completed' &&
             nodeCode === 'mainline';
@@ -237,7 +304,7 @@ Page({
             ? '已进入目标仓库'
             : (nodeCode === 'mainline' ? '运输中' : '流程已完结');
           return {
-            ...this.enrichShipment(item),
+            ...enriched,
             currentNodeCode: nodeCode,
             advanceButtonText: btnMap[nodeCode] || '推进节点',
             canConfirmOutbound,
@@ -307,17 +374,68 @@ Page({
         }
       });
     } else if (action === 'mark_spot_paid') {
-      wx.showModal({
-        title: '标记现结收款',
-        content: '确认已现场收到款项？',
-        success: (res) => {
-          if (res.confirm) this.doAdvanceOA(id, 'markSpotPaid');
-        }
-      });
+      this.openPaymentModalById(id);
     }
   },
 
-  async doAdvanceOA(shipmentId, oaAction) {
+  openPaymentModal(e) {
+    const { id, amount } = e.currentTarget.dataset;
+    this.setData({
+      showPayModal: true,
+      payingShipmentId: id,
+      payAmount: amount || 0
+    });
+  },
+
+  openPaymentModalById(id) {
+    const allShipments = [
+      ...this.data.shipments,
+      ...this.data.storedShipments,
+      ...this.data.billShipments,
+      ...this.data.completedShipments
+    ];
+    const shipment = allShipments.find(item => item._id === id);
+    this.setData({
+      showPayModal: true,
+      payingShipmentId: id,
+      payAmount: shipment?.paymentAmount || 0
+    });
+  },
+
+  closePayModal() {
+    this.setData({
+      showPayModal: false,
+      payingShipmentId: '',
+      confirmingPaid: false
+    });
+  },
+
+  previewPaymentQr(e) {
+    const current = e.currentTarget.dataset.url;
+    const urls = this.data.paymentQrs.map(item => item.url);
+    wx.previewImage({ current, urls });
+  },
+
+  async confirmSpotPaid() {
+    if (this.data.confirmingPaid || !this.data.payingShipmentId) return;
+    this.setData({ confirmingPaid: true });
+    await this.doAdvanceOA(this.data.payingShipmentId, 'markSpotPaid', {
+      onSuccess: () => {
+        this.clearLocalSpotPaymentPending(this.data.payingShipmentId);
+        this.markLocalSpotPaymentConfirmed(this.data.payingShipmentId);
+        this.setData({
+          showPayModal: false,
+          payingShipmentId: '',
+          confirmingPaid: false
+        });
+      },
+      onFinally: () => {
+        this.setData({ confirmingPaid: false });
+      }
+    });
+  },
+
+  async doAdvanceOA(shipmentId, oaAction, options = {}) {
     wx.showLoading({ title: '处理中...', mask: true });
 
     try {
@@ -334,13 +452,23 @@ Page({
 
       if (res.result.code === 0) {
         wx.showToast({ title: '操作成功', icon: 'success' });
+        if (options.onSuccess) options.onSuccess(res.result);
         this.loadWorkflows();
       } else {
-        wx.showToast({ title: res.result.message || '操作失败', icon: 'none' });
+        const message = res.result.message || '操作失败';
+        if (oaAction === 'markSpotPaid' && message.includes('已标记')) {
+          wx.showToast({ title: '收款完成', icon: 'success' });
+          if (options.onSuccess) options.onSuccess(res.result);
+          this.loadWorkflows();
+        } else {
+          wx.showToast({ title: message, icon: 'none' });
+        }
       }
     } catch (e) {
       wx.hideLoading();
       wx.showToast({ title: '操作失败', icon: 'none' });
+    } finally {
+      if (options.onFinally) options.onFinally();
     }
   },
 

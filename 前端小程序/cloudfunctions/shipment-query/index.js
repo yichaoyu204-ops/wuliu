@@ -47,6 +47,31 @@ function getSalesmanScope(user) {
   return {};
 }
 
+function sanitizeShipmentForViewer(shipment, user) {
+  if (!shipment || user?.role === 'admin') return shipment;
+  if (user?.role && user.role !== 'salesman') return shipment;
+
+  const sanitized = {
+    ...shipment,
+    fees: []
+  };
+
+  if (sanitized.quote) {
+    sanitized.quote = {
+      ...sanitized.quote,
+      items: []
+    };
+  }
+
+  if (sanitized.pricing) {
+    sanitized.pricing = {
+      finalPrice: sanitized.pricing.finalPrice || 0
+    };
+  }
+
+  return sanitized;
+}
+
 /**
  * 查询货物列表（按手机号）
  */
@@ -179,7 +204,7 @@ async function getDetailWithLogs(shipmentId, currentUser) {
 
   shipment = { ...shipment, logs: logsRes.data };
   await convertFileIdsToUrls(shipment);
-  return shipment;
+  return sanitizeShipmentForViewer(shipment, currentUser);
 }
 
 // 云函数入口
@@ -202,7 +227,7 @@ exports.main = async (event, context) => {
           const sharedDetail = await queryByToken(detailToken);
           if (!sharedDetail) return notFound('货物不存在或链接已失效');
           await convertFileIdsToUrls(sharedDetail);
-          return success(sharedDetail);
+          return success(sanitizeShipmentForViewer(sharedDetail, null));
         }
         if (!shipmentId) return paramError('缺少shipmentId参数');
         const detail = await getDetailWithLogs(shipmentId, currentUser);
@@ -312,7 +337,7 @@ exports.main = async (event, context) => {
         return success({ list: adminRes.data, total: adminRes.data.length });
 
       case 'appointmentList': {
-        checkAdmin(currentUser);
+        if (!isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可访问预约');
         const apptRes = await db.collection('shipments')
           .where({ isDeleted: _.neq(true) })
           .orderBy('createdAt', 'desc')
@@ -337,7 +362,7 @@ exports.main = async (event, context) => {
       }
 
       case 'appointmentCount': {
-        checkAdmin(currentUser);
+        if (!isWarehouseOrAdmin(currentUser)) return error('权限不足：仅接单员或管理员可访问预约');
         const apptRes = await db.collection('shipments')
           .where({ isDeleted: _.neq(true) })
           .orderBy('createdAt', 'desc')

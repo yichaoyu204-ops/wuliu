@@ -1,0 +1,31 @@
+<view class="doc-page">
+  <view class="doc-card">
+    <text class="doc-title">隐私政策</text>
+    <text class="doc-meta">更新日期：2026年6月15日</text>
+
+    <view class="doc-section">
+      <text class="section-title">一、我们收集的信息</text>
+      <text class="section-text">为完成账号登录、身份识别和物流业务处理，我们会在你主动填写或授权后收集姓名、手机号、角色身份、运单信息、货物图片、账单信息和必要的操作记录。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">二、信息使用目的</text>
+      <text class="section-text">上述信息用于账号登录与绑定、运单归属查询、货物状态展示、实测和报价审核、账单展示、业务联系、异常排查和系统安全管理。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">三、授权与撤回</text>
+      <text class="section-text">你可以选择是否同意本政策。未同意前，系统不会提交你的登录信息或发起手机号快捷登录。你可通过退出登录、联系管理员停用账号等方式停止继续使用服务。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">四、信息存储与保护</text>
+      <text class="section-text">系统会在业务所需范围内保存相关信息，并通过角色权限、云端存储和访问控制减少未授权访问、泄露、篡改或丢失风险。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">五、对外提供</text>
+      <text class="section-text">除法律法规要求、业务履约必要或获得你的授权外，我们不会向无关第三方提供你的个人信息。</text>
+    </view>
+  </view>
+</view>

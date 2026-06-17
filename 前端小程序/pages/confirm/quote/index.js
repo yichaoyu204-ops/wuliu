@@ -4,6 +4,7 @@ Page({
     shipment: null,
     quote: null,
     paymentType: 'spot',
+    contactButtonText: '联系业务员',
     loading: false
   },
 
@@ -45,7 +46,11 @@ Page({
         return;
       }
 
-      this.setData({ shipment, quote });
+      this.setData({
+        shipment,
+        quote,
+        contactButtonText: this.getContactTarget(shipment).label
+      });
     } catch (e) {
       wx.hideLoading();
       wx.showToast({ title: '网络错误', icon: 'none' });
@@ -121,18 +126,49 @@ Page({
     }
   },
 
+  getContactTarget(shipment = {}) {
+    const userInfo = getApp().globalData.userInfo || wx.getStorageSync('userInfo') || {};
+    const currentPhone = userInfo.phone || wx.getStorageSync('userPhone') || '';
+    const creatorPhone = shipment.creatorPhone || '';
+
+    if (currentPhone && creatorPhone && currentPhone === creatorPhone) {
+      return {
+        label: '联系管理员',
+        title: '联系管理员',
+        phone: '15557041311',
+        fallback: '当前未配置管理员手机号，请联系管理员处理。'
+      };
+    }
+
+    return {
+      label: '联系业务员',
+      title: '联系业务员',
+      phone: creatorPhone,
+      fallback: '当前运单没有业务员手机号，请到运单详情查看联系人信息。'
+    };
+  },
+
   contactSales() {
-    const id = this.data.shipmentId;
-    wx.setClipboardData({
-      data: id,
-      success: () => {
-        wx.showModal({
-          title: '单号已复制',
-          content: `业务参与编号 ${id} 已复制到剪贴板。如有异议，请将单号发送给业务员沟通。`,
-          showCancel: false,
-          confirmText: '知道了'
-        });
-      }
+    const shipment = this.data.shipment || {};
+    const target = this.getContactTarget(shipment);
+    const phone = target.phone || '';
+    const id = shipment.cargoInfo?.waybillNo || shipment._id || this.data.shipmentId;
+
+    if (phone) {
+      wx.makePhoneCall({
+        phoneNumber: phone,
+        fail: () => {
+          wx.showToast({ title: '拨打失败，请重试', icon: 'none' });
+        }
+      });
+      return;
+    }
+
+    wx.showModal({
+      title: target.title,
+      content: `${target.fallback} 业务参与编号：${id}`,
+      showCancel: false,
+      confirmText: '知道了'
     });
   }
 });

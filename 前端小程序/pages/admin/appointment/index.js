@@ -14,20 +14,23 @@ Page({
 
   onLoad() {
     const role = wx.getStorageSync('userRole') || '';
-    if (role !== 'admin') {
-      wx.showToast({ title: '仅管理员可访问', icon: 'none' });
+    if (role !== 'warehouse') {
+      wx.showToast({ title: '请切换接单员操作预约', icon: 'none' });
       setTimeout(() => wx.switchTab({ url: '/pages/index/index' }), 1200);
       return;
     }
     this.initDefaultForm();
-    this.loadAppointments();
   },
 
   onShow() {
+    const role = wx.getStorageSync('userRole') || '';
+    if (role !== 'warehouse') return;
+
     if (typeof this.getTabBar === 'function' && this.getTabBar()) {
-      this.getTabBar().setData({ activeIndex: 4 });
+      this.getTabBar().setData({ activeIndex: 3 });
       if (this.getTabBar().loadBadge) this.getTabBar().loadBadge();
     }
+    this.loadAppointments();
   },
 
   onPullDownRefresh() {
@@ -48,7 +51,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'appointmentList', role: 'admin' }
+        data: { action: 'appointmentList', role: 'warehouse' }
       });
 
       if (res.result.code === 0) {
@@ -73,6 +76,7 @@ Page({
       const completed = !!(item.warehouseAppointment?.isCompleted && scheduledAt);
       return {
         ...item,
+        creatorRoleLabel: item.creatorRole === 'admin' ? '建单管理员' : '建单业务员',
         appointmentTimeText: completed ? this.formatAppointmentTime(scheduledAt) : '',
         appointmentTagText: completed ? `已预约：${this.formatAppointmentTime(scheduledAt)}` : '暂未完成进仓预约',
         appointmentTagClass: completed ? 'done' : 'pending'
