@@ -1,6 +1,6 @@
 .container {
   padding: 24rpx;
-  background: #f5f7fa;
+  background: #f4f6fa;
   min-height: 100vh;
   padding-bottom: 160rpx;
 }
@@ -11,7 +11,7 @@
   border-radius: 16rpx;
   padding: 24rpx 28rpx;
   margin-bottom: 24rpx;
-  border-left: 6rpx solid #FF6B00;
+  border-left: 6rpx solid #2156f3;
 }
 
 .info-row {
@@ -21,21 +21,21 @@
 }
 
 .info-label {
-  font-size: 24rpx;
-  color: #555;
+  font-size: 25rpx;
+  color: #344156;
   width: 120rpx;
   flex-shrink: 0;
 }
 
 .info-value {
   font-size: 26rpx;
-  color: #1a1a1a;
+  color: #171b22;
   font-weight: 500;
 }
 
 .info-value.hint {
-  color: #888;
-  font-size: 24rpx;
+  color: #596577;
+  font-size: 25rpx;
 }
 
 .mono {
@@ -53,14 +53,14 @@
 .section-title {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #171b22;
   display: block;
   margin-bottom: 6rpx;
 }
 
 .section-hint {
-  font-size: 22rpx;
-  color: #aaa;
+  font-size: 25rpx;
+  color: #596577;
   display: block;
   margin-bottom: 24rpx;
 }
@@ -72,18 +72,18 @@
 
 .label {
   font-size: 26rpx;
-  color: #555;
+  color: #344156;
   display: block;
   margin-bottom: 10rpx;
 }
 
 .input {
-  border: 1rpx solid #e0e0e0;
+  border: 1rpx solid #e1e6ee;
   border-radius: 12rpx;
   padding: 0 20rpx;
   font-size: 30rpx;
-  color: #1a1a1a;
-  background: #fafafa;
+  color: #171b22;
+  background: #f4f6fa;
   width: 100%;
   box-sizing: border-box;
   height: 80rpx;
@@ -102,8 +102,8 @@
 
 .unit-tag {
   background: #e8f0fe;
-  color: #FF6B00;
-  font-size: 24rpx;
+  color: #2156f3;
+  font-size: 25rpx;
   padding: 8rpx 16rpx;
   border-radius: 8rpx;
   white-space: nowrap;
@@ -116,14 +116,14 @@
 
 .fee-group-title {
   font-size: 26rpx;
-  color: #888;
+  color: #596577;
   margin-bottom: 12rpx;
   display: block;
 }
 
 .collection-group-title {
   font-size: 28rpx;
-  color: #1a1a1a;
+  color: #171b22;
 }
 
 .fee-row {
@@ -141,13 +141,13 @@
 
 .fee-name {
   font-size: 28rpx;
-  color: #1a1a1a;
+  color: #171b22;
   display: block;
 }
 
 .fee-detail {
-  font-size: 22rpx;
-  color: #999;
+  font-size: 25rpx;
+  color: #596577;
   margin-top: 4rpx;
   display: block;
 }
@@ -182,7 +182,7 @@
 .extra-fee-item {
   margin-bottom: 16rpx;
   padding: 16rpx;
-  background: #fafafa;
+  background: #f4f6fa;
   border-radius: 12rpx;
 }
 
@@ -195,25 +195,25 @@
 .checkbox {
   width: 36rpx;
   height: 36rpx;
-  border: 2rpx solid #ccc;
+  border: 2rpx solid #e1e6ee;
   border-radius: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22rpx;
+  font-size: 25rpx;
   color: #fff;
   flex-shrink: 0;
 }
 
 .checkbox.checked {
-  background: #FF6B00;
-  border-color: #FF6B00;
+  background: #2156f3;
+  border-color: #2156f3;
 }
 
 .extra-fee-name {
   flex: 1;
   font-size: 28rpx;
-  color: #1a1a1a;
+  color: #171b22;
 }
 
 .extra-fee-amount {
@@ -223,8 +223,8 @@
 }
 
 .extra-fee-hint {
-  font-size: 22rpx;
-  color: #999;
+  font-size: 25rpx;
+  color: #596577;
   margin-top: 8rpx;
   margin-left: 48rpx;
 }
@@ -240,12 +240,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 8rpx 0;
-  border-bottom: 1rpx solid #eee;
+  border-bottom: 1rpx solid #e1e6ee;
 }
 
 .sub-fee-name {
   font-size: 26rpx;
-  color: #555;
+  color: #344156;
   width: 120rpx;
   flex-shrink: 0;
 }
@@ -259,10 +259,10 @@
 }
 
 .sub-input {
-  border: 1rpx solid #ddd;
+  border: 1rpx solid #e1e6ee;
   border-radius: 8rpx;
   padding: 6rpx 10rpx;
-  font-size: 24rpx;
+  font-size: 25rpx;
   text-align: center;
   background: #fff;
 }
@@ -276,13 +276,13 @@
 }
 
 .sub-unit {
-  font-size: 22rpx;
-  color: #888;
+  font-size: 25rpx;
+  color: #596577;
 }
 
 .sub-multiply, .sub-equals {
-  font-size: 24rpx;
-  color: #999;
+  font-size: 25rpx;
+  color: #596577;
 }
 
 .sub-amount {
@@ -300,11 +300,11 @@
   gap: 12rpx;
   padding: 8rpx 0;
   font-size: 26rpx;
-  color: #555;
+  color: #344156;
 }
 
 .inline-input {
-  border: 1rpx solid #ddd;
+  border: 1rpx solid #e1e6ee;
   border-radius: 8rpx;
   padding: 6rpx 12rpx;
   font-size: 26rpx;
@@ -323,14 +323,14 @@
   justify-content: space-between;
   align-items: center;
   padding: 24rpx 0;
-  border-top: 2rpx solid #FF6B00;
+  border-top: 2rpx solid #2156f3;
   margin-top: 16rpx;
 }
 
 .fee-total-label {
   font-size: 32rpx;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #171b22;
 }
 
 .fee-total-amount {
@@ -348,15 +348,15 @@
   padding: 20rpx 32rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   background: #fff;
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid #e1e6ee;
 }
 
 .submit-btn {
-  background: #FF6B00;
+  background: #2156f3;
   color: #fff;
   text-align: center;
   padding: 28rpx;
-  border-radius: 50rpx;
+  border-radius: 12rpx;
   font-size: 32rpx;
   font-weight: 600;
 }
@@ -390,7 +390,7 @@
 .pay-content {
   position: relative;
   background: #fff;
-  border-radius: 24rpx;
+  border-radius: 12rpx;
   padding: 40rpx 32rpx 32rpx;
   width: 620rpx;
   max-height: 86vh;
@@ -401,7 +401,7 @@
 .pay-title {
   font-size: 36rpx;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #171b22;
   margin-bottom: 24rpx;
 }
 
@@ -414,7 +414,7 @@
 
 .pay-hint {
   font-size: 26rpx;
-  color: #999;
+  color: #596577;
   margin-bottom: 24rpx;
 }
 
@@ -424,9 +424,9 @@
 }
 
 .pay-qr-card {
-  border: 1rpx solid #e8e1d8;
+  border: 1rpx solid #e1e6ee;
   border-radius: 18rpx;
-  background: #fffefa;
+  background: #f4f6fa;
   padding: 20rpx;
   margin-bottom: 20rpx;
 }
@@ -449,13 +449,13 @@
 
 .pay-qr-name {
   font-size: 30rpx;
-  color: #14213d;
+  color: #171b22;
   font-weight: 700;
 }
 
 .pay-qr-hint {
-  font-size: 22rpx;
-  color: #888;
+  font-size: 25rpx;
+  color: #596577;
 }
 
 .pay-qr-image {
@@ -474,416 +474,23 @@
 .pay-btn {
   flex: 1;
   padding: 24rpx 0;
-  border-radius: 50rpx;
+  border-radius: 12rpx;
   font-size: 30rpx;
   font-weight: 500;
   text-align: center;
 }
 
 .pay-btn-secondary {
-  background: #f5f5f5;
-  color: #666;
+  background: #f4f6fa;
+  color: #596577;
 }
 
 .pay-btn-primary {
-  background: #FF6B00;
+  background: #2156f3;
   color: #fff;
 }
 
-/* === Yiwu Line UI Polish v2 === */
-.container {
-  background: #f8f7f4;
-  color: #14213d;
-}
+@import "../../../styles/ui.wxss";
 
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.ai-card,
-.ai-result-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.tip-bar,
-.footer,
-.manual-review-list,
-.modal-content {
-  border-radius: 16rpx;
-  border: 1rpx solid #e8e1d8;
-  box-shadow: 0 12rpx 28rpx rgba(20, 33, 61, 0.07);
-}
 
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.footer,
-.modal-content {
-  background: #fffefa;
-}
-
-.section-title,
-.page-title,
-.waybill-no,
-.shipment-id,
-.bill-id,
-.factory-name,
-.empty-title,
-.role-name,
-.login-title text,
-.route-name,
-.timeline-name,
-.fee-total-label,
-.quote-total-label,
-.modal-title {
-  color: #14213d;
-  font-weight: 800;
-}
-
-.form-row,
-.info-row,
-.bill-footer,
-.card-footer,
-.card-body,
-.fee-row,
-.quote-row,
-.measure-row {
-  border-color: #eee8df;
-}
-
-.form-label,
-.info-label,
-.stats-label,
-.bill-type,
-.route-info,
-.create-time,
-.empty-desc,
-.empty-hint,
-.fee-calc,
-.timeline-time,
-.timeline-operator,
-.measure-label {
-  color: #697386;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker,
-.form-picker-wide,
-.form-picker-date,
-.form-picker-time,
-.date-picker-text {
-  color: #14213d;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker {
-  background: #fbfaf7;
-  border: 1rpx solid #e8e1d8;
-  border-radius: 10rpx;
-}
-
-.btn-submit,
-.btn-primary,
-.btn-login,
-.btn-monthly,
-.empty-btn,
-.modal-btn-confirm,
-.mark-paid-btn {
-  background: #ff6b00;
-  color: #fff;
-  border-radius: 12rpx;
-  font-weight: 800;
-  box-shadow: 0 10rpx 22rpx rgba(255, 107, 0, 0.22);
-}
-
-.btn-secondary,
-.modal-btn-cancel {
-  background: #f2efe9;
-  color: #374151;
-  border-radius: 12rpx;
-}
-
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  border-radius: 999rpx;
-  font-weight: 700;
-}
-
-.status-tag.active,
-.status-badge.factory_confirmed,
-.status-badge.mainline,
-.pay-tag.spot,
-.quote-status.sent,
-.manual-review-tag {
-  color: #9a4b10;
-  background: #fff1dc;
-}
-
-.status-tag.completed,
-.status-badge.admin_confirmed,
-.status-badge.billed,
-.bill-status.paid,
-.quote-status.confirmed {
-  color: #0f766e;
-  background: #e6f6f3;
-}
-
-.bill-status.unpaid,
-.amount,
-.fee-total-amount,
-.quote-total-amount {
-  color: #d92d20;
-}
-
-.tab-bar {
-  background: #fffefa;
-  border-bottom: 1rpx solid #e8e1d8;
-  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.04);
-}
-
-.tab-active {
-  color: #ff6b00;
-  font-weight: 800;
-}
-
-.tab-active::after {
-  background: #ff6b00;
-}
-
-.stats-bar,
-.page-title {
-  background: linear-gradient(135deg, #ff6b00 0%, #ff8a1f 100%);
-  color: #fff;
-}
-
-.ai-card {
-  border-style: solid;
-  border-color: #ffd5b8;
-}
-
-.ai-icon,
-.empty-icon {
-  color: #ff6b00;
-}
-
-/* === End Yiwu Line UI Polish v2 === */
-
-/* === No Emoji UI Icons === */
-.empty-icon,
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-result-icon,
-.status-icon {
-  position: relative;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 0 !important;
-  line-height: 1;
-  color: transparent !important;
-  background: transparent;
-}
-
-.empty-icon,
-.empty-line-icon {
-  width: 96rpx;
-  height: 96rpx;
-  margin-bottom: 24rpx;
-  border: 3rpx solid #d8dee8;
-  border-radius: 18rpx;
-  background: #fbfaf7;
-}
-
-.empty-icon::before,
-.empty-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  top: 28rpx;
-  width: 50rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #14213d;
-  box-shadow: 0 18rpx 0 #ff6b00;
-}
-
-.empty-icon::after,
-.empty-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  bottom: 20rpx;
-  width: 34rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #d8dee8;
-}
-
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-line-icon,
-.upload-line-icon,
-.add-line-icon {
-  width: 92rpx;
-  height: 72rpx;
-  margin-bottom: 18rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 16rpx;
-  background: #fff7ef;
-}
-
-.ai-icon::before,
-.upload-icon::before,
-.add-icon::before,
-.ai-line-icon::before,
-.upload-line-icon::before,
-.add-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 30rpx;
-  top: 20rpx;
-  width: 26rpx;
-  height: 26rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 50%;
-  background: #fffefa;
-}
-
-.ai-icon::after,
-.upload-icon::after,
-.add-icon::after,
-.ai-line-icon::after,
-.upload-line-icon::after,
-.add-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 16rpx;
-  top: -12rpx;
-  width: 30rpx;
-  height: 14rpx;
-  border-radius: 8rpx 8rpx 0 0;
-  background: #ff6b00;
-}
-
-.ai-result-icon {
-  width: 58rpx;
-  height: 58rpx;
-  margin: 0 20rpx 0 0;
-  border-radius: 50%;
-  color: #fff !important;
-  text-align: center;
-  line-height: 58rpx;
-  font-size: 30rpx !important;
-  font-weight: 900;
-  background: #0f766e;
-}
-
-.ai-result-icon.warning {
-  background: #d97706;
-}
-
-.status-icon {
-  width: 82rpx;
-  height: 82rpx;
-  border-radius: 18rpx;
-  border: 3rpx solid rgba(255,255,255,0.34);
-  background: rgba(255,255,255,0.14);
-  margin: 0 24rpx 0 0;
-}
-
-.status-icon::before {
-  content: '';
-  position: absolute;
-  left: 20rpx;
-  top: 24rpx;
-  width: 40rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #fff;
-  box-shadow: 0 16rpx 0 #fca311;
-}
-
-.warning-text::before,
-.payment-tip text::before {
-  content: '!';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-  border-radius: 50%;
-  background: #fff1dc;
-  color: #9a4b10;
-  font-size: 20rpx;
-  font-weight: 900;
-}
-
-.wechat-icon {
-  display: none !important;
-}
-
-/* === End No Emoji UI Icons === */
-
-/* === Full Status Label Visibility === */
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  max-width: 360rpx !important;
-  min-height: 34rpx;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  white-space: normal !important;
-  word-break: keep-all;
-  overflow-wrap: normal;
-  line-height: 1.35;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.card-header,
-.shipment-header,
-.bill-header {
-  align-items: flex-start;
-}
-
-.status-badge {
-  padding-left: 16rpx;
-  padding-right: 16rpx;
-}
-
-/* === End Full Status Label Visibility === */
+@import "../../../styles/forms.wxss";

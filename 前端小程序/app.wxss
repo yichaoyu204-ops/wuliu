@@ -1,8 +1,8 @@
 page {
   min-height: 100%;
-  background: #f3f5f8;
-  color: #1d2733;
-  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #f4f6fa;
+  color: #171b22;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 view,
@@ -31,3 +31,7 @@ button {
   border: 1rpx solid rgba(213, 219, 228, 0.9);
   box-shadow: 0 10rpx 28rpx rgba(20, 33, 61, 0.06);
 }
+
+/* Avoid density changes for icon labels; page layouts set their own type scale. */
+button::after{border:0}
+@media(prefers-reduced-motion:reduce){.tap-scale{transition:none}.tap-scale:active{transform:none}}

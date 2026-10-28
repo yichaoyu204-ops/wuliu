@@ -1,4 +1,6 @@
 <view class="container">
+  <view class="page-heading">账单中心</view>
+  <view class="page-description">账单明细与支付记录</view>
   <!-- Tab 切换 -->
   <view class="tab-bar">
     <view
@@ -7,7 +9,7 @@
       class="tab-item {{activeTab === item.key ? 'tab-active' : ''}}"
       bindtap="switchTab"
       data-key="{{item.key}}"
-    >
+     hover-class="ui-pressed">
       {{item.label}}
     </view>
   </view>
@@ -27,7 +29,7 @@
           class="month-export-btn {{exportingMonthKey === group.key ? 'btn-disabled' : ''}}"
           catchtap="exportMonthBills"
           data-key="{{group.key}}"
-        >{{exportingMonthKey === group.key ? '导出中...' : '导出Excel'}}</view>
+         hover-class="ui-pressed">{{exportingMonthKey === group.key ? '导出中...' : '导出Excel'}}</view>
       </view>
       <view
         wx:for="{{group.bills}}"
@@ -36,13 +38,26 @@
         class="bill-card"
       >
         <view class="bill-header">
-          <text class="bill-id">{{item._displayBillId}}</text>
+          <view class="bill-number">
+            <text class="bill-caption">账单编号</text>
+            <text class="bill-id">{{item._displayBillId}}</text>
+          </view>
           <text class="bill-status {{item._statusClass}}">{{item.status === 'unpaid' ? '待付' : '已付'}}</text>
         </view>
         <view class="bill-factory">{{item._factoryName}}</view>
         <view class="bill-time">发账 {{item._billTimeText}}</view>
 
+        <view class="bill-footer">
+          <text class="bill-type">{{item.paymentTypeLabel}}</text>
+          <view class="amount-stack">
+            <text class="amount-caption">账单金额</text>
+            <text class="bill-original" wx:if="{{item._displayDiscountText}}">原价 ¥{{item._originalAmountText}}</text>
+            <text class="bill-amount">¥{{item._totalAmountText}}</text>
+          </view>
+        </view>
+
         <view class="shipment-meta" wx:if="{{item._shipmentRows && item._shipmentRows.length > 0}}">
+          <view class="detail-title">运单信息</view>
           <view class="shipment-meta-row" wx:for="{{item._shipmentRows}}" wx:for-item="meta" wx:key="label">
             <text class="shipment-meta-label">{{meta.label}}</text>
             <text class="shipment-meta-value">{{meta.value}}</text>
@@ -51,6 +66,7 @@
 
         <!-- 费用明细 -->
         <view class="fee-detail" wx:if="{{isAdmin && item._items && item._items.length > 0}}">
+          <view class="detail-title">费用明细</view>
           <view class="fee-row" wx:for="{{item._items}}" wx:for-item="fee" wx:key="index">
             <view class="fee-info">
               <text class="fee-name">{{fee.name}}</text>
@@ -71,26 +87,18 @@
 
         <view class="discount-summary" wx:if="{{item._displayDiscountText}}">{{item._displayDiscountText}}</view>
 
-        <view class="bill-footer">
-          <text class="bill-type">{{item.paymentTypeLabel}}</text>
-          <view class="amount-stack">
-            <text class="bill-original" wx:if="{{item._displayDiscountText}}">原价 ¥{{item._originalAmountText}}</text>
-            <text class="bill-amount">¥{{item._totalAmountText}}</text>
-          </view>
-        </view>
-
         <view wx:if="{{item._canConfirmPaid}}" class="bill-actions">
           <view
             class="paid-btn {{payingBillId === item._id ? 'btn-disabled' : ''}}"
             bindtap="confirmMarkPaid"
             data-id="{{item._id}}"
-          >{{payingBillId === item._id ? '确认中...' : '确认已支付'}}</view>
+           hover-class="ui-pressed">{{payingBillId === item._id ? '确认中...' : '确认已支付'}}</view>
           <view
             wx:if="{{isAdmin}}"
             class="discount-btn"
             bindtap="showDiscountModal"
             data-id="{{item._id}}"
-          >优惠</view>
+           hover-class="ui-pressed">优惠</view>
         </view>
       </view>
     </view>
@@ -117,12 +125,12 @@
         class="discount-mode {{discountMode === 'rate' ? 'discount-mode-active' : ''}}"
         bindtap="switchDiscountMode"
         data-mode="rate"
-      >打折</view>
+       hover-class="ui-pressed">打折</view>
       <view
         class="discount-mode {{discountMode === 'amount' ? 'discount-mode-active' : ''}}"
         bindtap="switchDiscountMode"
         data-mode="amount"
-      >减免金额</view>
+       hover-class="ui-pressed">减免金额</view>
     </view>
     <view class="modal-row">
       <text class="modal-label">{{discountMode === 'rate' ? '折扣' : '金额'}}</text>
@@ -137,8 +145,8 @@
     <view class="discount-tip" wx:if="{{discountMode === 'rate'}}">9 表示 9折，95 表示 95折</view>
     <view class="discount-preview" wx:if="{{discountPreviewText}}">{{discountPreviewText}}</view>
     <view class="modal-actions">
-      <view class="modal-btn-cancel" bindtap="hideDiscountModal">取消</view>
-      <view class="modal-btn-confirm {{discountSubmitting ? 'btn-disabled' : ''}}" bindtap="doApplyDiscount">
+      <view class="modal-btn-cancel" bindtap="hideDiscountModal" hover-class="ui-pressed">取消</view>
+      <view class="modal-btn-confirm {{discountSubmitting ? 'btn-disabled' : ''}}" bindtap="doApplyDiscount" hover-class="ui-pressed">
         {{discountSubmitting ? '处理中...' : '确认优惠'}}
       </view>
     </view>

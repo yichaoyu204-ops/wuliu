@@ -18,7 +18,7 @@
     <view class="section">
       <view class="section-title">
         <text>货物信息</text>
-        <view wx:if="{{canEdit && !isEditing}}" class="edit-btn" bindtap="toggleEdit">编辑</view>
+        <view wx:if="{{canEdit && !isEditing}}" class="edit-btn" bindtap="toggleEdit" hover-class="ui-pressed">编辑</view>
         <view wx:if="{{canEdit && isEditing}}" class="edit-actions">
           <text class="edit-action cancel" bindtap="toggleEdit">取消</text>
           <text class="edit-action save" bindtap="saveEdit">保存</text>
@@ -187,7 +187,7 @@
     <view class="section">
       <view class="section-title">
         <text>运输路线</text>
-        <view wx:if="{{canEdit && !isEditingRoute}}" class="edit-btn" bindtap="toggleRouteEdit">编辑</view>
+        <view wx:if="{{canEdit && !isEditingRoute}}" class="edit-btn" bindtap="toggleRouteEdit" hover-class="ui-pressed">编辑</view>
         <view wx:if="{{canEdit && isEditingRoute}}" class="edit-actions">
           <text class="edit-action cancel" bindtap="toggleRouteEdit">取消</text>
           <text class="edit-action save" bindtap="saveRouteEdit">保存</text>
@@ -237,7 +237,7 @@
               <text class="timeline-status {{item.status}}">{{item.displayStatus}}</text>
             </view>
             <view class="timeline-time" wx:if="{{item.timestamp}}">{{item.timestamp}}</view>
-            <view class="timeline-operator" wx:if="{{item.operator}}">操作人：{{item.operator}}</view>
+            <view class="timeline-operator" wx:if="{{item.operatorName || item.operator}}">操作人：{{item.operatorName || item.operator}}</view>
             <view class="timeline-remark" wx:if="{{item.remark}}">备注：{{item.remark}}</view>
             <view class="timeline-photos" wx:if="{{item.photos && item.photos.length > 0}}">
               <image
@@ -256,8 +256,8 @@
       </view>
     </view>
 
-    <!-- 管理员价格复核 -->
-    <view class="section" wx:if="{{role === 'admin' && shipment.adminPriceItems && shipment.adminPriceItems.length > 0}}">
+    <!-- 费用明细 -->
+    <view class="section" wx:if="{{canViewPriceDetails && shipment.adminPriceItems && shipment.adminPriceItems.length > 0}}">
       <view class="section-title">
         <text>费用明细</text>
         <text class="quote-status {{shipment.adminPriceStatusClass || 'draft'}}">{{shipment.adminPriceStatusText}}</text>
@@ -288,7 +288,7 @@
     <view class="section" wx:if="{{shipment.measurement.status === 'measured'}}">
       <view class="section-title">
         <text>仓库实测</text>
-        <view wx:if="{{canEdit && !isEditingMeasurement}}" class="edit-btn" bindtap="toggleMeasurementEdit">编辑</view>
+        <view wx:if="{{canEdit && !isEditingMeasurement}}" class="edit-btn" bindtap="toggleMeasurementEdit" hover-class="ui-pressed">编辑</view>
         <view wx:if="{{canEdit && isEditingMeasurement}}" class="edit-actions">
           <text class="edit-action cancel" bindtap="toggleMeasurementEdit">取消</text>
           <text class="edit-action save" bindtap="saveMeasurementEdit">保存</text>
@@ -343,19 +343,19 @@
     <!-- 底部操作 -->
     <!-- 客户确认报价（仅当报价已发送且未确认时显示） -->
     <view class="action-bar" wx:if="{{shipment.quote.status === 'sent'}}">
-      <view class="btn-primary" bindtap="goConfirm">确认报价</view>
+      <view class="btn-primary" bindtap="goConfirm" hover-class="ui-pressed">确认报价</view>
     </view>
     <!-- 接单员确认收货 -->
     <view class="action-bar" wx:elif="{{showConfirmInbound}}">
-      <view class="btn-primary" bindtap="advanceNode">确认收货</view>
+      <view class="btn-primary" bindtap="advanceNode" hover-class="ui-pressed">确认收货</view>
     </view>
     <!-- 接单员确认发运 -->
     <view class="action-bar" wx:elif="{{showConfirmOutbound}}">
-      <view class="btn-primary" bindtap="advanceNode">确认发运</view>
+      <view class="btn-primary" bindtap="advanceNode" hover-class="ui-pressed">确认发运</view>
     </view>
     <!-- 接单员确认信息 -->
     <view class="action-bar" wx:elif="{{canEdit && shipment.oaStatus === 'created'}}">
-      <view class="btn-primary" bindtap="confirmInfo">确认信息</view>
+      <view class="btn-primary" bindtap="confirmInfo" hover-class="ui-pressed">确认信息</view>
     </view>
   </block>
 

@@ -1,7 +1,12 @@
 <view class="container">
+  <view class="create-heading">
+    <text class="create-eyebrow">一超物流 · 货物登记</text>
+    <text class="create-title">创建运单</text>
+    <text class="create-subtitle">拍照识别单据，或填写下方货物信息</text>
+  </view>
   <!-- AI 识别入口 -->
   <view class="ai-section" wx:if="{{!aiResult}}">
-    <view class="ai-card" bindtap="chooseImage">
+    <view class="ai-card" bindtap="chooseImage" hover-class="ui-pressed">
       <view class="ai-icon ai-line-icon"></view>
       <text class="ai-title">拍照识别进仓单</text>
       <text class="ai-desc">自动提取件数/重量/体积/工厂等信息</text>
@@ -34,7 +39,7 @@
 
   <!-- 货物信息 -->
   <view class="section">
-    <view class="section-title">货物信息</view>
+    <view class="section-title"><text class="section-index">01</text>货物信息</view>
     <view class="form-row {{manualReview.warehouseEntryNo ? 'row-warning' : ''}}">
       <text class="form-label">进仓编号</text>
       <input class="form-input" type="text" placeholder="请输入进仓编号" value="{{cargoInfo.warehouseEntryNo}}" bindinput="onWarehouseEntryNoChange" />
@@ -47,21 +52,21 @@
       <text class="form-label">件数</text>
       <input class="form-input" type="number" placeholder="请输入件数" value="{{cargoInfo.pieces}}" bindinput="onPiecesChange" />
       <picker class="form-picker" bindchange="onPiecesUnitChange" value="{{piecesUnitIndex}}" range="{{unitOptions.pieces}}">
-        <view>{{cargoInfo.piecesUnit || '件'}}</view>
+        <view class="unit-picker-content" hover-class="picker-pressed"><text class="unit-picker-value">{{cargoInfo.piecesUnit || '件'}}</text><view class="picker-chevron"></view></view>
       </picker>
     </view>
     <view class="form-row {{manualReview.weight ? 'row-warning' : ''}}">
       <text class="form-label">毛重</text>
       <input class="form-input" type="digit" placeholder="请输入毛重" value="{{cargoInfo.grossWeight}}" bindinput="onWeightChange" />
       <picker class="form-picker" bindchange="onWeightUnitChange" value="{{weightUnitIndex}}" range="{{unitOptions.weight}}">
-        <view>{{cargoInfo.weightUnit || 'KGS'}}</view>
+        <view class="unit-picker-content" hover-class="picker-pressed"><text class="unit-picker-value">{{cargoInfo.weightUnit || 'KGS'}}</text><view class="picker-chevron"></view></view>
       </picker>
     </view>
     <view class="form-row {{manualReview.volume ? 'row-warning' : ''}}">
       <text class="form-label">体积</text>
       <input class="form-input" type="digit" placeholder="请输入体积" value="{{cargoInfo.volume}}" bindinput="onVolumeChange" />
       <picker class="form-picker" bindchange="onVolumeUnitChange" value="{{volumeUnitIndex}}" range="{{unitOptions.volume}}">
-        <view>{{cargoInfo.volumeUnit || 'CBM'}}</view>
+        <view class="unit-picker-content" hover-class="picker-pressed"><text class="unit-picker-value">{{cargoInfo.volumeUnit || 'CBM'}}</text><view class="picker-chevron"></view></view>
       </picker>
     </view>
     <view class="form-row {{manualReview.marks ? 'row-warning' : ''}}">
@@ -76,7 +81,7 @@
       <text class="form-label">开航时间</text>
       <view class="form-picker-with-clear">
         <picker mode="date" class="form-picker-wide" bindchange="onDepartureTimeChange" value="{{routing.departureTime}}">
-          <view class="date-picker-text {{routing.departureTime ? '' : 'placeholder'}}">{{routing.departureTime || '请选择开航日期'}}</view>
+          <view class="picker-content" hover-class="picker-pressed"><text class="date-picker-text {{routing.departureTime ? '' : 'placeholder'}}">{{routing.departureTime || '请选择开航日期'}}</text><view class="picker-chevron"></view></view>
         </picker>
         <text class="clear-btn" wx:if="{{routing.departureTime}}" bindtap="clearDepartureTime">清空</text>
       </view>
@@ -84,17 +89,17 @@
     <view class="form-row">
       <text class="form-label">最晚进仓</text>
       <picker mode="date" class="form-picker-date" bindchange="onLatestDeliveryDateChange" value="{{latestDeliveryDate}}">
-        <view class="date-picker-text">{{latestDeliveryDate || '请选择日期'}}</view>
+        <view class="picker-content" hover-class="picker-pressed"><text class="date-picker-text">{{latestDeliveryDate || '请选择日期'}}</text><view class="picker-chevron"></view></view>
       </picker>
       <picker mode="time" class="form-picker-time" bindchange="onLatestDeliveryTimeChange" value="{{latestDeliveryTime}}">
-        <view class="date-picker-text">{{latestDeliveryTime || '请选择时间'}}</view>
+        <view class="picker-content" hover-class="picker-pressed"><text class="date-picker-text">{{latestDeliveryTime || '请选择时间'}}</text><view class="picker-chevron"></view></view>
       </picker>
     </view>
   </view>
 
   <!-- 联系人 -->
   <view class="section">
-    <view class="section-title">联系人1</view>
+    <view class="section-title"><text class="section-index">02</text>联系人1</view>
     <view class="form-row">
       <text class="form-label">姓名</text>
       <input class="form-input" type="text" placeholder="请输入姓名" value="{{contacts.contact1Name}}" bindinput="onContact1NameChange" />
@@ -106,7 +111,7 @@
   </view>
 
   <view class="section">
-    <view class="section-title">联系人2</view>
+    <view class="section-title"><text class="section-index">03</text>联系人2</view>
     <view class="form-row">
       <text class="form-label">姓名</text>
       <input class="form-input" type="text" placeholder="请输入姓名" value="{{contacts.contact2Name}}" bindinput="onContact2NameChange" />
@@ -119,11 +124,14 @@
 
   <!-- 路线选择 -->
   <view class="section">
-    <view class="section-title">路线选择</view>
+    <view class="section-title"><text class="section-index">04</text>路线选择</view>
     <view class="form-row">
       <text class="form-label">路线</text>
-      <picker class="form-picker-wide" bindchange="onRouteChange" value="{{routeIndex}}" range="{{routes}}" range-key="name">
-        <view>{{routeName}}</view>
+      <picker class="form-picker-wide choice-picker" bindchange="onRouteChange" value="{{routeIndex}}" range="{{routes}}" range-key="name">
+        <view class="picker-content" hover-class="picker-pressed">
+          <text class="choice-picker-value">{{routeName}}</text>
+          <view class="picker-action"><text>选择</text><view class="picker-chevron"></view></view>
+        </view>
       </picker>
     </view>
     <view class="form-row">
@@ -134,17 +142,20 @@
 
   <!-- 结算方式 -->
   <view class="section">
-    <view class="section-title">结算方式</view>
+    <view class="section-title"><text class="section-index">05</text>结算方式</view>
     <view class="form-row">
       <text class="form-label">付款方式</text>
-      <picker class="form-picker-wide" bindchange="onPaymentTypeChange" value="{{paymentTypeIndex}}" range="{{paymentTypeOptions}}">
-        <view>{{paymentTypeLabel}}</view>
+      <picker class="form-picker-wide choice-picker" bindchange="onPaymentTypeChange" value="{{paymentTypeIndex}}" range="{{paymentTypeOptions}}">
+        <view class="picker-content" hover-class="picker-pressed">
+          <text class="choice-picker-value">{{paymentTypeLabel}}</text>
+          <view class="picker-action"><text>选择</text><view class="picker-chevron"></view></view>
+        </view>
       </picker>
     </view>
   </view>
 
   <view class="footer">
-    <view class="btn-submit {{submitting ? 'btn-disabled' : ''}}" bindtap="onSubmit">
+    <view class="btn-submit {{submitting ? 'btn-disabled' : ''}}" bindtap="onSubmit" hover-class="ui-pressed">
       {{submitting ? '创建中...' : '创建运单'}}
     </view>
   </view>

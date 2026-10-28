@@ -5,6 +5,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess } = require('./revoked-access');
 const { success, error, paramError } = require('./utils/response');
 const { formatMoney } = require('./utils/formatMoney');
 
@@ -91,12 +92,56 @@ function buildShipmentBrief(shipment = {}) {
     departureTime: routing.departureTime || null,
     latestDeliveryTime: routing.latestDeliveryTime || null,
     currentNodeName: shipment.currentNodeName || '',
+    creatorName: shipment.creatorName || '',
+    creatorPhone: shipment.creatorPhone || '',
+    creatorRole: shipment.creatorRole || '',
     createdAt: shipment.createdAt || shipment._createTime || null,
     updatedAt: shipment.updatedAt || null
   };
 }
 
-async function enrichBillsWithWaybillNos(bills = []) {
+function buildPriceItemsFromShipment(shipment = {}) {
+  if (shipment.quote?.items?.length > 0) {
+    return shipment.quote.items.map(item => ({
+      ...item,
+      name: item.name || '费用',
+      calculationDetail: item.calculationDetail || item.detail || '',
+      amount: formatMoney(item.amount || 0),
+      isIncluded: item.isIncluded !== false
+    }));
+  }
+
+  if (shipment.fees?.length > 0) {
+    return shipment.fees.map(fee => ({
+      name: fee.name || '费用',
+      calculationDetail: fee.calculationDetail || fee.detail || '',
+      amount: formatMoney(fee.amount || 0),
+      isIncluded: true
+    }));
+  }
+
+  const amount = shipment.pricing?.finalPrice || shipment.quote?.subtotal || shipment.totalAmount || 0;
+  if (amount) {
+    return [{
+      name: '运费',
+      calculationDetail: shipment.pricing ? `重量价:${shipment.pricing.weightPrice || 0} / 体积价:${shipment.pricing.volumePrice || 0}` : '',
+      amount: formatMoney(amount),
+      isIncluded: true
+    }];
+  }
+
+  return [];
+}
+
+function isSimpleFreightItems(items = []) {
+  if (!items || items.length === 0) return true;
+  if (items.length > 1) return false;
+
+  const item = items[0] || {};
+  return (item.name || '') === '运费' || (!item.calculationDetail && !item.detail);
+}
+
+async function enrichBillsWithShipmentInfo(bills = []) {
   const shipmentIds = bills.flatMap(bill => [
     bill.shipmentId,
     ...(bill.shipmentIds || [])
@@ -108,11 +153,12 @@ async function enrichBillsWithWaybillNos(bills = []) {
     .where({ _id: _.in(Array.from(new Set(shipmentIds))) })
     .get();
 
-  const waybillMap = {};
-  const warehouseEntryMap = {};
+  const shipmentMap = {};
   (shipmentRes.data || []).forEach(shipment => {
-    waybillMap[shipment._id] = shipment.cargoInfo?.waybillNo || '';
-    warehouseEntryMap[shipment._id] = shipment.cargoInfo?.warehouseEntryNo || '';
+    shipmentMap[shipment._id] = {
+      brief: buildShipmentBrief(shipment),
+      priceItems: buildPriceItemsFromShipment(shipment)
+    };
   });
 
   return bills.map(bill => {
@@ -120,15 +166,27 @@ async function enrichBillsWithWaybillNos(bills = []) {
       bill.shipmentId,
       ...(bill.shipmentIds || [])
     ].filter(Boolean);
-    const waybillNos = billShipmentIds.map(id => waybillMap[id]).filter(Boolean);
-    const warehouseEntryNos = billShipmentIds.map(id => warehouseEntryMap[id]).filter(Boolean);
+    const shipmentInfos = billShipmentIds.map(id => shipmentMap[id]).filter(Boolean);
+    const shipmentBriefs = shipmentInfos.map(item => item.brief).filter(Boolean);
+    const waybillNos = shipmentBriefs.map(item => item.waybillNo).filter(Boolean);
+    const warehouseEntryNos = shipmentBriefs.map(item => item.warehouseEntryNo).filter(Boolean);
+    const fallbackItems = shipmentInfos.find(item => item.priceItems?.length > 0)?.priceItems || [];
+    const billItems = bill.items || [];
+    const shouldUseShipmentItems = fallbackItems.length > 0 &&
+      (isSimpleFreightItems(billItems) || fallbackItems.length > billItems.length);
 
     return {
       ...bill,
+      items: shouldUseShipmentItems ? fallbackItems : (billItems.length > 0 ? billItems : fallbackItems),
+      creatorName: bill.creatorName || shipmentBriefs[0]?.creatorName || '',
+      creatorPhone: bill.creatorPhone || shipmentBriefs[0]?.creatorPhone || '',
+      creatorRole: bill.creatorRole || shipmentBriefs[0]?.creatorRole || '',
       waybillNo: bill.waybillNo || waybillNos[0] || '',
       waybillNos,
       warehouseEntryNo: bill.warehouseEntryNo || warehouseEntryNos[0] || '',
-      warehouseEntryNos
+      warehouseEntryNos,
+      shipmentBrief: bill.shipmentBrief || shipmentBriefs[0] || null,
+      shipmentBriefs
     };
   });
 }
@@ -245,7 +303,7 @@ async function getCreatorShipmentIds(operatorOpenId) {
   if (!operatorOpenId) return [];
 
   const res = await db.collection('shipments')
-    .where({ creatorOpenId: operatorOpenId, isDeleted: _.neq(true) })
+    .where({ creatorOpenId: operatorOpenId, creatorRole: 'salesman', isDeleted: _.neq(true) })
     .limit(100)
     .get();
 
@@ -257,12 +315,8 @@ function billBelongsToCurrentUser(bill, phone, creatorShipmentIds) {
     bill.shipmentId,
     ...(bill.shipmentIds || [])
   ].filter(Boolean);
-  const visiblePhones = bill.visiblePhones || [];
 
-  return (
-    relatedShipmentIds.some(id => creatorShipmentIds.includes(id)) ||
-    (phone && (bill.clientPhone === phone || visiblePhones.includes(phone)))
-  );
+  return relatedShipmentIds.some(id => creatorShipmentIds.includes(id));
 }
 
 function paidSpotShipmentToBill(item) {
@@ -279,16 +333,15 @@ function paidSpotShipmentToBill(item) {
     clientPhone: item.managerPhone || item.contacts?.contact1Phone || '',
     clientName: item.clientName || item.contacts?.contact1Name || '',
     factoryName: item.factoryName || item.creatorName || '',
+    creatorName: item.creatorName || '',
+    creatorPhone: item.creatorPhone || '',
+    creatorRole: item.creatorRole || '',
     contacts: item.contacts || {},
     totalAmount: formatMoney(amount) || 0,
     paidAmount: formatMoney(paidAmount) || 0,
     status: 'paid',
     paymentType: 'spot',
-    items: item.quote?.items || (item.pricing ? [{
-      name: '运费',
-      calculationDetail: `重量价:${item.pricing.weightPrice || 0} / 体积价:${item.pricing.volumePrice || 0}`,
-      amount: formatMoney(amount) || 0
-    }] : []),
+    items: buildPriceItemsFromShipment(item),
     payments: [{
       amount: formatMoney(paidAmount) || 0,
       paidAt: item.billing?.paidAt || item.updatedAt || item._createTime,
@@ -359,7 +412,7 @@ async function billList(phone, status, page = 1, pageSize = 20, role, operatorOp
       return timeB - timeA;
     });
 
-  return enrichBillsWithWaybillNos(mergedBills.slice(start, start + pageSize));
+  return enrichBillsWithShipmentInfo(mergedBills.slice(start, start + pageSize));
 }
 
 // ── 管理端：所有账单（分页）──
@@ -371,7 +424,7 @@ async function pendingBills(page = 1, pageSize = 20) {
     .limit(pageSize)
     .get();
 
-  return enrichBillsWithWaybillNos(res.data);
+  return enrichBillsWithShipmentInfo(res.data);
 }
 
 // ── 月结合并（事务）──
@@ -456,6 +509,12 @@ async function cleanupPaidBills() {
 
 // ── 入口 ──
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   const { action, billId, data, phone, status, monthlyBatch, page, pageSize, role } = event;
   const { OPENID } = cloud.getWXContext();
 

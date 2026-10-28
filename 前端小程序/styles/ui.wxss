@@ -1,0 +1,418 @@
+/* === Yiwu Line UI Polish v2 === */
+.container {
+  background: #f4f6fa;
+  color: #171b22;
+}
+
+.section,
+.info-card,
+.route-card,
+.fee-card,
+.measure-card,
+.quote-card,
+.ai-card,
+.ai-result-card,
+.workflow-card,
+.shipment-card,
+.bill-card,
+.role-card,
+.login-form,
+.attachment-card,
+.empty-box,
+.empty-state,
+.tip-bar,
+.footer,
+.manual-review-list,
+.modal-content {
+  border-radius: 24rpx;
+  border: 1rpx solid #e1e6ee;
+  box-shadow: 0 4rpx 16rpx rgba(23, 43, 70, 0.025);
+}
+
+.section,
+.info-card,
+.route-card,
+.fee-card,
+.measure-card,
+.quote-card,
+.workflow-card,
+.shipment-card,
+.bill-card,
+.role-card,
+.login-form,
+.attachment-card,
+.empty-box,
+.empty-state,
+.footer,
+.modal-content {
+  background: #ffffff;
+}
+
+.section-title,
+.page-title,
+.waybill-no,
+.shipment-id,
+.bill-id,
+.factory-name,
+.empty-title,
+.role-name,
+.login-title text,
+.route-name,
+.timeline-name,
+.fee-total-label,
+.quote-total-label,
+.modal-title {
+  color: #171b22;
+  font-weight: 600;
+}
+
+.form-row,
+.info-row,
+.bill-footer,
+.card-footer,
+.card-body,
+.fee-row,
+.quote-row,
+.measure-row {
+  border-color: #edf0f4;
+}
+
+.form-label,
+.info-label,
+.stats-label,
+.bill-type,
+.route-info,
+.create-time,
+.empty-desc,
+.empty-hint,
+.fee-calc,
+.timeline-time,
+.timeline-operator,
+.measure-label {
+  color: #5e6b7e;
+}
+
+.form-input,
+.login-input,
+.modal-input,
+.modal-picker,
+.form-picker-wide,
+.form-picker-date,
+.form-picker-time,
+.date-picker-text {
+  color: #171b22;
+}
+
+.form-input,
+.login-input,
+.modal-input,
+.modal-picker {
+  background: #f7f9fb;
+  border: 1rpx solid #e1e6ee;
+  border-radius: 10rpx;
+}
+
+.btn-submit,
+.btn-primary,
+.btn-login,
+.btn-monthly,
+.empty-btn,
+.modal-btn-confirm,
+.mark-paid-btn {
+  background: #2156f3;
+  color: #fff;
+  border-radius: 12rpx;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.btn-secondary,
+.modal-btn-cancel {
+  background: #eef2f6;
+  color: #374151;
+  border-radius: 12rpx;
+}
+
+.status-tag,
+.status-badge,
+.bill-status,
+.pay-tag,
+.quote-status,
+.manual-review-tag {
+  border-radius: 999rpx;
+  font-weight: 700;
+}
+
+.status-tag.active,
+.status-badge.factory_confirmed,
+.status-badge.mainline,
+.pay-tag.spot,
+.quote-status.sent,
+.manual-review-tag {
+  color: #9c4314;
+  background: #fff2e7;
+}
+
+.status-tag.completed,
+.status-badge.admin_confirmed,
+.status-badge.billed,
+.bill-status.paid,
+.quote-status.confirmed {
+  color: #0f766e;
+  background: #e6f6f3;
+}
+
+.bill-status.unpaid,
+.amount,
+.fee-total-amount,
+.quote-total-amount {
+  color: #b33e22;
+}
+
+.tab-bar {
+  background: #ffffff;
+  border-bottom: 1rpx solid #e1e6ee;
+  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.04);
+}
+
+.tab-active {
+  color: #2156f3;
+  font-weight: 600;
+}
+
+.tab-active::after {
+  background: #2156f3;
+}
+
+.stats-bar,
+.page-title {
+  background: #171b22;
+  color: #fff;
+}
+
+.ai-card {
+  border-style: solid;
+  border-color: #cbd8ff;
+}
+
+.ai-icon,
+.empty-icon {
+  color: #2156f3;
+}
+
+/* === End Yiwu Line UI Polish v2 === */
+
+/* === No Emoji UI Icons === */
+.empty-icon,
+.ai-icon,
+.upload-icon,
+.add-icon,
+.ai-result-icon,
+.status-icon {
+  position: relative;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: 0 !important;
+  line-height: 1;
+  color: transparent !important;
+  background: transparent;
+}
+
+.empty-icon,
+.empty-line-icon {
+  width: 96rpx;
+  height: 96rpx;
+  margin-bottom: 24rpx;
+  border: 3rpx solid #d8dee8;
+  border-radius: 18rpx;
+  background: #f7f9fb;
+}
+
+.empty-icon::before,
+.empty-line-icon::before {
+  content: '';
+  position: absolute;
+  left: 22rpx;
+  top: 28rpx;
+  width: 50rpx;
+  height: 6rpx;
+  border-radius: 6rpx;
+  background: #171b22;
+  box-shadow: 0 18rpx 0 #2156f3;
+}
+
+.empty-icon::after,
+.empty-line-icon::after {
+  content: '';
+  position: absolute;
+  left: 22rpx;
+  bottom: 20rpx;
+  width: 34rpx;
+  height: 6rpx;
+  border-radius: 6rpx;
+  background: #d8dee8;
+}
+
+.ai-icon,
+.upload-icon,
+.add-icon,
+.ai-line-icon,
+.upload-line-icon,
+.add-line-icon {
+  width: 92rpx;
+  height: 72rpx;
+  margin-bottom: 18rpx;
+  border: 4rpx solid #2156f3;
+  border-radius: 24rpx;
+  background: #eef3ff;
+}
+
+.ai-icon::before,
+.upload-icon::before,
+.add-icon::before,
+.ai-line-icon::before,
+.upload-line-icon::before,
+.add-line-icon::before {
+  content: '';
+  position: absolute;
+  left: 30rpx;
+  top: 20rpx;
+  width: 26rpx;
+  height: 26rpx;
+  border: 4rpx solid #2156f3;
+  border-radius: 50%;
+  background: #ffffff;
+}
+
+.ai-icon::after,
+.upload-icon::after,
+.add-icon::after,
+.ai-line-icon::after,
+.upload-line-icon::after,
+.add-line-icon::after {
+  content: '';
+  position: absolute;
+  left: 16rpx;
+  top: -12rpx;
+  width: 30rpx;
+  height: 14rpx;
+  border-radius: 8rpx 8rpx 0 0;
+  background: #2156f3;
+}
+
+.ai-result-icon {
+  width: 58rpx;
+  height: 58rpx;
+  margin: 0 20rpx 0 0;
+  border-radius: 50%;
+  color: #fff !important;
+  text-align: center;
+  line-height: 58rpx;
+  font-size: 30rpx !important;
+  font-weight: 700;
+  background: #0f766e;
+}
+
+.ai-result-icon.warning {
+  background: #d97706;
+}
+
+.status-icon {
+  width: 82rpx;
+  height: 82rpx;
+  border-radius: 18rpx;
+  border: 3rpx solid rgba(255,255,255,0.34);
+  background: rgba(255,255,255,0.14);
+  margin: 0 24rpx 0 0;
+}
+
+.status-icon::before {
+  content: '';
+  position: absolute;
+  left: 20rpx;
+  top: 24rpx;
+  width: 40rpx;
+  height: 6rpx;
+  border-radius: 6rpx;
+  background: #fff;
+  box-shadow: 0 16rpx 0 #dce6ff;
+}
+
+.warning-text::before,
+.payment-tip text::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28rpx;
+  height: 28rpx;
+  margin-right: 8rpx;
+  border-radius: 50%;
+  background: #fff2e7;
+  color: #9c4314;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.wechat-icon {
+  display: none !important;
+}
+
+/* === End No Emoji UI Icons === */
+
+/* === Full Status Label Visibility === */
+.status-tag,
+.status-badge,
+.bill-status,
+.pay-tag,
+.quote-status,
+.manual-review-tag {
+  max-width: 360rpx !important;
+  min-height: 34rpx;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  word-break: keep-all;
+  overflow-wrap: normal;
+  line-height: 1.35;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.card-header,
+.shipment-header,
+.bill-header {
+  align-items: flex-start;
+}
+
+.status-badge {
+  padding-left: 16rpx;
+  padding-right: 16rpx;
+}
+
+/* === End Full Status Label Visibility === */
+/* 2026-09 presentation system. No role, amount or workflow conditions live here. */
+.container { color: #171b22; }
+.section-title { font-size: 30rpx; line-height: 1.5; }
+.form-input, .login-input, .modal-input { min-width: 0; padding-left: 18rpx; padding-right: 18rpx; }
+.btn-primary, .btn-submit, .btn-login, .btn-monthly, .empty-btn, .modal-btn-confirm, .mark-paid-btn {
+  transition: opacity .18s ease, transform .18s ease;
+}
+.btn-secondary, .modal-btn-cancel { border: 1rpx solid #dce3ec; }
+.ui-pressed { opacity: .76; transform: scale(.985); }
+.btn-disabled, .btn-primary.btn-disabled, .btn-submit.btn-disabled { opacity: .5; box-shadow: none; }
+.waybill-no, .shipment-id, .bill-id { word-break: break-all; }
+.amount, .fee-total-amount, .quote-total-amount { font-variant-numeric: tabular-nums; }
+.empty-hint, .empty-desc { line-height: 1.7; }
+@media (prefers-reduced-motion: reduce) {
+  .ui-pressed { transform: none; }
+  .btn-primary, .btn-submit, .btn-login, .btn-monthly, .empty-btn, .modal-btn-confirm, .mark-paid-btn { transition: none; }
+}
+
+/* Approved Swiss-style surface and type scale. */
+.container{font-size:28rpx;line-height:1.5}.section,.info-card,.route-card,.fee-card,.measure-card,.quote-card,.ai-card,.ai-result-card,.workflow-card,.shipment-card,.bill-card,.role-card,.login-form,.attachment-card,.empty-box,.empty-state,.tip-bar,.footer,.manual-review-list,.modal-content{border-radius:14rpx;box-shadow:none}
+.section-title{font-size:34rpx;font-weight:600}.form-input,.login-input,.modal-input{font-size:29rpx}.status-tag,.status-badge,.bill-status,.pay-tag,.quote-status{border-radius:8rpx;font-size:25rpx;line-height:1.5;white-space:normal!important;word-break:break-all;overflow-wrap:anywhere;max-width:100%!important}.page-title{background:transparent;color:#171b22;font-size:52rpx;line-height:1.3;font-weight:650;letter-spacing:-1rpx}.tab-active{color:#2156f3}.stats-bar{background:#2156f3}.form-label,.info-label,.stats-label,.create-time,.fee-calc{font-size:26rpx}.btn-primary,.btn-submit,.btn-login,.btn-monthly,.modal-btn-confirm,.mark-paid-btn{background:#2156f3;color:#fff;min-height:88rpx;border-radius:12rpx;font-size:29rpx}.btn-secondary,.modal-btn-cancel{border-radius:12rpx;font-size:28rpx}.bill-status.unpaid{color:#8c4c12;background:#fff3e4}.amount,.fee-total-amount,.quote-total-amount{color:#171b22}

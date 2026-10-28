@@ -1,736 +1,186 @@
+@import "../../../styles/ui.wxss";
+
+/* A quiet hierarchy: order number, appointment, then transport status. */
 .container {
-  background: #f5f7fa;
+  background: #f3f5f8;
+  color: #192b43;
   min-height: 100vh;
 }
 
-/* 顶部提示 */
 .tip-bar {
-  background: #fff7e6;
-  padding: 16rpx 24rpx;
-  border-bottom: 1rpx solid #ffe7ba;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 20rpx 28rpx 4rpx;
 }
 
 .tip-text {
   font-size: 24rpx;
-  color: #fa8c16;
+  line-height: 1.6;
+  color: #657184;
 }
 
-/* 运单列表 */
-.shipment-list {
-  padding: 20rpx 24rpx;
-}
-
-.month-section {
-  margin-bottom: 28rpx;
-}
-
+.shipment-list { padding: 24rpx; }
+.month-section { margin-bottom: 36rpx; }
 .month-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8rpx 4rpx 18rpx;
+  padding: 0 4rpx 18rpx;
 }
-
 .month-title {
-  font-size: 28rpx;
-  color: #14213d;
-  font-weight: 800;
+  color: #192b43;
+  font-size: 32rpx;
+  font-weight: 650;
+  letter-spacing: -0.5rpx;
 }
-
-.month-count {
-  font-size: 22rpx;
-  color: #8f98a8;
-  background: #fff7e6;
-  border: 1rpx solid #ffe7ba;
-  padding: 4rpx 14rpx;
-  border-radius: 999rpx;
-}
+.month-count { color: #657184; font-size: 24rpx; }
 
 .shipment-card {
   background: #fff;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  border: 1rpx solid #e4e8ee;
+  border-radius: 18rpx;
+  padding: 26rpx;
   margin-bottom: 20rpx;
-  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.03);
+  box-shadow: 0 4rpx 14rpx rgba(25, 43, 67, 0.025);
 }
-
-.card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20rpx;
-  margin-bottom: 20rpx;
-}
-
-.card-title-block {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8rpx;
-}
-
-.shipment-id {
-  font-size: 26rpx;
-  color: #14213d;
-  font-weight: 800;
-  font-family: monospace;
-  line-height: 1.25;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.shipment-subtitle {
-  max-width: 100%;
-  font-size: 21rpx;
-  color: #8a94a6;
-  line-height: 1.3;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.card-tags {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 8rpx;
-  flex-shrink: 0;
-  max-width: 240rpx;
-}
-
-.status-tag {
-  font-size: 22rpx;
-  padding: 7rpx 16rpx;
-  border-radius: 999rpx;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-.status-tag.active {
-  color: #FF6B00;
-  background: #fff7e6;
-}
-
-.status-tag.pending {
-  color: #999;
-  background: #f5f5f5;
-}
-
-.status-tag.completed {
-  color: #07c160;
-  background: #e8f5e9;
-}
-
-.appointment-mini-tag {
-  max-width: 240rpx;
-  font-size: 21rpx;
-  padding: 6rpx 12rpx;
-  border-radius: 999rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  line-height: 1.2;
-}
-
-.appointment-mini-tag.done {
-  color: #0f766e;
-  background: #e6f6f3;
-}
-
-.appointment-mini-tag.pending {
-  color: #8a4b10;
-  background: #fff2d9;
-}
-
-.card-body {
-  margin-bottom: 18rpx;
-}
-
-.factory-name {
-  font-size: 30rpx;
-  color: #1a1a1a;
-  font-weight: 600;
+.card-header { display: block; margin-bottom: 24rpx; }
+.shipment-caption {
   display: block;
-  margin-bottom: 8rpx;
+  margin-bottom: 6rpx;
+  color: #657184;
+  font-size: 22rpx;
+  line-height: 1.4;
+  letter-spacing: 2rpx;
 }
-
-.info-grid {
+.card-title-row {
   display: flex;
-  flex-direction: column;
-  gap: 12rpx;
-  margin-bottom: 18rpx;
-}
-
-.info-item {
-  display: flex;
-  align-items: flex-start;
-  gap: 16rpx;
+  align-items: center;
+  gap: 14rpx;
+  width: 100%;
   min-width: 0;
 }
-
-.info-k {
-  width: 150rpx;
-  flex-shrink: 0;
-  color: #8a94a6;
-  font-size: 22rpx;
-  line-height: 1.45;
-}
-
-.info-v {
+.shipment-id {
   flex: 1;
   min-width: 0;
-  color: #2f3a4c;
-  font-size: 25rpx;
-  line-height: 1.45;
+  color: #192b43;
+  font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  font-variant-numeric: tabular-nums;
+  font-size: 32rpx;
   font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.5rpx;
+  white-space: normal;
   word-break: break-all;
+  overflow-wrap: anywhere;
+}
+.appointment-mini-tag {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: #566477;
+  padding: 5rpx 0;
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+.appointment-text {
+  font-weight: 500;
+  white-space: nowrap;
+}
+.card-title-row .status-tag,
+.card-title-row .status-tag.active,
+.card-title-row .status-tag.pending,
+.card-title-row .status-tag.completed {
+  flex-shrink: 0;
+  min-height: 0;
+  max-width: none !important;
+  background: #edf1f6;
+  color: #253d5a;
+  border: 0;
+  border-radius: 6rpx;
+  padding: 7rpx 12rpx;
+  font-size: 23rpx;
+  line-height: 1.35;
+  font-weight: 650;
+  white-space: nowrap !important;
+  word-break: keep-all;
+  overflow-wrap: normal;
+}
+.shipment-meta-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  column-gap: 24rpx;
+  row-gap: 6rpx;
+  margin-top: 14rpx;
+  color: #657184;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+.shipment-subtitle { min-width: 0; word-break: break-all; }
+.appointment-time {
+  color: #657184;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-.mono {
-  font-family: monospace;
-}
-
+.card-body { margin-bottom: 20rpx; }
+.info-grid { display: flex; flex-direction: column; gap: 10rpx; margin-bottom: 20rpx; }
+.info-item { display: flex; align-items: flex-start; gap: 16rpx; min-width: 0; }
+.info-k { width: 150rpx; flex-shrink: 0; color: #6a7687; font-size: 24rpx; line-height: 1.5; }
+.info-v { flex: 1; min-width: 0; color: #3e4e63; font-size: 25rpx; font-weight: 500; line-height: 1.45; word-break: break-all; }
+.mono { font-family: "SFMono-Regular", Menlo, Consolas, monospace; font-variant-numeric: tabular-nums; }
 .cargo-strip {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f8fafc;
-  border: 1rpx solid #edf1f5;
-  border-radius: 12rpx;
-  padding: 14rpx 16rpx;
-  overflow: hidden;
+  background: #f5f7f9;
+  border: 0;
+  border-radius: 10rpx;
+  padding: 16rpx 10rpx;
 }
-
-.cargo-cell {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  align-items: baseline;
-  justify-content: center;
-  gap: 6rpx;
-}
-
-.cargo-num {
-  color: #344054;
-  font-size: 25rpx;
-  font-weight: 800;
-  line-height: 1.25;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.cargo-unit {
-  color: #98a2b3;
-  font-size: 20rpx;
-  line-height: 1.2;
-  white-space: nowrap;
-}
-
-.cargo-divider {
-  width: 1rpx;
-  height: 28rpx;
-  background: #dde3ea;
-  margin: 0 10rpx;
-}
+.cargo-cell { flex: 1; min-width: 0; display: flex; align-items: baseline; justify-content: center; flex-wrap: wrap; gap: 6rpx; }
+.cargo-num { color: #34465d; font-size: 27rpx; font-weight: 650; line-height: 1.3; word-break: break-all; }
+.cargo-unit { color: #6a7687; font-size: 22rpx; line-height: 1.4; word-break: normal; }
+.cargo-divider { width: 1rpx; height: 24rpx; background: #dde3ea; margin: 0 10rpx; }
 
 .card-footer {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding-top: 18rpx;
-  border-top: 1rpx solid #eee8df;
+  flex-wrap: wrap;
+  gap: 8rpx 16rpx;
+  border-top: 1rpx solid #edf0f4;
+  padding-top: 14rpx;
 }
-
-.create-time {
-  font-size: 23rpx;
-  color: #8a94a6;
-  font-weight: 600;
-}
-
-.amount {
-  font-size: 30rpx;
-  color: #e53935;
-  font-weight: bold;
-}
-
-.amount-unquoted {
-  font-size: 24rpx;
-  color: #8a94a6;
-  font-weight: 700;
-}
-
-.footer-right {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-}
-
+.create-time { color: #6a7687; font-size: 22rpx; font-weight: 400; font-variant-numeric: tabular-nums; }
+.footer-right { display: flex; align-items: center; gap: 14rpx; margin-left: auto; }
+.amount { color: #192b43; font-size: 30rpx; font-weight: 650; }
+.amount-unquoted { color: #6a7687; font-size: 24rpx; font-weight: 400; }
 .delete-btn {
-  font-size: 22rpx;
-  color: #ff4d4f;
-  border: 1rpx solid #ffccc7;
-  background: #fff2f0;
-  padding: 8rpx 18rpx;
-  border-radius: 10rpx;
-  line-height: 1.4;
-  font-weight: 700;
-}
-
-/* 空状态 */
-.empty-state {
-  display: flex;
-  flex-direction: column;
+  display: inline-flex;
   align-items: center;
-  padding: 160rpx 48rpx;
-}
-
-.empty-icon {
-  font-size: 100rpx;
-  margin-bottom: 24rpx;
-}
-
-.empty-text {
-  font-size: 32rpx;
-  color: #666;
-  margin-bottom: 12rpx;
-}
-
-.empty-hint {
-  font-size: 26rpx;
-  color: #999;
-  margin-bottom: 40rpx;
-}
-
-.empty-btn {
-  background: #FF6B00;
-  color: #fff;
-  padding: 20rpx 80rpx;
-  border-radius: 50rpx;
-  font-size: 30rpx;
-  font-weight: 500;
-}
-
-/* 加载中 */
-.loading-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 160rpx 0;
-  font-size: 28rpx;
-  color: #999;
-}
-
-.loading-spinner {
-  width: 48rpx;
-  height: 48rpx;
-  border: 4rpx solid #f0f0f0;
-  border-top-color: #FF6B00;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin-bottom: 20rpx;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* === Yiwu Line UI Polish v2 === */
-.container {
-  background: #f8f7f4;
-  color: #14213d;
-}
-
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.ai-card,
-.ai-result-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.tip-bar,
-.footer,
-.manual-review-list,
-.modal-content {
-  border-radius: 16rpx;
-  border: 1rpx solid #e8e1d8;
-  box-shadow: 0 12rpx 28rpx rgba(20, 33, 61, 0.07);
-}
-
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.footer,
-.modal-content {
-  background: #fffefa;
-}
-
-.section-title,
-.page-title,
-.waybill-no,
-.shipment-id,
-.bill-id,
-.factory-name,
-.empty-title,
-.role-name,
-.login-title text,
-.route-name,
-.timeline-name,
-.fee-total-label,
-.quote-total-label,
-.modal-title {
-  color: #14213d;
-  font-weight: 800;
-}
-
-.form-row,
-.info-row,
-.bill-footer,
-.card-footer,
-.card-body,
-.fee-row,
-.quote-row,
-.measure-row {
-  border-color: #eee8df;
-}
-
-.form-label,
-.info-label,
-.stats-label,
-.bill-type,
-.route-info,
-.create-time,
-.empty-desc,
-.empty-hint,
-.fee-calc,
-.timeline-time,
-.timeline-operator,
-.measure-label {
-  color: #697386;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker,
-.form-picker-wide,
-.form-picker-date,
-.form-picker-time,
-.date-picker-text {
-  color: #14213d;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker {
-  background: #fbfaf7;
-  border: 1rpx solid #e8e1d8;
-  border-radius: 10rpx;
-}
-
-.btn-submit,
-.btn-primary,
-.btn-login,
-.btn-monthly,
-.empty-btn,
-.modal-btn-confirm,
-.mark-paid-btn {
-  background: #ff6b00;
-  color: #fff;
-  border-radius: 12rpx;
-  font-weight: 800;
-  box-shadow: 0 10rpx 22rpx rgba(255, 107, 0, 0.22);
-}
-
-.btn-secondary,
-.modal-btn-cancel {
-  background: #f2efe9;
-  color: #374151;
-  border-radius: 12rpx;
-}
-
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  border-radius: 999rpx;
-  font-weight: 700;
-}
-
-.status-tag.active,
-.status-badge.factory_confirmed,
-.status-badge.mainline,
-.pay-tag.spot,
-.quote-status.sent,
-.manual-review-tag {
-  color: #9a4b10;
-  background: #fff1dc;
-}
-
-.status-tag.completed,
-.status-badge.admin_confirmed,
-.status-badge.billed,
-.bill-status.paid,
-.quote-status.confirmed {
-  color: #0f766e;
-  background: #e6f6f3;
-}
-
-.bill-status.unpaid,
-.amount,
-.fee-total-amount,
-.quote-total-amount {
-  color: #d92d20;
-}
-
-.tab-bar {
-  background: #fffefa;
-  border-bottom: 1rpx solid #e8e1d8;
-  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.04);
-}
-
-.tab-active {
-  color: #ff6b00;
-  font-weight: 800;
-}
-
-.tab-active::after {
-  background: #ff6b00;
-}
-
-.stats-bar,
-.page-title {
-  background: linear-gradient(135deg, #ff6b00 0%, #ff8a1f 100%);
-  color: #fff;
-}
-
-.ai-card {
-  border-style: solid;
-  border-color: #ffd5b8;
-}
-
-.ai-icon,
-.empty-icon {
-  color: #ff6b00;
-}
-
-/* === End Yiwu Line UI Polish v2 === */
-
-/* === No Emoji UI Icons === */
-.empty-icon,
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-result-icon,
-.status-icon {
-  position: relative;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 0 !important;
-  line-height: 1;
-  color: transparent !important;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 78rpx;
+  min-height: 72rpx;
+  margin: -10rpx -12rpx -10rpx 0;
+  padding: 16rpx 12rpx;
+  color: #657184;
   background: transparent;
-}
-
-.empty-icon,
-.empty-line-icon {
-  width: 96rpx;
-  height: 96rpx;
-  margin-bottom: 24rpx;
-  border: 3rpx solid #d8dee8;
-  border-radius: 18rpx;
-  background: #fbfaf7;
-}
-
-.empty-icon::before,
-.empty-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  top: 28rpx;
-  width: 50rpx;
-  height: 6rpx;
+  border: 0;
   border-radius: 6rpx;
-  background: #14213d;
-  box-shadow: 0 18rpx 0 #ff6b00;
+  font-size: 24rpx;
+  line-height: 1.4;
+  font-weight: 400;
 }
 
-.empty-icon::after,
-.empty-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  bottom: 20rpx;
-  width: 34rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #d8dee8;
-}
-
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-line-icon,
-.upload-line-icon,
-.add-line-icon {
-  width: 92rpx;
-  height: 72rpx;
-  margin-bottom: 18rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 16rpx;
-  background: #fff7ef;
-}
-
-.ai-icon::before,
-.upload-icon::before,
-.add-icon::before,
-.ai-line-icon::before,
-.upload-line-icon::before,
-.add-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 30rpx;
-  top: 20rpx;
-  width: 26rpx;
-  height: 26rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 50%;
-  background: #fffefa;
-}
-
-.ai-icon::after,
-.upload-icon::after,
-.add-icon::after,
-.ai-line-icon::after,
-.upload-line-icon::after,
-.add-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 16rpx;
-  top: -12rpx;
-  width: 30rpx;
-  height: 14rpx;
-  border-radius: 8rpx 8rpx 0 0;
-  background: #ff6b00;
-}
-
-.ai-result-icon {
-  width: 58rpx;
-  height: 58rpx;
-  margin: 0 20rpx 0 0;
-  border-radius: 50%;
-  color: #fff !important;
-  text-align: center;
-  line-height: 58rpx;
-  font-size: 30rpx !important;
-  font-weight: 900;
-  background: #0f766e;
-}
-
-.ai-result-icon.warning {
-  background: #d97706;
-}
-
-.status-icon {
-  width: 82rpx;
-  height: 82rpx;
-  border-radius: 18rpx;
-  border: 3rpx solid rgba(255,255,255,0.34);
-  background: rgba(255,255,255,0.14);
-  margin: 0 24rpx 0 0;
-}
-
-.status-icon::before {
-  content: '';
-  position: absolute;
-  left: 20rpx;
-  top: 24rpx;
-  width: 40rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #fff;
-  box-shadow: 0 16rpx 0 #fca311;
-}
-
-.warning-text::before,
-.payment-tip text::before {
-  content: '!';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-  border-radius: 50%;
-  background: #fff1dc;
-  color: #9a4b10;
-  font-size: 20rpx;
-  font-weight: 900;
-}
-
-.wechat-icon {
-  display: none !important;
-}
-
-/* === End No Emoji UI Icons === */
-
-/* === Full Status Label Visibility === */
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  max-width: 360rpx !important;
-  min-height: 34rpx;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  white-space: normal !important;
-  word-break: keep-all;
-  overflow-wrap: normal;
-  line-height: 1.35;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.card-header,
-.shipment-header,
-.bill-header {
-  align-items: flex-start;
-}
-
-.status-badge {
-  padding-left: 16rpx;
-  padding-right: 16rpx;
-}
-
-/* === End Full Status Label Visibility === */
+.empty-state { display: flex; flex-direction: column; align-items: center; padding: 120rpx 40rpx; }
+.empty-icon { margin-bottom: 24rpx; }
+.empty-text { color: #34465d; font-size: 32rpx; margin-bottom: 12rpx; }
+.empty-hint { color: #657184; font-size: 25rpx; margin-bottom: 36rpx; text-align: center; }
+.empty-btn { background: #253d5a; color: #fff; padding: 20rpx 72rpx; border-radius: 10rpx; font-size: 28rpx; }
+.loading-state { display: flex; flex-direction: column; align-items: center; padding: 160rpx 0; color: #657184; font-size: 28rpx; }
+.loading-spinner { width: 48rpx; height: 48rpx; border: 4rpx solid #e1e6ee; border-top-color: #253d5a; border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 20rpx; }
+@keyframes spin { to { transform: rotate(360deg); } }

@@ -1,6 +1,6 @@
 .container {
   padding: 24rpx;
-  background: #f5f7fa;
+  background: #f4f6fa;
   min-height: 100vh;
   padding-bottom: 200rpx;
 }
@@ -10,7 +10,7 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #FF6B00;
+  background: #2156f3;
   border-radius: 16rpx;
   padding: 20rpx 24rpx;
   margin-bottom: 20rpx;
@@ -34,12 +34,12 @@
 }
 
 .sticky-factory {
-  font-size: 24rpx;
+  font-size: 25rpx;
   opacity: 0.9;
 }
 
 .sticky-measure {
-  font-size: 24rpx;
+  font-size: 25rpx;
   opacity: 0.85;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .warning-text {
-  font-size: 22rpx;
+  font-size: 25rpx;
   color: #ffe082;
 }
 
@@ -66,14 +66,14 @@
 .section-title {
   font-size: 30rpx;
   font-weight: 700;
-  color: #1a1a1a;
+  color: #171b22;
   display: block;
   margin-bottom: 6rpx;
 }
 
 .section-hint {
-  font-size: 22rpx;
-  color: #aaa;
+  font-size: 25rpx;
+  color: #596577;
   display: block;
   margin-bottom: 24rpx;
 }
@@ -84,7 +84,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 20rpx 0;
-  border-bottom: 1rpx solid #f0f0f0;
+  border-bottom: 1rpx solid #e1e6ee;
 }
 
 .fee-row:last-child {
@@ -114,18 +114,18 @@
 .checkbox {
   width: 40rpx;
   height: 40rpx;
-  border: 2rpx solid #ccc;
+  border: 2rpx solid #e1e6ee;
   border-radius: 8rpx;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24rpx;
+  font-size: 25rpx;
   color: #fff;
 }
 
 .checkbox.checked {
-  background: #FF6B00;
-  border-color: #FF6B00;
+  background: #2156f3;
+  border-color: #2156f3;
 }
 
 .fee-info {
@@ -137,13 +137,13 @@
 
 .fee-name {
   font-size: 28rpx;
-  color: #1a1a1a;
+  color: #171b22;
   font-weight: 500;
 }
 
 .fee-detail {
-  font-size: 22rpx;
-  color: #888;
+  font-size: 25rpx;
+  color: #596577;
   margin-top: 4rpx;
 }
 
@@ -156,25 +156,25 @@
 
 .fee-input {
   width: 140rpx;
-  border: 1rpx solid #e0e0e0;
+  border: 1rpx solid #e1e6ee;
   border-radius: 8rpx;
   padding: 10rpx 14rpx;
   font-size: 28rpx;
-  color: #1a1a1a;
+  color: #171b22;
   text-align: right;
-  background: #fafafa;
+  background: #f4f6fa;
 }
 
 .fee-unit {
-  font-size: 24rpx;
-  color: #888;
+  font-size: 25rpx;
+  color: #596577;
 }
 
 /* 其他费用区域 */
 .other-fees-section {
   margin-top: 20rpx;
   padding-top: 20rpx;
-  border-top: 2rpx dashed #e0e0e0;
+  border-top: 2rpx dashed #e1e6ee;
 }
 
 .other-header {
@@ -187,12 +187,12 @@
 .other-title {
   font-size: 28rpx;
   font-weight: 600;
-  color: #1a1a1a;
+  color: #171b22;
 }
 
 .other-hint {
-  font-size: 22rpx;
-  color: #aaa;
+  font-size: 25rpx;
+  color: #596577;
 }
 
 .other-row {
@@ -204,26 +204,26 @@
 
 .other-name-input {
   flex: 1;
-  border: 1rpx solid #e0e0e0;
+  border: 1rpx solid #e1e6ee;
   border-radius: 8rpx;
   padding: 14rpx 16rpx;
   font-size: 26rpx;
-  background: #fafafa;
+  background: #f4f6fa;
 }
 
 .other-amount-input {
   width: 160rpx;
-  border: 1rpx solid #e0e0e0;
+  border: 1rpx solid #e1e6ee;
   border-radius: 8rpx;
   padding: 14rpx 16rpx;
   font-size: 26rpx;
   text-align: right;
-  background: #fafafa;
+  background: #f4f6fa;
 }
 
 .other-unit {
-  font-size: 24rpx;
-  color: #888;
+  font-size: 25rpx;
+  color: #596577;
 }
 
 .other-del {
@@ -242,43 +242,43 @@
   justify-content: center;
   gap: 8rpx;
   padding: 20rpx;
-  border: 2rpx dashed #FF6B00;
+  border: 2rpx dashed #2156f3;
   border-radius: 12rpx;
   margin-top: 8rpx;
 }
 
 .add-icon {
   font-size: 32rpx;
-  color: #FF6B00;
+  color: #2156f3;
   font-weight: 600;
 }
 
 .add-text {
   font-size: 26rpx;
-  color: #FF6B00;
+  color: #2156f3;
 }
 
 /* 备注 */
 .field {
   margin-top: 20rpx;
   padding-top: 20rpx;
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid #e1e6ee;
 }
 
 .label {
   font-size: 26rpx;
-  color: #555;
+  color: #344156;
   display: block;
   margin-bottom: 10rpx;
 }
 
 .input {
-  border: 1rpx solid #e0e0e0;
+  border: 1rpx solid #e1e6ee;
   border-radius: 12rpx;
   padding: 18rpx 20rpx;
   font-size: 28rpx;
-  color: #1a1a1a;
-  background: #fafafa;
+  color: #171b22;
+  background: #f4f6fa;
   width: 100%;
   box-sizing: border-box;
 }
@@ -292,7 +292,7 @@
   padding: 20rpx 32rpx;
   padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
   background: #fff;
-  border-top: 1rpx solid #f0f0f0;
+  border-top: 1rpx solid #e1e6ee;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -305,8 +305,8 @@
 }
 
 .footer-label {
-  font-size: 22rpx;
-  color: #888;
+  font-size: 25rpx;
+  color: #596577;
 }
 
 .footer-amount {
@@ -318,11 +318,11 @@
 .submit-btn {
   flex: 1;
   max-width: 400rpx;
-  background: #FF6B00;
+  background: #2156f3;
   color: #fff;
   text-align: center;
   padding: 28rpx;
-  border-radius: 50rpx;
+  border-radius: 12rpx;
   font-size: 30rpx;
   font-weight: 600;
 }
@@ -335,400 +335,7 @@
   font-family: monospace;
 }
 
-/* === Yiwu Line UI Polish v2 === */
-.container {
-  background: #f8f7f4;
-  color: #14213d;
-}
+@import "../../../styles/ui.wxss";
 
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.ai-card,
-.ai-result-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.tip-bar,
-.footer,
-.manual-review-list,
-.modal-content {
-  border-radius: 16rpx;
-  border: 1rpx solid #e8e1d8;
-  box-shadow: 0 12rpx 28rpx rgba(20, 33, 61, 0.07);
-}
 
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.footer,
-.modal-content {
-  background: #fffefa;
-}
-
-.section-title,
-.page-title,
-.waybill-no,
-.shipment-id,
-.bill-id,
-.factory-name,
-.empty-title,
-.role-name,
-.login-title text,
-.route-name,
-.timeline-name,
-.fee-total-label,
-.quote-total-label,
-.modal-title {
-  color: #14213d;
-  font-weight: 800;
-}
-
-.form-row,
-.info-row,
-.bill-footer,
-.card-footer,
-.card-body,
-.fee-row,
-.quote-row,
-.measure-row {
-  border-color: #eee8df;
-}
-
-.form-label,
-.info-label,
-.stats-label,
-.bill-type,
-.route-info,
-.create-time,
-.empty-desc,
-.empty-hint,
-.fee-calc,
-.timeline-time,
-.timeline-operator,
-.measure-label {
-  color: #697386;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker,
-.form-picker-wide,
-.form-picker-date,
-.form-picker-time,
-.date-picker-text {
-  color: #14213d;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker {
-  background: #fbfaf7;
-  border: 1rpx solid #e8e1d8;
-  border-radius: 10rpx;
-}
-
-.btn-submit,
-.btn-primary,
-.btn-login,
-.btn-monthly,
-.empty-btn,
-.modal-btn-confirm,
-.mark-paid-btn {
-  background: #ff6b00;
-  color: #fff;
-  border-radius: 12rpx;
-  font-weight: 800;
-  box-shadow: 0 10rpx 22rpx rgba(255, 107, 0, 0.22);
-}
-
-.btn-secondary,
-.modal-btn-cancel {
-  background: #f2efe9;
-  color: #374151;
-  border-radius: 12rpx;
-}
-
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  border-radius: 999rpx;
-  font-weight: 700;
-}
-
-.status-tag.active,
-.status-badge.factory_confirmed,
-.status-badge.mainline,
-.pay-tag.spot,
-.quote-status.sent,
-.manual-review-tag {
-  color: #9a4b10;
-  background: #fff1dc;
-}
-
-.status-tag.completed,
-.status-badge.admin_confirmed,
-.status-badge.billed,
-.bill-status.paid,
-.quote-status.confirmed {
-  color: #0f766e;
-  background: #e6f6f3;
-}
-
-.bill-status.unpaid,
-.amount,
-.fee-total-amount,
-.quote-total-amount {
-  color: #d92d20;
-}
-
-.tab-bar {
-  background: #fffefa;
-  border-bottom: 1rpx solid #e8e1d8;
-  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.04);
-}
-
-.tab-active {
-  color: #ff6b00;
-  font-weight: 800;
-}
-
-.tab-active::after {
-  background: #ff6b00;
-}
-
-.stats-bar,
-.page-title {
-  background: linear-gradient(135deg, #ff6b00 0%, #ff8a1f 100%);
-  color: #fff;
-}
-
-.ai-card {
-  border-style: solid;
-  border-color: #ffd5b8;
-}
-
-.ai-icon,
-.empty-icon {
-  color: #ff6b00;
-}
-
-/* === End Yiwu Line UI Polish v2 === */
-
-/* === No Emoji UI Icons === */
-.empty-icon,
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-result-icon,
-.status-icon {
-  position: relative;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 0 !important;
-  line-height: 1;
-  color: transparent !important;
-  background: transparent;
-}
-
-.empty-icon,
-.empty-line-icon {
-  width: 96rpx;
-  height: 96rpx;
-  margin-bottom: 24rpx;
-  border: 3rpx solid #d8dee8;
-  border-radius: 18rpx;
-  background: #fbfaf7;
-}
-
-.empty-icon::before,
-.empty-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  top: 28rpx;
-  width: 50rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #14213d;
-  box-shadow: 0 18rpx 0 #ff6b00;
-}
-
-.empty-icon::after,
-.empty-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  bottom: 20rpx;
-  width: 34rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #d8dee8;
-}
-
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-line-icon,
-.upload-line-icon,
-.add-line-icon {
-  width: 92rpx;
-  height: 72rpx;
-  margin-bottom: 18rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 16rpx;
-  background: #fff7ef;
-}
-
-.ai-icon::before,
-.upload-icon::before,
-.add-icon::before,
-.ai-line-icon::before,
-.upload-line-icon::before,
-.add-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 30rpx;
-  top: 20rpx;
-  width: 26rpx;
-  height: 26rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 50%;
-  background: #fffefa;
-}
-
-.ai-icon::after,
-.upload-icon::after,
-.add-icon::after,
-.ai-line-icon::after,
-.upload-line-icon::after,
-.add-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 16rpx;
-  top: -12rpx;
-  width: 30rpx;
-  height: 14rpx;
-  border-radius: 8rpx 8rpx 0 0;
-  background: #ff6b00;
-}
-
-.ai-result-icon {
-  width: 58rpx;
-  height: 58rpx;
-  margin: 0 20rpx 0 0;
-  border-radius: 50%;
-  color: #fff !important;
-  text-align: center;
-  line-height: 58rpx;
-  font-size: 30rpx !important;
-  font-weight: 900;
-  background: #0f766e;
-}
-
-.ai-result-icon.warning {
-  background: #d97706;
-}
-
-.status-icon {
-  width: 82rpx;
-  height: 82rpx;
-  border-radius: 18rpx;
-  border: 3rpx solid rgba(255,255,255,0.34);
-  background: rgba(255,255,255,0.14);
-  margin: 0 24rpx 0 0;
-}
-
-.status-icon::before {
-  content: '';
-  position: absolute;
-  left: 20rpx;
-  top: 24rpx;
-  width: 40rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #fff;
-  box-shadow: 0 16rpx 0 #fca311;
-}
-
-.warning-text::before,
-.payment-tip text::before {
-  content: '!';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-  border-radius: 50%;
-  background: #fff1dc;
-  color: #9a4b10;
-  font-size: 20rpx;
-  font-weight: 900;
-}
-
-.wechat-icon {
-  display: none !important;
-}
-
-/* === End No Emoji UI Icons === */
-
-/* === Full Status Label Visibility === */
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  max-width: 360rpx !important;
-  min-height: 34rpx;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  white-space: normal !important;
-  word-break: keep-all;
-  overflow-wrap: normal;
-  line-height: 1.35;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.card-header,
-.shipment-header,
-.bill-header {
-  align-items: flex-start;
-}
-
-.status-badge {
-  padding-left: 16rpx;
-  padding-right: 16rpx;
-}
-
-/* === End Full Status Label Visibility === */
+@import "../../../styles/forms.wxss";

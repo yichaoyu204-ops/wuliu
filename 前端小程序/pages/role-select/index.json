@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "选择身份",
-  "usingComponents": {}
+  "usingComponents": {},
+  "navigationBarBackgroundColor": "#111D2F",
+  "navigationBarTextStyle": "white"
 }

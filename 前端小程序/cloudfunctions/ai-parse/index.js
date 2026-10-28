@@ -5,6 +5,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess } = require('./revoked-access');
 const axios = require('axios');
 const config = require('./config');
 const { parseAIResponse, normalizeShipmentData } = require('./utils/aiParser');
@@ -259,6 +260,12 @@ function isPdfFile(fileID) {
 
 // 云函数入口
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   // 兼容前端传的 imageUrl（云存储 fileID）或 fileID
   const imageFileID = event.imageUrl || event.fileID;
   const fileType = event.fileType || 'image';

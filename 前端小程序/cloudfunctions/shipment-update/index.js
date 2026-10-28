@@ -17,6 +17,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess } = require('./revoked-access');
 const { success, error, paramError } = require('./utils/response');
 const { sendShipmentNotification, sendQuoteNotification } = require('./utils/notification');
 const { formatMoney } = require('./utils/formatMoney');
@@ -1113,6 +1114,12 @@ function generateMonthlyBatch() {
 // 云函数入口
 // ─────────────────────────────────────────
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   const { action, shipmentId, data } = event;
   const { OPENID } = cloud.getWXContext();
 

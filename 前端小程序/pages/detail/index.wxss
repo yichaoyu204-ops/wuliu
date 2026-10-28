@@ -1,37 +1,51 @@
+@import "../../styles/ui.wxss";
+
+/* 页面只定义本页布局，通用视觉由 styles/ui.wxss 维护。 */
 .container {
-  background: #f3f5f8;
+  background: #fff;
   min-height: 100vh;
   padding-bottom: calc(170rpx + env(safe-area-inset-bottom));
+  color: #171b22;
+  font-size: 28rpx;
+  line-height: 1.5;
+  padding-top: 12rpx;
 }
 
 .loading-state {
   text-align: center;
-  padding: 200rpx 0;
+  padding: 160rpx 32rpx;
   font-size: 28rpx;
-  color: #999;
+  color: #596577;
 }
 
 /* 状态卡片 */
 .status-card {
-  background: linear-gradient(145deg, #14213d 0%, #243655 100%);
-  margin: 24rpx;
-  border-radius: 10rpx;
+  background: #2156f3;
+
+  margin: 24rpx 40rpx 44rpx;
+
+  border-radius: 12rpx;
+
   padding: 36rpx 32rpx;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   color: #fff;
-  box-shadow: 0 16rpx 36rpx rgba(20, 33, 61, 0.18);
+  box-shadow: none;
+  min-height: 176rpx;
 }
 
 .status-icon {
-  width: 82rpx;
-  height: 82rpx;
-  border-radius: 12rpx;
-  background: rgba(252, 163, 17, 0.14);
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 18rpx;
+  background: rgba(255,255,255,0.08);
   text-align: center;
   line-height: 82rpx;
   font-size: 48rpx;
-  margin-right: 24rpx;
+  margin-right: 22rpx;
+  flex-shrink: 0;
+  margin-top: 4rpx;
+  border: 1rpx solid rgba(255,255,255,0.22);
 }
 
 .status-info {
@@ -41,73 +55,96 @@
 
 .status-name {
   display: block;
-  font-size: 36rpx;
-  font-weight: 800;
+
+  font-size: 44rpx;
+  font-weight: 700;
   margin-bottom: 8rpx;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+
+  line-height: 1.3;
+  word-break: break-all;
 }
 
 .status-desc {
-  font-size: 26rpx;
-  opacity: 0.85;
-  line-height: 1.45;
+  font-size: 28rpx;
+  opacity: 1;
+  line-height: 1.55;
+  display: block;
+
+  color: #e9efff;
+  word-break: break-all;
 }
 
 .appointment-tag {
   display: inline-block;
   max-width: 100%;
   margin-top: 14rpx;
-  padding: 8rpx 16rpx;
-  border-radius: 8rpx;
+  padding: 7rpx 12rpx;
+  border-radius: 10rpx;
   font-size: 24rpx;
-  font-weight: 700;
-  line-height: 1.35;
+  font-weight: 500;
+  line-height: 1.5;
   white-space: normal;
+  word-break: break-all;
 }
 
 .appointment-tag.done {
-  background: rgba(15, 118, 110, 0.16);
-  color: #d9fff8;
+  background: rgba(99,198,180,0.13);
+  color: #CDF3E9;
 }
 
 .appointment-tag.pending {
-  background: rgba(252, 163, 17, 0.16);
-  color: #ffe3ad;
+  background: rgba(233,101,32,0.16);
+  color: #FFD9C3;
 }
 
 /* 区块 */
 .section {
-  margin: 0 24rpx 24rpx;
+  margin: 0 40rpx 44rpx;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .section-title {
-  font-size: 30rpx;
-  font-weight: 800;
-  color: #14213d;
-  margin-bottom: 16rpx;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #171b22;
+
+  margin-bottom: 12rpx;
   display: flex;
   justify-content: space-between;
   align-items: center;
+
+  padding: 0;
+  min-height: 56rpx;
+  gap: 16rpx;
+  flex-wrap: wrap;
 }
 
 /* 信息卡片 */
 .info-card, .route-card, .fee-card, .measure-card, .quote-card {
   background: #fff;
-  border-radius: 10rpx;
-  padding: 24rpx 28rpx;
-  box-shadow: 0 10rpx 26rpx rgba(20, 33, 61, 0.05);
-  border: 1rpx solid #e7ecf2;
+
+  border-radius: 0;
+
+  padding: 4rpx 0;
+
+  border: 0;
+  box-shadow: none;
+  border-top: 1rpx solid #e1e6ee;
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f8f8f8;
-  gap: 18rpx;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #edf0f4;
+  gap: 20rpx;
 }
 
 .info-row:last-child {
@@ -115,74 +152,88 @@
 }
 
 .info-label {
-  font-size: 26rpx;
-  color: #667085;
-  width: 150rpx;
+  font-size: 28rpx;
+  color: #596577;
+  width: 208rpx;
   flex-shrink: 0;
   margin-right: 0;
   display: block;
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
 .info-value {
-  font-size: 26rpx;
-  color: #1d2733;
+  font-size: 30rpx;
+  color: #171b22;
   text-align: right;
   flex: 1;
   min-width: 0;
   word-break: break-all;
   margin-left: 0;
   display: block;
-  line-height: 1.45;
+  line-height: 1.55;
 }
 
 .info-value.hint {
-  color: #bbb;
+  color: #7D8999;
 }
 
 /* 编辑模式 */
 .edit-btn {
   font-size: 26rpx;
-  color: #8a4b10;
-  padding: 4rpx 16rpx;
-  border: 1rpx solid #fca311;
-  border-radius: 8rpx;
+  color: #303b4c;
+  padding: 10rpx 22rpx;
+  border: 1rpx solid #dde3ec;
+  border-radius: 14rpx;
   flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
+  background: #FFFFFF;
 }
 
 .edit-actions {
   display: flex;
-  gap: 16rpx;
+  gap: 12rpx;
   flex-shrink: 0;
 }
 
 .edit-action {
   font-size: 26rpx;
-  padding: 4rpx 16rpx;
-  border-radius: 8rpx;
+  padding: 10rpx 20rpx;
+  border-radius: 14rpx;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 64rpx;
 }
 
 .edit-action.cancel {
-  color: #888;
-  border: 1rpx solid #ddd;
+  color: #526278;
+  border: 1rpx solid #dde3ec;
+  background: #FFFFFF;
 }
 
 .edit-action.save {
-  color: #14213d;
-  background: #fca311;
+  color: #FFFFFF;
+  background: #2156f3;
+  border: 1rpx solid #2156f3;
 }
 
 .edit-input {
   flex: 1;
-  border: 1rpx solid #e0e0e0;
-  border-radius: 8rpx;
-  padding: 10rpx 16rpx;
-  font-size: 26rpx;
-  color: #1a1a1a;
-  background: #fafafa;
+  border: 1rpx solid #dde3ec;
+  border-radius: 12rpx;
+  padding: 12rpx 16rpx;
+  font-size: 28rpx;
+  color: #171b22;
+  background: #f4f6fa;
   text-align: right;
   margin-left: 0;
   min-width: 0;
+  min-height: 76rpx;
+  height: 76rpx;
+  box-sizing: border-box;
 }
 
 .edit-input-group {
@@ -191,89 +242,106 @@
   flex: 1;
   justify-content: flex-end;
   margin-left: 0;
-  gap: 8rpx;
+  gap: 10rpx;
   min-width: 0;
   flex-wrap: wrap;
 }
 
 .edit-input.small {
-  width: 112rpx;
+  width: 120rpx;
   flex: none;
   margin-left: 0;
   text-align: center;
 }
 
 .edit-unit {
-  font-size: 22rpx;
-  color: #888;
+  font-size: 24rpx;
+  color: #596577;
   flex-shrink: 0;
 }
 
 .radio-label {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  margin-left: 16rpx;
+  margin-left: 0;
   font-size: 26rpx;
-  color: #1a1a1a;
+  color: #171b22;
+  min-height: 68rpx;
+  line-height: 1.5;
 }
 
 .mono {
-  font-family: monospace;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
 }
 
 /* 路线卡片 */
 .route-name {
   font-size: 30rpx;
-  font-weight: 600;
-  color: #14213d;
+  font-weight: 700;
+  color: #171b22;
   margin-bottom: 8rpx;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .route-desc {
-  font-size: 24rpx;
-  color: #888;
+  font-size: 26rpx;
+  color: #596577;
   margin-bottom: 20rpx;
+  line-height: 1.55;
+  word-break: break-all;
 }
 
 .warehouse-info {
-  background: #f8fafc;
-  border-radius: 8rpx;
-  padding: 20rpx 24rpx;
-  line-height: 1.45;
+  background: #f4f6fa;
+  border-radius: 16rpx;
+  padding: 22rpx;
+  line-height: 1.55;
+  word-break: break-all;
 }
 
 .warehouse-label {
   font-size: 24rpx;
-  color: #888;
+  color: #596577;
   margin-right: 16rpx;
+  display: block;
+  margin-bottom: 8rpx;
 }
 
 .warehouse-value {
-  font-size: 28rpx;
-  color: #14213d;
-  font-weight: 500;
+  font-size: 29rpx;
+  color: #171b22;
+  font-weight: 600;
+  display: block;
 }
 
 .warehouse-address {
   display: block;
-  font-size: 24rpx;
-  color: #999;
+  font-size: 25rpx;
+  color: #596577;
   margin-top: 8rpx;
+  line-height: 1.55;
 }
 
 /* 时间线 */
 .timeline {
   background: #fff;
-  border-radius: 10rpx;
-  padding: 32rpx 28rpx;
-  box-shadow: 0 10rpx 26rpx rgba(20, 33, 61, 0.05);
-  border: 1rpx solid #e7ecf2;
+
+  border-radius: 0;
+
+  padding: 28rpx 0;
+
+  border: 0;
+  box-shadow: none;
+  border-top: 1rpx solid #e1e6ee;
 }
 
 .timeline-item {
   position: relative;
-  padding-left: 48rpx;
-  padding-bottom: 40rpx;
+  padding-left: 44rpx;
+  padding-bottom: 36rpx;
 }
 
 .timeline-item:last-child {
@@ -283,135 +351,158 @@
 .timeline-dot {
   position: absolute;
   left: 0;
-  top: 6rpx;
-  width: 20rpx;
-  height: 20rpx;
+  top: 8rpx;
+  width: 24rpx;
+  height: 24rpx;
   border-radius: 50%;
-  background: #e0e0e0;
-  border: 4rpx solid #f5f5f5;
+  background: #BAC5D2;
+  border: 5rpx solid #EEF2F6;
 }
 
 .timeline-dot.completed {
-  background: #0f766e;
-  border-color: #e6f6f3;
+  background: #16776D;
+  border-color: #EAF6F1;
 }
 
 .timeline-dot.active {
-  background: #fca311;
-  border-color: #fff2d9;
+  background: #2156f3;
+
+  border-color: #eaf0ff;
 }
 
 .timeline-line {
   position: absolute;
-  left: 10rpx;
-  top: 28rpx;
+  left: 11rpx;
+  top: 32rpx;
   width: 2rpx;
-  height: calc(100% - 20rpx);
-  background: #e8e8e8;
+  height: calc(100% - 24rpx);
+  background: #e1e6ee;
 }
 
 .timeline-content {
-  margin-top: -4rpx;
+  margin-top: 0;
+  min-width: 0;
 }
 
 .timeline-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 8rpx;
-  gap: 16rpx;
+  margin-bottom: 10rpx;
+  gap: 12rpx;
+  flex-wrap: wrap;
 }
 
 .timeline-name {
   font-size: 28rpx;
-  color: #14213d;
-  font-weight: 500;
-  flex: 1;
+  color: #171b22;
+  font-weight: 600;
+  flex: 1 1 240rpx;
   min-width: 0;
-  line-height: 1.4;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .timeline-status {
-  font-size: 22rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 999rpx;
-  background: #edf2f7;
-  color: #999;
+  font-size: 23rpx;
+  padding: 5rpx 12rpx;
+  border-radius: 10rpx;
+  background: #EEF2F6;
+  color: #596577;
   flex-shrink: 0;
+  font-weight: 500;
+  line-height: 1.45;
+  max-width: 100%;
+  white-space: normal;
+  word-break: break-all;
 }
 
 .timeline-status.completed {
-  background: #e6f6f3;
-  color: #0f766e;
+  background: #EAF6F1;
+  color: #16776D;
 }
 
 .timeline-status.active {
-  background: #fff2d9;
-  color: #8a4b10;
+  background: #eaf0ff;
+
+  color: #2156f3;
 }
 
 .timeline-time {
-  font-size: 24rpx;
-  color: #888;
+  font-size: 25rpx;
+  color: #596577;
   margin-bottom: 4rpx;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
 }
 
 .timeline-operator {
   font-size: 24rpx;
-  color: #888;
+  color: #596577;
   margin-bottom: 4rpx;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .timeline-remark {
-  font-size: 24rpx;
-  color: #666;
-  background: #f8fafc;
-  padding: 12rpx 16rpx;
-  border-radius: 8rpx;
+  font-size: 25rpx;
+  color: #596577;
+  background: #f4f6fa;
+  padding: 14rpx 16rpx;
+  border-radius: 12rpx;
   margin-top: 8rpx;
+  line-height: 1.55;
+  word-break: break-all;
 }
 
 .timeline-photos {
   display: flex;
   gap: 12rpx;
-  margin-top: 12rpx;
+  margin-top: 16rpx;
   flex-wrap: wrap;
 }
 
 .timeline-photo {
   width: 140rpx;
   height: 140rpx;
-  border-radius: 8rpx;
+  border-radius: 12rpx;
   object-fit: cover;
+  background: #EEF2F6;
 }
 
 /* 费用卡片 */
 .fee-row {
   display: flex;
   justify-content: space-between;
-  padding: 14rpx 0;
-  border-bottom: 1rpx solid #f8f8f8;
-  gap: 24rpx;
+  padding: 20rpx 0;
+  border-bottom: 1rpx solid #edf0f4;
+  gap: 20rpx;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
 .fee-name {
-  font-size: 26rpx;
-  color: #344054;
+  font-size: 28rpx;
+  color: #303b4c;
   flex: 1;
   min-width: 0;
-  line-height: 1.4;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .fee-amount {
-  font-size: 26rpx;
-  color: #14213d;
-  font-weight: 500;
+  font-size: 29rpx;
+  color: #171b22;
+  font-weight: 600;
   flex-shrink: 0;
+  max-width: 100%;
+  word-break: break-all;
+  font-variant-numeric: tabular-nums;
 }
 
 .fee-divider {
   height: 2rpx;
-  background: #e8e8e8;
+  background: #e1e6ee;
   margin: 16rpx 0;
 }
 
@@ -419,27 +510,34 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16rpx;
+  flex-wrap: wrap;
+  padding: 12rpx 0;
 }
 
 .fee-total-label {
   font-size: 28rpx;
-  color: #14213d;
+  color: #171b22;
   font-weight: 600;
 }
 
 .fee-total-amount {
-  font-size: 36rpx;
-  color: #d92d20;
-  font-weight: bold;
+  font-size: 48rpx;
+
+  color: #2156f3;
+  font-weight: 700;
+  word-break: break-all;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 实测卡片 */
 .measure-row {
   display: flex;
   justify-content: space-between;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f8f8f8;
-  gap: 24rpx;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #edf0f4;
+  gap: 20rpx;
+  align-items: flex-start;
 }
 
 .measure-row:last-child {
@@ -447,137 +545,168 @@
 }
 
 .measure-label {
-  font-size: 26rpx;
-  color: #888;
+  font-size: 27rpx;
+  color: #596577;
+  line-height: 1.55;
+  flex-shrink: 0;
 }
 
 .measure-value {
-  font-size: 26rpx;
-  color: #14213d;
-  font-weight: 500;
+  font-size: 29rpx;
+  color: #171b22;
+  font-weight: 600;
   text-align: right;
+  line-height: 1.55;
+  min-width: 0;
+  word-break: break-all;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 报价卡片 */
 .quote-status {
-  font-size: 22rpx;
-  padding: 4rpx 12rpx;
-  border-radius: 999rpx;
+  font-size: 24rpx;
+  padding: 6rpx 12rpx;
+  border-radius: 10rpx;
   font-weight: 500;
+  line-height: 1.45;
+  max-width: 100% !important;
+  word-break: break-all;
 }
 
 .quote-status.draft {
-  color: #888;
-  background: #f5f5f5;
+  color: #596577;
+  background: #EEF2F6;
 }
 
 .quote-status.sent {
-  color: #8a4b10;
-  background: #fff2d9;
+  color: #A94B18;
+  background: #FFF1E8;
 }
 
 .quote-status.confirmed {
-  color: #0f766e;
-  background: #e6f6f3;
+  color: #16776D;
+  background: #EAF6F1;
 }
 
 .quote-row {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16rpx 0;
-  border-bottom: 1rpx solid #f8f8f8;
-  gap: 24rpx;
+  padding: 22rpx 0;
+  border-bottom: 1rpx solid #edf0f4;
+  gap: 20rpx;
+  flex-wrap: wrap;
 }
 
 .quote-row.excluded .quote-name,
 .quote-row.excluded .quote-detail,
 .quote-row.excluded .quote-amount {
-  color: #98a2b3;
+  color: #7D8999;
   text-decoration: line-through;
 }
 
 .quote-left {
-  flex: 1;
+  flex: 1 1 280rpx;
   min-width: 0;
   margin-right: 0;
 }
 
 .quote-name {
   font-size: 28rpx;
-  color: #14213d;
+  color: #171b22;
+  display: block;
+  font-weight: 500;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
 .quote-detail {
-  font-size: 22rpx;
-  color: #888;
-  margin-top: 4rpx;
-  line-height: 1.4;
+  font-size: 24rpx;
+  color: #596577;
+  margin-top: 8rpx;
+  line-height: 1.55;
+  display: block;
+  word-break: break-all;
 }
 
 .quote-amount {
-  font-size: 28rpx;
-  color: #14213d;
-  font-weight: 500;
+  font-size: 29rpx;
+  color: #171b22;
+  font-weight: 600;
   flex-shrink: 0;
+  line-height: 1.5;
+  max-width: 100%;
+  word-break: break-all;
+  font-variant-numeric: tabular-nums;
 }
 
 .quote-divider {
-  height: 2rpx;
-  background: #e8e8e8;
-  margin: 16rpx 0;
+  height: 1rpx;
+  background: #e1e6ee;
+  margin: 0;
 }
 
 .quote-total {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 24rpx 0 16rpx;
+  gap: 16rpx;
+  flex-wrap: wrap;
 }
 
 .quote-total-label {
-  font-size: 30rpx;
-  color: #14213d;
+  font-size: 28rpx;
+  color: #171b22;
   font-weight: 600;
 }
 
 .quote-total-amount {
-  font-size: 40rpx;
-  color: #d92d20;
-  font-weight: bold;
+  font-size: 48rpx;
+
+  color: #2156f3;
+  font-weight: 700;
+  line-height: 1.25;
+  word-break: break-all;
+  font-variant-numeric: tabular-nums;
 }
 
 .quote-note {
   margin-top: 16rpx;
-  padding: 16rpx;
-  background: #f8fafc;
-  border-radius: 8rpx;
-  font-size: 24rpx;
-  color: #888;
+  padding: 18rpx;
+  background: #f4f6fa;
+  border-radius: 14rpx;
+  font-size: 25rpx;
+  color: #596577;
+  margin: 8rpx 0 16rpx;
+  line-height: 1.55;
+  word-break: break-all;
 }
 
 /* 进仓单原件 */
 .attachment-card {
   background: #fff;
-  border-radius: 10rpx;
+  border-radius: 12rpx;
   padding: 24rpx;
-  box-shadow: 0 10rpx 26rpx rgba(20, 33, 61, 0.05);
-  border: 1rpx solid #e7ecf2;
+  border: 1rpx solid #e1e6ee;
   text-align: center;
+  box-shadow: none;
 }
 
 .attachment-thumb {
   width: 100%;
   height: 360rpx;
-  border-radius: 8rpx;
+  border-radius: 16rpx;
   object-fit: cover;
-  background: #f5f5f5;
+  background: #EEF2F6;
 }
 
 .attachment-hint {
   display: block;
   margin-top: 16rpx;
-  font-size: 24rpx;
-  color: #888;
+  font-size: 26rpx;
+  color: #596577;
+  line-height: 1.5;
 }
 
 /* 底部操作 */
@@ -586,22 +715,31 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 20rpx 32rpx;
-  padding-bottom: calc(20rpx + env(safe-area-inset-bottom));
+  padding: 18rpx 24rpx;
+  padding-bottom: calc(18rpx + env(safe-area-inset-bottom));
   background: #fff;
-  border-top: 1rpx solid #f0f0f0;
-  box-shadow: 0 -10rpx 28rpx rgba(20, 33, 61, 0.08);
+  border-top: 1rpx solid #e1e6ee;
+  box-shadow: none;
+  z-index: 20;
 }
 
 .btn-primary {
-  background: #fca311;
-  color: #14213d;
+  background: #2156f3;
+  color: #FFFFFF;
   text-align: center;
-  padding: 28rpx;
-  border-radius: 8rpx;
-  font-size: 32rpx;
+  padding: 20rpx 24rpx;
+
+  border-radius: 12rpx;
+  font-size: 30rpx;
   font-weight: 600;
-  box-shadow: 0 10rpx 22rpx rgba(252, 163, 17, 0.22);
+
+  min-height: 96rpx;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.18s ease, opacity 0.18s ease;
+  box-shadow: none;
 }
 
 /* 空状态 */
@@ -609,419 +747,47 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 200rpx 0;
-}
-
-.empty-icon {
-  font-size: 80rpx;
-  margin-bottom: 20rpx;
+  padding: 100rpx 28rpx;
+  margin: 24rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid #e1e6ee;
+  background: #FFFFFF;
+  box-shadow: none;
+  text-align: center;
 }
 
 .empty-text {
   font-size: 30rpx;
-  color: #999;
+  color: #303b4c;
   margin-bottom: 12rpx;
+  line-height: 1.5;
 }
 
 .empty-hint {
   font-size: 26rpx;
-  color: #bbb;
+  color: #596577;
+  line-height: 1.5;
 }
 
-/* === Yiwu Line UI Polish v2 === */
-.container {
-  background: #f8f7f4;
-  color: #14213d;
+.route-card {
+  padding: 24rpx 0;
 }
 
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.ai-card,
-.ai-result-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.tip-bar,
-.footer,
-.manual-review-list,
-.modal-content {
-  border-radius: 16rpx;
-  border: 1rpx solid #e8e1d8;
-  box-shadow: 0 12rpx 28rpx rgba(20, 33, 61, 0.07);
+.form-picker-wide {
+  flex: 1;
+  min-width: 0;
 }
 
-.section,
-.info-card,
-.route-card,
-.fee-card,
-.measure-card,
-.quote-card,
-.workflow-card,
-.shipment-card,
-.bill-card,
-.role-card,
-.login-form,
-.attachment-card,
-.empty-box,
-.empty-state,
-.footer,
-.modal-content {
-  background: #fffefa;
-}
-
-.section-title,
-.page-title,
-.waybill-no,
-.shipment-id,
-.bill-id,
-.factory-name,
-.empty-title,
-.role-name,
-.login-title text,
-.route-name,
-.timeline-name,
-.fee-total-label,
-.quote-total-label,
-.modal-title {
-  color: #14213d;
-  font-weight: 800;
-}
-
-.form-row,
-.info-row,
-.bill-footer,
-.card-footer,
-.card-body,
-.fee-row,
-.quote-row,
-.measure-row {
-  border-color: #eee8df;
-}
-
-.form-label,
-.info-label,
-.stats-label,
-.bill-type,
-.route-info,
-.create-time,
-.empty-desc,
-.empty-hint,
-.fee-calc,
-.timeline-time,
-.timeline-operator,
-.measure-label {
-  color: #697386;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker,
-.form-picker-wide,
-.form-picker-date,
-.form-picker-time,
 .date-picker-text {
-  color: #14213d;
-}
-
-.form-input,
-.login-input,
-.modal-input,
-.modal-picker {
-  background: #fbfaf7;
-  border: 1rpx solid #e8e1d8;
-  border-radius: 10rpx;
-}
-
-.btn-submit,
-.btn-primary,
-.btn-login,
-.btn-monthly,
-.empty-btn,
-.modal-btn-confirm,
-.mark-paid-btn {
-  background: #ff6b00;
-  color: #fff;
+  padding: 18rpx 20rpx;
   border-radius: 12rpx;
-  font-weight: 800;
-  box-shadow: 0 10rpx 22rpx rgba(255, 107, 0, 0.22);
+  border: 1rpx solid #dde3ec;
+  background: #f4f6fa;
+  font-size: 28rpx;
+  line-height: 1.5;
+  word-break: break-all;
 }
 
-.btn-secondary,
-.modal-btn-cancel {
-  background: #f2efe9;
-  color: #374151;
-  border-radius: 12rpx;
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary { transition: none; }
 }
-
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  border-radius: 999rpx;
-  font-weight: 700;
-}
-
-.status-tag.active,
-.status-badge.factory_confirmed,
-.status-badge.mainline,
-.pay-tag.spot,
-.quote-status.sent,
-.manual-review-tag {
-  color: #9a4b10;
-  background: #fff1dc;
-}
-
-.status-tag.completed,
-.status-badge.admin_confirmed,
-.status-badge.billed,
-.bill-status.paid,
-.quote-status.confirmed {
-  color: #0f766e;
-  background: #e6f6f3;
-}
-
-.bill-status.unpaid,
-.amount,
-.fee-total-amount,
-.quote-total-amount {
-  color: #d92d20;
-}
-
-.tab-bar {
-  background: #fffefa;
-  border-bottom: 1rpx solid #e8e1d8;
-  box-shadow: 0 8rpx 22rpx rgba(20, 33, 61, 0.04);
-}
-
-.tab-active {
-  color: #ff6b00;
-  font-weight: 800;
-}
-
-.tab-active::after {
-  background: #ff6b00;
-}
-
-.stats-bar,
-.page-title {
-  background: linear-gradient(135deg, #ff6b00 0%, #ff8a1f 100%);
-  color: #fff;
-}
-
-.ai-card {
-  border-style: solid;
-  border-color: #ffd5b8;
-}
-
-.ai-icon,
-.empty-icon {
-  color: #ff6b00;
-}
-
-/* === End Yiwu Line UI Polish v2 === */
-
-/* === No Emoji UI Icons === */
-.empty-icon,
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-result-icon,
-.status-icon {
-  position: relative;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  font-size: 0 !important;
-  line-height: 1;
-  color: transparent !important;
-  background: transparent;
-}
-
-.empty-icon,
-.empty-line-icon {
-  width: 96rpx;
-  height: 96rpx;
-  margin-bottom: 24rpx;
-  border: 3rpx solid #d8dee8;
-  border-radius: 18rpx;
-  background: #fbfaf7;
-}
-
-.empty-icon::before,
-.empty-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  top: 28rpx;
-  width: 50rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #14213d;
-  box-shadow: 0 18rpx 0 #ff6b00;
-}
-
-.empty-icon::after,
-.empty-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 22rpx;
-  bottom: 20rpx;
-  width: 34rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #d8dee8;
-}
-
-.ai-icon,
-.upload-icon,
-.add-icon,
-.ai-line-icon,
-.upload-line-icon,
-.add-line-icon {
-  width: 92rpx;
-  height: 72rpx;
-  margin-bottom: 18rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 16rpx;
-  background: #fff7ef;
-}
-
-.ai-icon::before,
-.upload-icon::before,
-.add-icon::before,
-.ai-line-icon::before,
-.upload-line-icon::before,
-.add-line-icon::before {
-  content: '';
-  position: absolute;
-  left: 30rpx;
-  top: 20rpx;
-  width: 26rpx;
-  height: 26rpx;
-  border: 4rpx solid #ff6b00;
-  border-radius: 50%;
-  background: #fffefa;
-}
-
-.ai-icon::after,
-.upload-icon::after,
-.add-icon::after,
-.ai-line-icon::after,
-.upload-line-icon::after,
-.add-line-icon::after {
-  content: '';
-  position: absolute;
-  left: 16rpx;
-  top: -12rpx;
-  width: 30rpx;
-  height: 14rpx;
-  border-radius: 8rpx 8rpx 0 0;
-  background: #ff6b00;
-}
-
-.ai-result-icon {
-  width: 58rpx;
-  height: 58rpx;
-  margin: 0 20rpx 0 0;
-  border-radius: 50%;
-  color: #fff !important;
-  text-align: center;
-  line-height: 58rpx;
-  font-size: 30rpx !important;
-  font-weight: 900;
-  background: #0f766e;
-}
-
-.ai-result-icon.warning {
-  background: #d97706;
-}
-
-.status-icon {
-  width: 82rpx;
-  height: 82rpx;
-  border-radius: 18rpx;
-  border: 3rpx solid rgba(255,255,255,0.34);
-  background: rgba(255,255,255,0.14);
-  margin: 0 24rpx 0 0;
-}
-
-.status-icon::before {
-  content: '';
-  position: absolute;
-  left: 20rpx;
-  top: 24rpx;
-  width: 40rpx;
-  height: 6rpx;
-  border-radius: 6rpx;
-  background: #fff;
-  box-shadow: 0 16rpx 0 #fca311;
-}
-
-.warning-text::before,
-.payment-tip text::before {
-  content: '!';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28rpx;
-  height: 28rpx;
-  margin-right: 8rpx;
-  border-radius: 50%;
-  background: #fff1dc;
-  color: #9a4b10;
-  font-size: 20rpx;
-  font-weight: 900;
-}
-
-.wechat-icon {
-  display: none !important;
-}
-
-/* === End No Emoji UI Icons === */
-
-/* === Full Status Label Visibility === */
-.status-tag,
-.status-badge,
-.bill-status,
-.pay-tag,
-.quote-status,
-.manual-review-tag {
-  max-width: 360rpx !important;
-  min-height: 34rpx;
-  overflow: visible !important;
-  text-overflow: clip !important;
-  white-space: normal !important;
-  word-break: keep-all;
-  overflow-wrap: normal;
-  line-height: 1.35;
-  text-align: center;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.card-header,
-.shipment-header,
-.bill-header {
-  align-items: flex-start;
-}
-
-.status-badge {
-  padding-left: 16rpx;
-  padding-right: 16rpx;
-}
-
-/* === End Full Status Label Visibility === */

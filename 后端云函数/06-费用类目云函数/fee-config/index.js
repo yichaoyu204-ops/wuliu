@@ -11,6 +11,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess } = require('./revoked-access');
 const { success, error, paramError } = require('./utils/response');
 const { formatMoney } = require('./utils/formatMoney');
 
@@ -340,6 +341,12 @@ async function updateCategory(id, data, operatorOpenId) {
 
 // 云函数入口
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   const { action, data, id, measurement } = event;
   const { OPENID } = cloud.getWXContext();
 

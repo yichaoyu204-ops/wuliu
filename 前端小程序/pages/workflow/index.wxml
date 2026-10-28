@@ -17,6 +17,7 @@
       <view class="workflow-card" wx:for="{{group.items}}" wx:for-item="item" wx:key="_id">
         <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="waybill-info">
+            <text class="document-label">运单编号</text>
             <text class="waybill-no">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
             <text class="creator-name">{{item.creatorRoleLabel}}：{{item.creatorName || '——'}}</text>
             <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
@@ -28,11 +29,9 @@
 
         <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="cargo-info">
-            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+            <view class="cargo-metric"><text class="metric-label">件数</text><text class="metric-value">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">毛重</text><text class="metric-value">{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">体积</text><text class="metric-value">{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text></view>
           </view>
           <view class="route-info">
             <text>{{item.routeSnapshot.name || '——'}}</text>
@@ -50,8 +49,8 @@
         </view>
 
         <view class="card-actions">
-          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
-          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}" hover-class="ui-pressed">查看详情</view>
+          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}" hover-class="ui-pressed">删除</view>
         </view>
       </view>
     </block>
@@ -59,6 +58,7 @@
 
   <!-- 接单员/管理员：流程待办 -->
   <block wx:else>
+    <view class="page-heading">流程工作台</view>
     <!-- 角色提示 -->
     <view class="role-bar">
       <text class="role-text">当前身份：{{roleName}}<text wx:if="{{userName}}">（{{userName}}）</text></text>
@@ -66,19 +66,19 @@
 
     <!-- Tab 切换 -->
     <view class="tab-bar">
-      <view class="tab-item {{activeTab === 'pending' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="pending">
+      <view class="tab-item {{activeTab === 'pending' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="pending" hover-class="ui-pressed">
         待处理
         <text class="tab-count" wx:if="{{shipments.length > 0}}">{{shipments.length}}</text>
       </view>
-      <view class="tab-item {{activeTab === 'stored' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="stored">
+      <view class="tab-item {{activeTab === 'stored' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="stored" hover-class="ui-pressed">
         已收货
         <text class="tab-count" wx:if="{{storedShipments.length > 0}}">{{storedShipments.length}}</text>
       </view>
-      <view class="tab-item {{activeTab === 'billing' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="billing" wx:if="{{isAdmin}}">
+      <view class="tab-item {{activeTab === 'billing' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="billing" wx:if="{{isAdmin}}" hover-class="ui-pressed">
         已发账单
         <text class="tab-count" wx:if="{{billShipments.length > 0}}">{{billShipments.length}}</text>
       </view>
-      <view class="tab-item {{activeTab === 'completed' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="completed">
+      <view class="tab-item {{activeTab === 'completed' ? 'tab-active' : ''}}" bindtap="switchTab" data-tab="completed" hover-class="ui-pressed">
         已完结
       </view>
     </view>
@@ -94,6 +94,7 @@
       <view class="workflow-card" wx:for="{{shipments}}" wx:key="_id">
         <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="waybill-info">
+            <text class="document-label">运单编号</text>
             <text class="waybill-no">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
             <text class="creator-name">{{item.creatorRoleLabel}}：{{item.creatorName || '——'}}</text>
             <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
@@ -105,11 +106,9 @@
 
         <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="cargo-info">
-            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+            <view class="cargo-metric"><text class="metric-label">件数</text><text class="metric-value">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">毛重</text><text class="metric-value">{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">体积</text><text class="metric-value">{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text></view>
           </view>
           <view class="route-info">
             <text>{{item.routeSnapshot.name || '——'}}</text>
@@ -125,39 +124,39 @@
         <view class="card-actions">
           <!-- 接单员实测定价流程：先查看详情 → 后实测定价 -->
           <block wx:if="{{role === 'warehouse' && item.oaStatus === 'created'}}">
-            <view class="action-btn btn-secondary step-first" bindtap="goToDetail" data-id="{{item._id}}">
+            <view class="action-btn btn-secondary step-first" bindtap="goToDetail" data-id="{{item._id}}" hover-class="ui-pressed">
               <text class="step-num">1</text>
               <text>查看详情</text>
             </view>
             <view class="action-arrow">→</view>
-            <view class="action-btn btn-primary step-second" bindtap="advanceOA" data-id="{{item._id}}" data-action="measure_price">
+            <view class="action-btn btn-primary step-second" bindtap="advanceOA" data-id="{{item._id}}" data-action="measure_price" hover-class="ui-pressed">
               <text class="step-num">2</text>
               <text>实测定价</text>
             </view>
           </block>
 
           <!-- 管理员确认 -->
-          <view wx:if="{{role === 'admin' && item.oaStatus === 'measured_priced'}}" class="action-btn btn-primary" bindtap="advanceOA" data-id="{{item._id}}" data-action="admin_confirm">
+          <view wx:if="{{role === 'admin' && item.oaStatus === 'measured_priced'}}" class="action-btn btn-primary" bindtap="advanceOA" data-id="{{item._id}}" data-action="admin_confirm" hover-class="ui-pressed">
             确认价格
           </view>
 
           <!-- 接单员继续实测定价 -->
-          <view wx:if="{{item.canReturnPayment}}" class="action-btn btn-warn" bindtap="advanceOA" data-id="{{item._id}}" data-action="measure_price">
+          <view wx:if="{{item.canReturnPayment}}" class="action-btn btn-warn" bindtap="advanceOA" data-id="{{item._id}}" data-action="measure_price" hover-class="ui-pressed">
             继续实测定价
           </view>
 
           <!-- 接单员确认送达（月结需要） -->
-          <view wx:if="{{role === 'warehouse' && item.oaStatus === 'admin_confirmed' && item.isMonthlyPayment}}" class="action-btn btn-primary" bindtap="advanceOA" data-id="{{item._id}}" data-action="mark_delivered">
+          <view wx:if="{{role === 'warehouse' && item.oaStatus === 'admin_confirmed' && item.isMonthlyPayment}}" class="action-btn btn-primary" bindtap="advanceOA" data-id="{{item._id}}" data-action="mark_delivered" hover-class="ui-pressed">
             确认送达
           </view>
 
           <!-- 接单员确认收货（仅待处理且 active=pickup） -->
-          <view wx:if="{{role === 'warehouse' && item.currentNodeCode === 'pickup' && item.oaStatus !== 'created' && !item.requiresSpotPayment}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}">
+          <view wx:if="{{role === 'warehouse' && item.currentNodeCode === 'pickup' && item.oaStatus !== 'created' && !item.requiresSpotPayment}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}" hover-class="ui-pressed">
             确认收货
           </view>
 
-          <view class="action-btn btn-secondary" wx:if="{{role !== 'warehouse' || item.oaStatus !== 'created'}}" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
-          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+          <view class="action-btn btn-secondary" wx:if="{{role !== 'warehouse' || item.oaStatus !== 'created'}}" bindtap="goToDetail" data-id="{{item._id}}" hover-class="ui-pressed">查看详情</view>
+          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}" hover-class="ui-pressed">删除</view>
         </view>
       </view>
     </view>
@@ -173,6 +172,7 @@
       <view class="workflow-card stored" wx:for="{{storedShipments}}" wx:key="_id">
         <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="waybill-info">
+            <text class="document-label">运单编号</text>
             <text class="waybill-no">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
             <text class="creator-name">{{item.creatorRoleLabel}}：{{item.creatorName || '——'}}</text>
             <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
@@ -183,11 +183,9 @@
         </view>
         <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="cargo-info">
-            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+            <view class="cargo-metric"><text class="metric-label">件数</text><text class="metric-value">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">毛重</text><text class="metric-value">{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">体积</text><text class="metric-value">{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text></view>
           </view>
           <view class="route-info">
             <text>{{item.routeSnapshot.name || '——'}}</text>
@@ -200,19 +198,19 @@
           </view>
         </view>
         <view class="card-actions">
-          <view wx:if="{{item.canReturnPayment}}" class="action-btn btn-warn" bindtap="advanceOA" data-id="{{item._id}}" data-action="measure_price">
+          <view wx:if="{{item.canReturnPayment}}" class="action-btn btn-warn" bindtap="advanceOA" data-id="{{item._id}}" data-action="measure_price" hover-class="ui-pressed">
             继续实测定价
           </view>
           <!-- 接单员：管理员确认价格后可确认发运；管理员发账单不阻塞发运 -->
-          <view wx:if="{{item.canConfirmOutbound}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}">
+          <view wx:if="{{item.canConfirmOutbound}}" class="action-btn btn-primary" bindtap="advanceNode" data-id="{{item._id}}" hover-class="ui-pressed">
             确认发运
           </view>
           <!-- 管理员：发送账单 -->
-          <view wx:if="{{role === 'admin' && item.oaStatus === 'admin_confirmed' && item.billing.paymentType !== 'spot'}}" class="action-btn btn-primary" bindtap="sendBill" data-id="{{item._id}}">
+          <view wx:if="{{role === 'admin' && item.oaStatus === 'admin_confirmed' && item.billing.paymentType !== 'spot'}}" class="action-btn btn-primary" bindtap="sendBill" data-id="{{item._id}}" hover-class="ui-pressed">
             发送账单
           </view>
-          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
-          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}" hover-class="ui-pressed">查看详情</view>
+          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}" hover-class="ui-pressed">删除</view>
         </view>
       </view>
     </view>
@@ -228,6 +226,7 @@
       <view class="workflow-card billed" wx:for="{{billShipments}}" wx:key="_id">
         <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="waybill-info">
+            <text class="document-label">运单编号</text>
             <text class="waybill-no">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
             <text class="creator-name">{{item.creatorRoleLabel}}：{{item.creatorName || '——'}}</text>
             <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
@@ -238,11 +237,9 @@
         </view>
         <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="cargo-info">
-            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+            <view class="cargo-metric"><text class="metric-label">件数</text><text class="metric-value">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">毛重</text><text class="metric-value">{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">体积</text><text class="metric-value">{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text></view>
           </view>
           <view class="route-info">
             <text>{{item.routeSnapshot.name || '——'}}</text>
@@ -255,11 +252,11 @@
           </view>
         </view>
         <view class="card-actions">
-          <view wx:if="{{item.canAdminConfirmDelivered}}" class="action-btn btn-primary" catchtap="advanceOA" data-id="{{item._id}}" data-action="mark_delivered">
+          <view wx:if="{{item.canAdminConfirmDelivered}}" class="action-btn btn-primary" catchtap="advanceOA" data-id="{{item._id}}" data-action="mark_delivered" hover-class="ui-pressed">
             确认送达
           </view>
-          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
-          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+          <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}" hover-class="ui-pressed">查看详情</view>
+          <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}" hover-class="ui-pressed">删除</view>
         </view>
       </view>
     </view>
@@ -274,6 +271,7 @@
       <view class="workflow-card completed" wx:for="{{completedShipments}}" wx:key="_id">
         <view class="card-header" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="waybill-info">
+            <text class="document-label">运单编号</text>
             <text class="waybill-no">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
             <text class="creator-name">{{item.creatorRoleLabel}}：{{item.creatorName || '——'}}</text>
             <text class="business-no">业务参与编号：{{item.cargoInfo.waybillNo || '——'}}</text>
@@ -284,11 +282,9 @@
         </view>
         <view class="card-body" bindtap="goToDetail" data-id="{{item._id}}">
           <view class="cargo-info">
-            <text>{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text>
-            <text class="cargo-divider">|</text>
-            <text>{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text>
+            <view class="cargo-metric"><text class="metric-label">件数</text><text class="metric-value">{{item.cargoInfo.pieces || '-'}} {{item.cargoInfo.piecesUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">毛重</text><text class="metric-value">{{item.cargoInfo.grossWeight || '-'}} {{item.cargoInfo.weightUnit}}</text></view>
+            <view class="cargo-metric"><text class="metric-label">体积</text><text class="metric-value">{{item.cargoInfo.volume || '-'}} {{item.cargoInfo.volumeUnit}}</text></view>
           </view>
           <view class="route-info">
             <text>{{item.routeSnapshot.name || '——'}}</text>
@@ -297,11 +293,11 @@
             {{item.appointmentTagText}}
           </view>
           <view class="card-actions">
-            <view wx:if="{{item.canAdminConfirmDelivered}}" class="action-btn btn-primary" catchtap="advanceOA" data-id="{{item._id}}" data-action="mark_delivered">
+            <view wx:if="{{item.canAdminConfirmDelivered}}" class="action-btn btn-primary" catchtap="advanceOA" data-id="{{item._id}}" data-action="mark_delivered" hover-class="ui-pressed">
               确认送达
             </view>
-            <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}">查看详情</view>
-            <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}">删除</view>
+            <view class="action-btn btn-secondary" bindtap="goToDetail" data-id="{{item._id}}" hover-class="ui-pressed">查看详情</view>
+            <view class="action-btn btn-danger" wx:if="{{isAdmin}}" catchtap="deleteShipment" data-id="{{item._id}}" hover-class="ui-pressed">删除</view>
           </view>
         </view>
       </view>
@@ -329,8 +325,8 @@
           </view>
         </scroll-view>
         <view class="pay-actions">
-          <view class="pay-btn pay-btn-secondary" bindtap="closePayModal">取消</view>
-          <view class="pay-btn pay-btn-primary {{confirmingPaid ? 'btn-disabled' : ''}}" bindtap="confirmSpotPaid">
+          <view class="pay-btn pay-btn-secondary" bindtap="closePayModal" hover-class="ui-pressed">取消</view>
+          <view class="pay-btn pay-btn-primary {{confirmingPaid ? 'btn-disabled' : ''}}" bindtap="confirmSpotPaid" hover-class="ui-pressed">
             {{confirmingPaid ? '确认中...' : '确认已收款'}}
           </view>
         </view>

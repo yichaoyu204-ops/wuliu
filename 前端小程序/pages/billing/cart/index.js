@@ -134,13 +134,14 @@ Page({
     const billTime = item.sentAt || item.createdAt || item.updatedAt || shipmentBrief.createdAt;
     const monthInfo = this.getMonthInfo(billTime);
     const statusClass = this.data.role === 'warehouse' && item.status === 'unpaid' ? 'muted' : item.status;
+    const creatorDisplay = this.getCreatorDisplay(item, shipmentBrief);
     return {
       ...item,
       waybillNo,
       warehouseEntryNo,
       _displayBillId: `Bill-${warehouseEntryNo || waybillNo || item._id}`,
       _statusClass: statusClass,
-      _factoryName: item.contacts?.contact1Name || item.clientName || item.factoryName || '——',
+      _factoryName: creatorDisplay,
       paymentTypeLabel: this.getPaymentTypeLabel(item.paymentType || item.billing?.paymentType || 'monthly'),
       _totalAmountText: totalAmount.toFixed(2),
       _originalAmountText: originalAmount.toFixed(2),
@@ -154,10 +155,17 @@ Page({
       _shipmentRows: this.buildShipmentRows(item, shipmentBrief),
       _items: this.data.isAdmin ? (item.items || []).map(fee => ({
         ...fee,
+        calculationDetail: fee.calculationDetail || fee.detail || '',
         _amountText: Number(fee.amount || 0).toFixed(2)
       })) : [],
       _canConfirmPaid: item.status === 'unpaid' && (this.data.isAdmin || this.data.role === 'salesman')
     };
+  },
+
+  getCreatorDisplay(item = {}, shipmentBrief = {}) {
+    const name = item.creatorName || shipmentBrief.creatorName || item.factoryName || '——';
+    const phone = item.creatorPhone || shipmentBrief.creatorPhone || '';
+    return phone ? `${name} ${phone}` : name;
   },
 
   getPaymentTypeLabel(paymentType) {

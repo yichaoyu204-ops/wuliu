@@ -1,31 +1,52 @@
 <view class="doc-page">
   <view class="doc-card">
     <text class="doc-title">隐私政策</text>
-    <text class="doc-meta">更新日期：2026年6月15日</text>
+    <text class="doc-meta">创品进仓服务专线 · 更新日期：2026年10月19日</text>
 
     <view class="doc-section">
-      <text class="section-title">一、我们收集的信息</text>
-      <text class="section-text">为完成账号登录、身份识别和物流业务处理，我们会在你主动填写或授权后收集姓名、手机号、角色身份、运单信息、货物图片、账单信息和必要的操作记录。</text>
+      <text class="section-title">一、运营者与联系渠道</text>
+      <text class="section-text">本小程序由宁波一超创品国际货运代理有限公司运营。本说明介绍账号登录、运单处理和单据识别中的个人信息使用场景。个人信息相关申请及投诉建议可发送至：yichaoyu204@gmail.com。</text>
     </view>
 
     <view class="doc-section">
-      <text class="section-title">二、信息使用目的</text>
-      <text class="section-text">上述信息用于账号登录与绑定、运单归属查询、货物状态展示、实测和报价审核、账单展示、业务联系、异常排查和系统安全管理。</text>
+      <text class="section-title">二、身份登录与账号资料</text>
+      <text class="section-text">你在登录页面主动填写的姓名、手机号和角色，用于账号登录、身份识别、运单归属查询、账单展示和业务联系。接单员和管理员还需提交密码，用于核验账号身份。系统使用微信为本小程序提供的用户标识（OpenID）绑定账号、校验访问权限和关联操作记录。</text>
+      <text class="section-text">你可以先填写姓名、手机号和密码，再决定是否勾选协议；未勾选时不会向登录接口提交这些表单信息。当前版本通过手动填写获取手机号。登录成功后，本机保存姓名、手机号及角色等登录资料以保持登录状态，不将登录密码写入前端登录缓存。</text>
     </view>
 
     <view class="doc-section">
-      <text class="section-title">三、授权与撤回</text>
-      <text class="section-text">你可以选择是否同意本政策。未同意前，系统不会提交你的登录信息或发起手机号快捷登录。你可通过退出登录、联系管理员停用账号等方式停止继续使用服务。</text>
+      <text class="section-title">三、物流联系人与业务记录</text>
+      <text class="section-text">建单和处理运单时，系统保存你填写或确认的联系人姓名、手机号或座机号码，以及运单编号、货物资料、路线、仓库资料、预约时间、报价、费用、结算方式和付款标记，用于运输及进仓安排、物流查询、账单核对和异常沟通。相关创建、审核及业务处理记录会关联操作人员和时间，以便追溯处理过程。</text>
     </view>
 
     <view class="doc-section">
-      <text class="section-title">四、信息存储与保护</text>
-      <text class="section-text">系统会在业务所需范围内保存相关信息，并通过角色权限、云端存储和访问控制减少未授权访问、泄露、篡改或丢失风险。</text>
+      <text class="section-title">四、拍照、选图与文件选择</text>
+      <text class="section-text">你在建单页面选择“拍照”时，调用相机拍摄进仓通知单；选择“从相册选择”时，获取你选中的单据图片；选择“从聊天选文件”时，获取你选中的 PDF 或图片文件。这些文件用于智能识别和留存原始运单附件。系统仅处理你选定的文件，不读取聊天记录、不批量读取相册，也不选择视频。</text>
+      <text class="section-text">选定文件后，系统会上传文件并发起识别；识别失败时，已上传的附件仍会保留供核对。你可以不使用拍照、选图或文件选择，直接手动填写运单资料。使用“扫码查单”时，系统调用扫码功能读取运单码，用于查询对应运单。</text>
     </view>
 
     <view class="doc-section">
-      <text class="section-title">五、对外提供</text>
-      <text class="section-text">除法律法规要求、业务履约必要或获得你的授权外，我们不会向无关第三方提供你的个人信息。</text>
+      <text class="section-title">五、单据智能识别服务</text>
+      <text class="section-text">使用智能识别时，所选图片或 PDF 先上传至微信云开发存储，再由云端发送至 Kimi（Moonshot）服务进行识别；当该服务返回繁忙或过载错误时，会尝试阿里云百炼（通义千问）作为备用服务。</text>
+      <text class="section-text">发送的内容是所选单据的图像或 PDF，而不只是最终填写的几个字段；单据可能包含联系人姓名、电话、仓库地址和物流资料。处理目的为提取进仓编号、件数、重量、体积等建单资料，识别结果需要你核对。请仅提供办理该票物流业务所必需、并有权提供的单据。你可以选择手动建单而不使用识别服务。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">六、查询、分享与导出</text>
+      <text class="section-text">输入运单编号、姓名、手机号或通过扫码查单时，相应查询内容会发送至查询服务。本机保存最近十条查询词，便于再次查询，你可以主动清除查询历史。点击联系人电话会调用系统拨号功能，不读取通讯录或通话记录。</text>
+      <text class="section-text">主动分享运单时，你选择的分享对象可获得对应运单的查询链接。主动导出账单时，系统生成含相应运单和账单资料的表格文件供你下载、查看，并可由你通过系统菜单转发。请按业务需要选择接收对象。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">七、信息存储与保护</text>
+      <text class="section-text">账号、运单、账单及单据附件通过微信云开发数据库和文件存储处理。小程序启用了云开发运行与访问记录能力，用于运行维护和异常排查；这些记录与登录表单信息的提交时机不同。我们使用角色权限和访问控制减少未授权访问。</text>
+      <text class="section-text">除法律法规另有规定外，信息保存期限以实现处理目的所必需的最短时间为限。退出登录会清理前端登录资料和查询历史，不会自动删除云端账号、历史运单或账单。</text>
+    </view>
+
+    <view class="doc-section">
+      <text class="section-title">八、查阅、更正、删除与注销</text>
+      <text class="section-text">你可以通过 yichaoyu204@gmail.com 联系我们，申请查阅、复制、更正或删除个人信息、撤回授权及注销账号。我们会核实申请人的身份与申请范围，按照微信平台隐私保护指引及适用法律处理。涉及尚未完成的物流业务、账务处理或依法需要保存的记录，将按相应要求处理。</text>
+      <text class="section-text">你也可以通过微信提供的小程序设置管理相关授权。拒绝或撤回某项授权会影响依赖该信息的对应功能。若后续处理目的或范围发生变化，我们会依法告知并在需要时重新取得同意。</text>
     </view>
   </view>
 </view>

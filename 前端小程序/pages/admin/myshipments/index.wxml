@@ -1,3 +1,18 @@
+<wxs module="appointmentDisplay">
+// Split the existing presentation label; appointment state still comes from the page.
+function label(value) {
+  var text = value || '';
+  var separator = text.indexOf('：');
+  return separator < 0 ? text : text.slice(0, separator);
+}
+function time(value) {
+  var text = value || '';
+  var separator = text.indexOf('：');
+  return separator < 0 ? '' : text.slice(separator + 1);
+}
+module.exports = { label: label, time: time };
+</wxs>
+
 <view class="container">
   <!-- 顶部提示 -->
   <view class="tip-bar">
@@ -22,13 +37,17 @@
         data-id="{{item._id}}"
       >
         <view class="card-header">
-          <view class="card-title-block">
+          <text class="shipment-caption">运单</text>
+          <view class="card-title-row">
             <text class="shipment-id">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
-            <text class="shipment-subtitle">{{item._routeLabel}}</text>
-          </view>
-          <view class="card-tags">
+            <view class="appointment-mini-tag {{item.appointmentTagClass}}">
+              <text class="appointment-text">{{appointmentDisplay.label(item.appointmentTagText)}}</text>
+            </view>
             <view class="status-tag {{item.status}}">{{item.currentNodeName || '运输中'}}</view>
-            <view class="appointment-mini-tag {{item.appointmentTagClass}}">{{item.appointmentTagText}}</view>
+          </view>
+          <view class="shipment-meta-row">
+            <text class="shipment-subtitle">{{item._routeLabel}}</text>
+            <text class="appointment-time" wx:if="{{appointmentDisplay.time(item.appointmentTagText)}}">预约 {{appointmentDisplay.time(item.appointmentTagText)}}</text>
           </view>
         </view>
 
@@ -62,7 +81,7 @@
         </view>
 
         <view class="card-footer">
-          <text class="create-time">{{item._createdTimeText}}</text>
+          <text class="create-time">创建 {{item._createdTimeText}}</text>
           <view class="footer-right">
             <text class="amount" wx:if="{{item.totalAmount > 0}}">¥{{item.totalAmount}}</text>
             <text class="amount-unquoted" wx:else>未报价</text>

@@ -2,40 +2,38 @@
   <!-- 顶部搜索区 -->
   <view class="search-section">
     <view class="top-bar">
-      <view class="logout-btn" bindtap="onLogout">退出登录</view>
+      <view class="brand-lockup"><view class="brand-mark"><view></view><view></view><view></view></view><text class="brand-label">一超物流</text></view>
+      <view class="logout-btn" bindtap="onLogout" hover-class="ui-pressed">退出登录</view>
     </view>
     <view class="search-title">
-      <text class="search-heading">运单追踪</text>
+      <text class="search-heading">运单追踪</text><view class="heading-box" aria-hidden="true"></view>
     </view>
-    <view class="search-box">
+    <view class="brand-route"><view><text class="route-caption">始发</text><text class="route-city">义乌</text></view><view class="brand-route-line"></view><view><text class="route-caption">目的地</text><text class="route-city">宁波</text></view></view>
+    <view class="search-box"><view class="search-symbol" aria-hidden="true"></view>
       <input
         class="search-input"
         type="text"
-        placeholder="输入进仓编号/业务参与编号/手机号/名字查询"
+        placeholder="输入编号、手机号或姓名"
         value="{{keyword}}"
         bindinput="onInputChange"
         confirm-type="search"
         bindconfirm="onSearch"
       />
-      <view class="search-btn" bindtap="onSearch">查询</view>
+      <view class="search-btn" bindtap="onSearch" hover-class="ui-pressed">查询</view>
     </view>
   </view>
 
   <!-- 待办流程提醒 -->
   <view class="pending-banner" wx:if="{{pendingCount > 0 && userRole}}" bindtap="goToWorkflow">
     <view class="pending-content">
-      <text class="pending-icon">!</text>
-      <view class="pending-text">
-        <text class="pending-count">{{pendingCount}} 条</text>
-        <text class="pending-desc">流程待推进</text>
-      </view>
-      <text class="pending-arrow">></text>
+      <view class="pending-summary"><text class="pending-label">流程待办</text><view class="pending-amount"><text class="pending-count">{{pendingCount}}</text><text class="pending-unit">项待处理</text></view></view>
+      <view class="pending-action"><text>立即处理</text><view class="pending-action-arrow" aria-hidden="true"></view></view>
     </view>
   </view>
 
   <!-- 功能入口 -->
   <view class="feature-grid">
-    <view class="feature-item feature-waybill" bindtap="goToMyShipments">
+    <view class="feature-item feature-waybill" bindtap="goToMyShipments" hover-class="ui-pressed">
       <view class="feature-icon feature-icon-waybill">
         <view class="icon-waybill-line line-1"></view>
         <view class="icon-waybill-line line-2"></view>
@@ -44,7 +42,7 @@
       </view>
       <text class="feature-text">所有运单</text>
     </view>
-    <view class="feature-item feature-scan" bindtap="scanCode">
+    <view class="feature-item feature-scan" bindtap="scanCode" hover-class="ui-pressed">
       <view class="feature-icon feature-icon-scan">
         <view class="scan-corner scan-tl"></view>
         <view class="scan-corner scan-tr"></view>
@@ -54,7 +52,7 @@
       </view>
       <text class="feature-text">扫码查单</text>
     </view>
-    <view class="feature-item feature-service" bindtap="contactService">
+    <view class="feature-item feature-service" bindtap="contactService" hover-class="ui-pressed">
       <view class="feature-icon feature-icon-service">
         <view class="service-headset"></view>
         <view class="service-ear left"></view>
@@ -69,7 +67,7 @@
   <view class="result-section" wx:if="{{hasSearched}}">
     <view class="section-title">查询结果</view>
 
-    <view class="shipment-card" wx:for="{{shipments}}" wx:key="_id" bindtap="goToDetail" data-id="{{item._detailId || item._id}}">
+    <view class="shipment-card" wx:for="{{shipments}}" wx:key="_id" bindtap="goToDetail" hover-class="ui-pressed" data-id="{{item._detailId || item._id}}">
       <view class="shipment-header">
         <text class="shipment-id">{{item.cargoInfo.warehouseEntryNo || item.cargoInfo.waybillNo || item._id}}</text>
         <view class="shipment-tags">
@@ -102,15 +100,17 @@
       最近查询
       <text class="clear-btn" bindtap="clearHistory">清空</text>
     </view>
+    <view class="history-list">
     <view
       class="history-item"
       wx:for="{{history}}"
       wx:key="*this"
-      bindtap="searchByHistory"
+      bindtap="searchByHistory" hover-class="ui-pressed"
       data-keyword="{{item}}"
     >
       <text class="history-text">{{item}}</text>
-      <text class="history-arrow">></text>
+      <text class="history-arrow">→</text>
+    </view>
     </view>
   </view>
 
@@ -139,7 +139,7 @@
         <text class="contact-close" bindtap="hideContactPopup">✕</text>
       </view>
       <view class="contact-list">
-        <view class="contact-item" bindtap="makePhoneCall" data-phone="{{contact1.phone}}">
+        <view class="contact-item" bindtap="makePhoneCall" hover-class="ui-pressed" data-phone="{{contact1.phone}}">
           <view class="contact-avatar" style="background: #FFF3E0;">蒋</view>
           <view class="contact-info">
             <text class="contact-name">蒋</text>
@@ -147,7 +147,7 @@
           </view>
           <text class="contact-arrow">拨打</text>
         </view>
-        <view class="contact-item" bindtap="makePhoneCall" data-phone="{{contact2.phone}}">
+        <view class="contact-item" bindtap="makePhoneCall" hover-class="ui-pressed" data-phone="{{contact2.phone}}">
           <view class="contact-avatar" style="background: #e3f2fd;">姚</view>
           <view class="contact-info">
             <text class="contact-name">姚</text>

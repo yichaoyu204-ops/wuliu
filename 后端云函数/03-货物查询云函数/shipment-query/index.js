@@ -5,6 +5,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess } = require('./revoked-access');
 const { success, error, paramError, notFound } = require('./utils/response');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -19,8 +20,13 @@ async function getCurrentUser(openId, role) {
     if (roleRes.data.length > 0) return roleRes.data[0];
   }
 
-  const userRes = await db.collection('users').where({ openId }).limit(1).get();
-  return userRes.data[0] || null;
+  const userRes = await db.collection('users').where({ openId }).get();
+  const users = userRes.data || [];
+  return users.find(user => user.role === 'salesman') ||
+    users.find(user => user.role === 'warehouse') ||
+    users.find(user => user.role === 'admin') ||
+    users[0] ||
+    null;
 }
 
 function checkAdmin(user) {
@@ -36,15 +42,105 @@ function isWarehouseOrAdmin(user) {
 function canReadShipment(shipment, user) {
   if (!shipment) return false;
   if (!user) return false;
-  if (user.role === 'salesman') return shipment.creatorOpenId === user.openId;
+  if (user.role === 'salesman') {
+    return shipment.creatorOpenId === user.openId && (shipment.creatorRole || 'salesman') === 'salesman';
+  }
   return ['warehouse', 'admin'].includes(user.role);
 }
 
 function getSalesmanScope(user) {
   if (user?.role === 'salesman') {
-    return { creatorOpenId: user.openId };
+    return { creatorOpenId: user.openId, creatorRole: 'salesman' };
   }
   return {};
+}
+
+function sanitizeShipmentForViewer(shipment, user) {
+  if (!shipment || user?.role === 'admin') return shipment;
+  if (user?.role && user.role !== 'salesman') return shipment;
+
+  const sanitized = {
+    ...shipment,
+    fees: []
+  };
+
+  if (sanitized.quote) {
+    sanitized.quote = {
+      ...sanitized.quote,
+      items: []
+    };
+  }
+
+  if (sanitized.pricing) {
+    sanitized.pricing = {
+      finalPrice: sanitized.pricing.finalPrice || 0
+    };
+  }
+
+  return sanitized;
+}
+
+function looksLikeOpenId(value) {
+  return typeof value === 'string' && /^o[A-Za-z0-9_-]{10,}$/.test(value);
+}
+
+function collectOperatorOpenIds(shipment) {
+  const ids = [];
+  const collect = value => {
+    if (looksLikeOpenId(value) && !ids.includes(value)) ids.push(value);
+  };
+
+  (shipment?.timeline || []).forEach(node => collect(node.operator));
+  (shipment?.logs || []).forEach(log => collect(log.operator));
+  (shipment?.oaHistory || []).forEach(item => collect(item.operator));
+  collect(shipment?.warehouseAppointment?.operator);
+
+  return ids;
+}
+
+function getOperatorFallback(value) {
+  return looksLikeOpenId(value) ? '操作人员' : value;
+}
+
+async function decorateOperatorNames(shipment) {
+  if (!shipment) return shipment;
+
+  const openIds = collectOperatorOpenIds(shipment);
+  const nameMap = {};
+
+  if (openIds.length > 0) {
+    try {
+      const userRes = await db.collection('users')
+        .where({ openId: _.in(openIds) })
+        .field({ openId: true, name: true, phone: true, role: true })
+        .limit(100)
+        .get();
+
+      (userRes.data || []).forEach(user => {
+        if (user.openId) {
+          nameMap[user.openId] = user.name || user.phone || (user.role === 'warehouse' ? '接单员' : '操作人员');
+        }
+      });
+    } catch (e) {
+      console.error('decorateOperatorNames failed:', e.message);
+    }
+  }
+
+  const decorate = item => {
+    if (!item?.operator) return;
+    const original = item.operator;
+    const displayName = nameMap[original] || getOperatorFallback(original);
+    item.operatorOpenId = looksLikeOpenId(original) ? original : item.operatorOpenId;
+    item.operatorName = displayName;
+    item.operator = displayName;
+  };
+
+  (shipment.timeline || []).forEach(decorate);
+  (shipment.logs || []).forEach(decorate);
+  (shipment.oaHistory || []).forEach(decorate);
+  if (shipment.warehouseAppointment?.operator) decorate(shipment.warehouseAppointment);
+
+  return shipment;
 }
 
 /**
@@ -54,7 +150,7 @@ async function queryByPhone(phone, filter = {}, pagination = { page: 1, pageSize
   const { page, pageSize } = pagination;
   const skip = (page - 1) * pageSize;
 
-  let query = db.collection('shipments').where({ managerPhone: phone, isDeleted: _.neq(true), ...getSalesmanScope(currentUser), ...filter });
+  let query = db.collection('shipments').where({ managerPhone: phone, isDeleted: _.neq(true), ...filter, ...getSalesmanScope(currentUser) });
   const countRes = await query.count();
   const total = countRes.total;
 
@@ -179,11 +275,18 @@ async function getDetailWithLogs(shipmentId, currentUser) {
 
   shipment = { ...shipment, logs: logsRes.data };
   await convertFileIdsToUrls(shipment);
-  return shipment;
+  await decorateOperatorNames(shipment);
+  return sanitizeShipmentForViewer(shipment, currentUser);
 }
 
 // 云函数入口
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   const { action, phone, shipmentId, token, filter, pagination } = event;
   const { OPENID } = cloud.getWXContext();
 
@@ -202,7 +305,8 @@ exports.main = async (event, context) => {
           const sharedDetail = await queryByToken(detailToken);
           if (!sharedDetail) return notFound('货物不存在或链接已失效');
           await convertFileIdsToUrls(sharedDetail);
-          return success(sharedDetail);
+          await decorateOperatorNames(sharedDetail);
+          return success(sanitizeShipmentForViewer(sharedDetail, currentUser));
         }
         if (!shipmentId) return paramError('缺少shipmentId参数');
         const detail = await getDetailWithLogs(shipmentId, currentUser);
@@ -375,8 +479,9 @@ exports.main = async (event, context) => {
 
       case 'myShipments': {
         if (!currentUser) return error('请先登录');
+        if (currentUser.role !== 'salesman') return error('权限不足：业务员只能查看自己创建的运单');
         const myRes = await db.collection('shipments')
-          .where({ creatorOpenId: currentUser.openId, isDeleted: _.neq(true) })
+          .where({ creatorOpenId: currentUser.openId, creatorRole: 'salesman', isDeleted: _.neq(true) })
           .orderBy('createdAt', 'desc')
           .limit(100)
           .get();
@@ -428,6 +533,7 @@ exports.main = async (event, context) => {
           checkAdmin(currentUser);
         } else if (currentUser?.role === 'salesman') {
           query.creatorOpenId = currentUser.openId;
+          query.creatorRole = 'salesman';
           if (phone) query.managerPhone = phone;
         } else {
           return error('权限不足');
@@ -459,6 +565,7 @@ exports.main = async (event, context) => {
           checkAdmin(currentUser);
         } else if (currentUser?.role === 'salesman') {
           query.creatorOpenId = currentUser.openId;
+          query.creatorRole = 'salesman';
           if (phone) query.managerPhone = phone;
         } else {
           return error('权限不足');

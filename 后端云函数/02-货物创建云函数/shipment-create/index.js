@@ -4,6 +4,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess } = require('./revoked-access');
 const config = require('./config');
 const { generateWaybillId, generateShareToken } = require('./utils/idGenerator');
 const { success, error, paramError } = require('./utils/response');
@@ -41,21 +42,27 @@ function initTimeline(route) {
 async function getBoundCreator(openId, role) {
   if (!openId) throw new Error('无法获取微信身份，请先登录');
 
-  const expectedRole = role || 'salesman';
+  const expectedRole = role || '';
   let user = null;
 
-  const roleRes = await db.collection('users')
-    .where({ openId, role: expectedRole })
-    .limit(1)
-    .get();
-  user = roleRes.data[0] || null;
+  if (expectedRole) {
+    const roleRes = await db.collection('users')
+      .where({ openId, role: expectedRole })
+      .limit(1)
+      .get();
+    user = roleRes.data[0] || null;
+    if (!user) throw new Error('当前微信身份未绑定该角色，请重新登录后再建单');
+  }
 
   if (!user) {
     const userRes = await db.collection('users')
       .where({ openId })
-      .limit(1)
       .get();
-    user = userRes.data[0] || null;
+    const users = userRes.data || [];
+    user = users.find(item => item.role === 'salesman') ||
+      users.find(item => item.role === 'admin') ||
+      users[0] ||
+      null;
   }
 
   if (!user) throw new Error('请先完成微信登录绑定后再建单');
@@ -119,6 +126,12 @@ async function driverSubmit(event) {
 
 // 云函数入口
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   const { action } = event;
 
   // 司机提交进仓单（无需权限）

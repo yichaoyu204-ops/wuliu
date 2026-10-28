@@ -1,0 +1,90 @@
+/* Direction 01 — shared visual styling; all form bindings remain in place. */
+.container { padding-left: 0; padding-right: 0; padding-top: 36rpx; background: #fff; color: #171b22; }
+.section { padding: 0 0 32rpx; margin: 0 48rpx 36rpx; border: 0; border-bottom: 1rpx solid #e3e7ed; border-radius: 0; background: #fff; box-shadow: none; }
+.section-title { display: block; padding-bottom: 24rpx; border: 0; margin-bottom: 0; font-size: 34rpx; line-height: 1.5; color: #171b22; font-weight: 600; }
+.section-hint { display: block; margin: -8rpx 0 26rpx; color: #596577; font-size: 25rpx; line-height: 1.6; }
+.form-row { display: flex; flex-wrap: wrap; align-items: center; min-height: 0; gap: 12rpx; padding: 14rpx 0 18rpx; border: 0; }
+.form-label { flex: 0 0 100%; width: 100%; color: #343e4e; font-size: 28rpx; font-weight: 500; line-height: 1.5; }
+.form-input { flex: 1; min-width: 0; height: 92rpx; line-height: 92rpx; padding: 0 22rpx; background: #f5f7fa; border: 1rpx solid #e0e5ec; border-radius: 12rpx; font-size: 30rpx; color: #171b22; }
+.form-picker { display: flex; align-items: center; justify-content: center; width: 120rpx; height: 92rpx; flex-shrink: 0; font-size: 28rpx; color: #2156f3; padding: 0 12rpx; text-align: center; background: #f3f6ff; border: 1rpx solid #dce5ff; border-radius: 12rpx; }
+.form-picker-wide, .form-picker-date, .form-picker-time { flex: 1; min-width: 0; min-height: 92rpx; display: flex; align-items: center; padding: 18rpx 22rpx; color: #171b22; background: #f5f7fa; border: 1rpx solid #e0e5ec; border-radius: 12rpx; font-size: 28rpx; line-height: 1.5; }
+.form-picker-date { flex: 1.2; width: auto; }
+.form-picker-time { flex: 1; width: auto; margin-left: 0; }
+.form-picker-with-clear { flex: 1; display: flex; align-items: center; min-width: 0; gap: 10rpx; }
+.date-picker-text { font-size: 28rpx; line-height: 1.5; color: #171b22; }
+.date-picker-text.placeholder { color: #687589; }
+.clear-btn { flex-shrink: 0; min-height: 80rpx; line-height: 80rpx; margin-left: 0; padding: 0 10rpx; font-size: 26rpx; color: #b53e38; }
+.ai-card { position: relative; min-height: 162rpx; padding: 30rpx 26rpx 30rpx 120rpx; text-align: left; background: #f4f7ff; border: 1rpx solid #dbe5ff; border-radius: 14rpx; box-shadow: none; }
+.ai-card .ai-icon { position: absolute; left: 28rpx; top: 40rpx; width: 62rpx; height: 50rpx; margin: 0; border: 3rpx solid #2156f3; border-radius: 8rpx; background: transparent; }
+.ai-card .ai-icon::before { left: 18rpx; top: 10rpx; width: 20rpx; height: 20rpx; border: 3rpx solid #2156f3; background: transparent; }
+.ai-card .ai-icon::after { left: 10rpx; top: -9rpx; width: 22rpx; height: 9rpx; border-radius: 4rpx 4rpx 0 0; background: #2156f3; }
+.ai-title { display: block; margin-bottom: 0; color: #1745c8; font-size: 30rpx; font-weight: 600; line-height: 1.5; }
+.ai-desc { display: block; margin-top: 10rpx; font-size: 25rpx; line-height: 1.6; color: #596577; }
+.ai-loading { color: #2156f3; font-size: 28rpx; }
+.ai-result-card { gap: 16rpx; flex-wrap: wrap; padding: 26rpx; border: 1rpx solid #e0e5ec; border-radius: 14rpx; box-shadow: none; }
+.ai-result-card.ai-success { border-left: 5rpx solid #167457; }
+.ai-result-card.ai-warning { border-left: 5rpx solid #b66d13; }
+.ai-result-info { flex: 1; min-width: 220rpx; }
+.ai-result-title { font-size: 28rpx; line-height: 1.5; color: #171b22; }
+.ai-result-desc { font-size: 25rpx; line-height: 1.6; color: #596577; }
+.ai-result-actions { display: flex; flex-direction: row; justify-content: flex-end; align-items: center; gap: 24rpx; width: 100%; padding-top: 14rpx; border-top: 1rpx solid #e3e7ed; }
+.ai-retry, .ai-clear { min-height: 72rpx; line-height: 72rpx; margin: 0; padding: 0; font-size: 26rpx; }
+.ai-retry { color: #2156f3; }
+.ai-clear { color: #596577; }
+.footer { padding: 24rpx 48rpx; padding-bottom: calc(24rpx + env(safe-area-inset-bottom)); border: 0; border-radius: 0; background: #fff; box-shadow: none; }
+.btn-submit, .submit-btn { min-height: 96rpx; line-height: 1.4; padding: 26rpx 20rpx; font-size: 30rpx; font-weight: 600; border-radius: 12rpx; background: #2156f3; color: #fff; box-shadow: none; text-align: center; transition: opacity .16s ease, transform .16s ease; }
+.btn-submit.btn-disabled, .submit-btn.btn-disabled { opacity: .5; background: #2156f3; }
+.form-row.row-warning { margin: 0; padding: 14rpx 0 18rpx; background: transparent; border: 0; }
+.row-warning .form-label { color: #966017; }
+.row-warning .form-input { border-color: #dcb67e; background: #fff8ec; }
+.manual-review-list { border: 1rpx solid #ead5b0; border-radius: 12rpx; background: #fff8ec; }
+.manual-review-title { color: #795324; font-size: 26rpx; }
+.manual-review-tag { color: #795324; background: #fff2d9; border-color: #ead5b0; font-size: 25rpx; }
+/* Measurement and quotation pages import this sheet as well. */
+.field .label { display: block; color: #343e4e; font-size: 28rpx; font-weight: 500; margin-bottom: 12rpx; line-height: 1.5; }
+.field .input { min-width: 0; height: 92rpx; line-height: 92rpx; color: #171b22; background: #f5f7fa; border: 1rpx solid #e0e5ec; border-radius: 12rpx; padding: 0 20rpx; font-size: 28rpx; }
+.input-unit-row { min-width: 0; }
+.unit-tag { color: #2156f3; background: #f3f6ff; border-radius: 10rpx; }
+.fee-group-title, .fee-name, .extra-fee-name, .other-title { color: #171b22; }
+.fee-detail, .fee-unit, .other-hint, .extra-fee-hint { color: #596577; font-size: 25rpx; line-height: 1.55; }
+.fee-total-bar { background: #f3f6ff; border-radius: 12rpx; border-color: #dce5ff; }
+.fee-total-amount, .fee-amount, .extra-fee-amount, .footer-amount { color: #171b22; font-variant-numeric: tabular-nums; }
+.checkbox.checked { background: #2156f3; border-color: #2156f3; }
+.fee-input, .inline-input, .sub-input, .other-name-input, .other-amount-input { min-width: 0; color: #171b22; border-color: #dce2ea; border-radius: 10rpx; background: #f5f7fa; }
+.add-text { color: #2156f3; }
+.sticky-bar { background: #f5f7fa; border-bottom: 1rpx solid #e0e5ec; box-shadow: none; }
+.sticky-id, .sticky-factory { color: #171b22; }
+.sticky-measure { color: #596577; }
+.pay-content { background: #fff; border-radius: 18rpx; }
+.pay-amount, .pay-title { color: #171b22; }
+.pay-btn-primary { background: #2156f3; color: #fff; }
+@media (prefers-reduced-motion: reduce) { .btn-submit, .submit-btn { transition: none; } }
+
+.info-card { margin: 0 48rpx 36rpx; padding: 24rpx; background: #f5f7fa; border: 1rpx solid #e0e5ec; border-left: 4rpx solid #2156f3; border-radius: 12rpx; }
+.info-label { color: #596577; font-size: 25rpx; line-height: 1.6; }
+.info-value { min-width: 0; color: #171b22; overflow-wrap: anywhere; font-size: 26rpx; line-height: 1.6; }
+.sticky-bar { margin: 0 48rpx 36rpx; border-radius: 12rpx; }
+.sticky-id { min-width: 0; overflow-wrap: anywhere; }
+.sticky-factory { flex-shrink: 0; margin-left: 16rpx; }
+.fee-left, .fee-info { min-width: 0; }
+.fee-right { flex-shrink: 0; }
+.inline-input-row, .sub-fee-inputs { flex-wrap: wrap; }
+.inline-input { flex-shrink: 0; }
+.sub-fee-row { align-items: flex-start; gap: 12rpx; }
+.sub-fee-inputs { min-width: 0; }
+.other-row { flex-wrap: wrap; }
+.other-name-input { flex: 1 1 200rpx; }
+.footer-info { min-width: 0; }
+.footer-amount { overflow-wrap: anywhere; }
+.footer-label { color: #596577; font-size: 25rpx; }
+.submit-btn { flex-shrink: 0; }
+/* Preserve full labels and comfortable touch targets on fee forms. */
+.info-label { width: 176rpx; padding-right: 12rpx; }
+.info-value { flex: 1; }
+.info-value.hint { font-size: 25rpx; color: #596577; font-weight: 400; }
+.fee-input, .other-name-input, .other-amount-input { height: 88rpx; line-height: 88rpx; padding: 0 16rpx; font-size: 28rpx; }
+.inline-input, .sub-input { min-height: 72rpx; line-height: 1.5; padding-top: 12rpx; padding-bottom: 12rpx; }
+.add-other-btn { min-height: 88rpx; border: 1rpx solid #dbe5ff; background: #f4f7ff; border-radius: 12rpx; gap: 14rpx; padding: 20rpx; }
+.add-other-btn .add-icon { display: block; flex-shrink: 0; position: relative; width: 30rpx; height: 30rpx; margin: 0; border: 0; border-radius: 0; background: transparent; font-size: 0; }
+.add-other-btn .add-icon::before { content: ''; position: absolute; left: 2rpx; top: 14rpx; width: 26rpx; height: 2rpx; border: 0; border-radius: 0; background: #2156f3; }
+.add-other-btn .add-icon::after { content: ''; position: absolute; left: 14rpx; top: 2rpx; width: 2rpx; height: 26rpx; border: 0; border-radius: 0; background: #2156f3; }

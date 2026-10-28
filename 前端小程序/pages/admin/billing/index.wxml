@@ -1,14 +1,23 @@
+<wxs module="money">
+function fixed2(value) {
+  var amount = parseFloat(value);
+  return isNaN(amount) ? '0.00' : amount.toFixed(2);
+}
+module.exports = { fixed2: fixed2 };
+</wxs>
 <view class="container">
+  <view class="page-heading">账单管理</view>
+  <view class="page-description">收付款总览与账单明细</view>
   <!-- 统计卡片 -->
   <view class="stats-bar">
     <view class="stats-item">
       <text class="stats-label">未付总额</text>
-      <text class="stats-amount unpaid">¥{{totalUnpaid.toFixed(2)}}</text>
+      <text class="stats-amount unpaid">¥{{money.fixed2(totalUnpaid)}}</text>
     </view>
     <view class="stats-divider"></view>
     <view class="stats-item">
       <text class="stats-label">已付总额</text>
-      <text class="stats-amount paid">¥{{totalPaid.toFixed(2)}}</text>
+      <text class="stats-amount paid">¥{{money.fixed2(totalPaid)}}</text>
     </view>
   </view>
 
@@ -36,7 +45,10 @@
       class="bill-card"
     >
       <view class="bill-header">
-        <text class="bill-id">{{item._id}}</text>
+        <view class="bill-number">
+            <text class="bill-caption">账单编号</text>
+            <text class="bill-id">{{item._id}}</text>
+          </view>
         <text class="bill-status {{item.status}}">{{item.status === 'unpaid' ? '待付' : '已付'}}</text>
       </view>
       <view class="bill-factory">{{item.contacts.contact1Name || '——'}}</view>
@@ -45,7 +57,8 @@
         <text>{{item._adminDiscountText}}</text>
       </view>
       <view class="fee-detail" wx:if="{{item._items && item._items.length > 0}}">
-        <view class="fee-row" wx:for="{{item._items}}" wx:for-item="fee" wx:key="index">
+        <view class="detail-title">费用明细</view>
+          <view class="fee-row" wx:for="{{item._items}}" wx:for-item="fee" wx:key="index">
           <view class="fee-info">
             <text class="fee-name">{{fee.name}}</text>
             <text class="fee-calc" wx:if="{{fee.calculationDetail}}">{{fee.calculationDetail}}</text>
@@ -65,6 +78,7 @@
       <view class="bill-footer">
         <text class="bill-type">{{item.paymentTypeLabel}}</text>
         <view class="amount-stack">
+            <text class="amount-caption">账单金额</text>
           <text class="bill-original" wx:if="{{item._adminDiscountText}}">原价 ¥{{item._originalAmountText}}</text>
           <text class="bill-amount">¥{{item._totalAmountText}}</text>
         </view>

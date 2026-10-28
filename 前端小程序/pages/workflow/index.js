@@ -93,7 +93,7 @@ Page({
     try {
       const res = await wx.cloud.callFunction({
         name: 'shipment-query',
-        data: { action: 'myShipments' }
+        data: { action: 'myShipments', role: this.data.role || wx.getStorageSync('userRole') || 'salesman' }
       });
 
       if (res.result.code === 0) {

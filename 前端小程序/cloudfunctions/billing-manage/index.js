@@ -5,6 +5,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess } = require('./revoked-access');
 const XLSX = require('xlsx');
 const { success, error, paramError } = require('./utils/response');
 const { formatMoney } = require('./utils/formatMoney');
@@ -146,13 +147,24 @@ function buildShipmentBrief(shipment = {}) {
     departureTime: routing.departureTime || null,
     latestDeliveryTime: routing.latestDeliveryTime || null,
     currentNodeName: shipment.currentNodeName || '',
+    creatorName: shipment.creatorName || '',
+    creatorPhone: shipment.creatorPhone || '',
+    creatorRole: shipment.creatorRole || '',
     createdAt: shipment.createdAt || shipment._createTime || null,
     updatedAt: shipment.updatedAt || null
   };
 }
 
 function buildPriceItemsFromShipment(shipment = {}) {
-  if (shipment.quote?.items?.length > 0) return shipment.quote.items;
+  if (shipment.quote?.items?.length > 0) {
+    return shipment.quote.items.map(item => ({
+      ...item,
+      name: item.name || '费用',
+      calculationDetail: item.calculationDetail || item.detail || '',
+      amount: formatMoney(item.amount || 0),
+      isIncluded: item.isIncluded !== false
+    }));
+  }
 
   if (shipment.fees?.length > 0) {
     return shipment.fees.map(fee => ({
@@ -174,6 +186,14 @@ function buildPriceItemsFromShipment(shipment = {}) {
   }
 
   return [];
+}
+
+function isSimpleFreightItems(items = []) {
+  if (!items || items.length === 0) return true;
+  if (items.length > 1) return false;
+
+  const item = items[0] || {};
+  return (item.name || '') === '运费' || (!item.calculationDetail && !item.detail);
 }
 
 async function enrichBillsWithShipmentInfo(bills = []) {
@@ -206,10 +226,16 @@ async function enrichBillsWithShipmentInfo(bills = []) {
     const waybillNos = shipmentBriefs.map(item => item.waybillNo).filter(Boolean);
     const warehouseEntryNos = shipmentBriefs.map(item => item.warehouseEntryNo).filter(Boolean);
     const fallbackItems = shipmentInfos.find(item => item.priceItems?.length > 0)?.priceItems || [];
+    const billItems = bill.items || [];
+    const shouldUseShipmentItems = fallbackItems.length > 0 &&
+      (isSimpleFreightItems(billItems) || fallbackItems.length > billItems.length);
 
     return {
       ...bill,
-      items: bill.items?.length > 0 ? bill.items : fallbackItems,
+      items: shouldUseShipmentItems ? fallbackItems : (billItems.length > 0 ? billItems : fallbackItems),
+      creatorName: bill.creatorName || shipmentBriefs[0]?.creatorName || '',
+      creatorPhone: bill.creatorPhone || shipmentBriefs[0]?.creatorPhone || '',
+      creatorRole: bill.creatorRole || shipmentBriefs[0]?.creatorRole || '',
       waybillNo: bill.waybillNo || waybillNos[0] || '',
       waybillNos,
       warehouseEntryNo: bill.warehouseEntryNo || warehouseEntryNos[0] || '',
@@ -332,7 +358,7 @@ async function getCreatorShipmentIds(operatorOpenId) {
   if (!operatorOpenId) return [];
 
   const res = await db.collection('shipments')
-    .where({ creatorOpenId: operatorOpenId, isDeleted: _.neq(true) })
+    .where({ creatorOpenId: operatorOpenId, creatorRole: 'salesman', isDeleted: _.neq(true) })
     .limit(100)
     .get();
 
@@ -344,12 +370,8 @@ function billBelongsToCurrentUser(bill, phone, creatorShipmentIds) {
     bill.shipmentId,
     ...(bill.shipmentIds || [])
   ].filter(Boolean);
-  const visiblePhones = bill.visiblePhones || [];
 
-  return (
-    relatedShipmentIds.some(id => creatorShipmentIds.includes(id)) ||
-    (phone && (bill.clientPhone === phone || visiblePhones.includes(phone)))
-  );
+  return relatedShipmentIds.some(id => creatorShipmentIds.includes(id));
 }
 
 function sanitizeBillForRole(bill, role) {
@@ -375,17 +397,16 @@ function paidSpotShipmentToBill(item) {
     clientPhone: item.managerPhone || item.contacts?.contact1Phone || '',
     clientName: item.clientName || item.contacts?.contact1Name || '',
     factoryName: item.factoryName || item.creatorName || '',
+    creatorName: item.creatorName || '',
+    creatorPhone: item.creatorPhone || '',
+    creatorRole: item.creatorRole || '',
     contacts: item.contacts || {},
     totalAmount: formatMoney(amount) || 0,
     paidAmount: formatMoney(paidAmount) || 0,
     status: 'paid',
     paymentType: 'spot',
     ...visibility,
-    items: item.quote?.items?.length > 0 ? item.quote.items : (item.pricing ? [{
-      name: '运费',
-      calculationDetail: `重量价:${item.pricing.weightPrice || 0} / 体积价:${item.pricing.volumePrice || 0}`,
-      amount: formatMoney(amount) || 0
-    }] : []),
+    items: buildPriceItemsFromShipment(item),
     payments: [{
       amount: formatMoney(paidAmount) || 0,
       paidAt: item.billing?.paidAt || item.updatedAt || item._createTime,
@@ -881,6 +902,12 @@ async function cleanupPaidBills() {
 
 // ── 入口 ──
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   const { action, billId, data, phone, status, monthKey, monthlyBatch, page, pageSize, role } = event;
   const { OPENID } = cloud.getWXContext();
 

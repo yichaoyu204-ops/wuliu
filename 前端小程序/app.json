@@ -21,25 +21,38 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#FF6B00",
+    "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTitleText": "义乌专线运输集成系统",
-    "navigationBarTextStyle": "white"
+    "navigationBarTextStyle": "black"
   },
   "tabBar": {
     "custom": true,
     "list": [
-      { "pagePath": "pages/index/index", "text": "查单" },
-      { "pagePath": "pages/admin/create/index", "text": "建单" },
-      { "pagePath": "pages/admin/myshipments/index", "text": "全部运单" },
-      { "pagePath": "pages/workflow/index", "text": "流程" },
-      { "pagePath": "pages/admin/appointment/index", "text": "预约进仓" },
-      { "pagePath": "pages/billing/cart/index", "text": "账单" }
+      {
+        "pagePath": "pages/index/index",
+        "text": "查单"
+      },
+      {
+        "pagePath": "pages/admin/create/index",
+        "text": "建单"
+      },
+      {
+        "pagePath": "pages/admin/myshipments/index",
+        "text": "全部运单"
+      },
+      {
+        "pagePath": "pages/workflow/index",
+        "text": "流程"
+      },
+      {
+        "pagePath": "pages/admin/appointment/index",
+        "text": "预约进仓"
+      },
+      {
+        "pagePath": "pages/billing/cart/index",
+        "text": "账单"
+      }
     ]
   },
-  "cloud": true,
-  "permission": {
-    "scope.userLocation": {
-      "desc": "你的位置信息将用于小程序位置接口的效果展示"
-    }
-  }
+  "cloud": true
 }

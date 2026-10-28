@@ -5,7 +5,6 @@ const PRESET_LOGIN_NAMES = {
   'warehouse:18268685702': '虞一超',
   'admin:18005745533': '虞宏伟',
   'admin:15557041311': '姚慧',
-  'warehouse:13967854310': '袁午正'
 };
 
 Page({
@@ -19,7 +18,6 @@ Page({
     password: '',
     name: '',
     loggingIn: false,
-    useManualInput: false,
     agreementChecked: false
   },
 
@@ -50,7 +48,6 @@ Page({
       phone: '',
       password: '',
       name: '',
-      useManualInput: false,
       agreementChecked: false
     });
   },
@@ -65,17 +62,8 @@ Page({
       phone: '',
       password: '',
       name: '',
-      useManualInput: false,
       agreementChecked: false
     });
-  },
-
-  switchToManual() {
-    this.setData({ useManualInput: true, phone: '' });
-  },
-
-  switchToQuickLogin() {
-    this.setData({ useManualInput: false, phone: '' });
   },
 
   onPhoneInput(e) {
@@ -115,59 +103,6 @@ Page({
     if (String(name || '').trim() === expectedName) return true;
     wx.showToast({ title: '姓名、手机号或密码不匹配', icon: 'none' });
     return false;
-  },
-
-  // 手机号快捷登录：获取手机号
-  async onGetPhoneNumber(e) {
-    const { selectedRole, name } = this.data;
-
-    if (!this.ensureAgreement()) return;
-
-    if (!name.trim()) {
-      wx.showToast({ title: '请先输入姓名', icon: 'none' });
-      return;
-    }
-
-    if (e.detail.errMsg && e.detail.errMsg.includes('deny')) {
-      wx.showToast({ title: '需要授权手机号才能登录', icon: 'none' });
-      return;
-    }
-
-    if (!e.detail.cloudID) {
-      // 开发工具中无法获取 cloudID，提示使用手动输入
-      wx.showModal({
-        title: '提示',
-        content: '手机号快捷登录需在真机上使用。\n开发调试请切换为「手机号登录」',
-        showCancel: false,
-        confirmText: '我知道了'
-      });
-      return;
-    }
-
-    this.setData({ loggingIn: true });
-
-    try {
-      const res = await wx.cloud.callFunction({
-        name: 'user-login',
-        data: {
-          action: 'getPhone',
-          role: selectedRole,
-          cloudID: e.detail.cloudID,
-          name
-        }
-      });
-
-      if (res.result.code === 0) {
-        const userInfo = res.result.data || {};
-        await this.completeLogin(selectedRole, userInfo.phone, userInfo.name || name);
-      } else {
-        wx.showToast({ title: res.result.message || '登录失败', icon: 'none' });
-        this.setData({ loggingIn: false });
-      }
-    } catch (err) {
-      wx.showToast({ title: '登录失败，请重试', icon: 'none' });
-      this.setData({ loggingIn: false });
-    }
   },
 
   // 管理员/接单员手动登录（手机号+密码）

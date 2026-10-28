@@ -4,6 +4,7 @@
  */
 
 const cloud = require('wx-server-sdk');
+const { assertCallerAccess, assertPhoneAccess } = require('./revoked-access');
 const { success, error, paramError } = require('./utils/response');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
@@ -68,6 +69,7 @@ function isPresetAccount(phone, role) {
 
 // 管理员登录：验证手机号+密码，并绑定当前登录身份
 async function adminLogin(phone, password, name, openId) {
+  assertPhoneAccess(phone);
   if (!phone || !password) {
     throw new Error('请输入手机号和密码');
   }
@@ -116,6 +118,7 @@ async function adminLogin(phone, password, name, openId) {
 
 // 普通角色登录：业务员自动创建；接单员必须由后台预置并校验密码后再绑定登录身份
 async function normalLogin(phone, role, name, openId, password) {
+  assertPhoneAccess(phone);
   if (!phone) {
     throw new Error('请输入手机号');
   }
@@ -208,6 +211,7 @@ async function normalLogin(phone, role, name, openId, password) {
 }
 
 async function createWarehouseAccount(phone, name, password, openId) {
+  assertPhoneAccess(phone);
   if (!phone) return paramError('缺少手机号');
   if (!password) return paramError('缺少密码');
 
@@ -282,7 +286,6 @@ const PRESET_ACCOUNTS = [
   { phone: '18268685702', password: '962504248yyc', name: '虞一超', role: 'warehouse' },
   { phone: '18005745533', password: 'yhw739739', name: '虞宏伟', role: 'admin' },
   { phone: '15557041311', password: 'Yh240921', name: '姚慧', role: 'admin' },
-  { phone: '13967854310', password: '780412', name: '袁午正', role: 'warehouse' }
 ];
 
 async function upsertPresetAccount(account) {
@@ -317,6 +320,12 @@ async function upsertPresetAccount(account) {
 
 // 云函数入口
 exports.main = async (event, context) => {
+  try {
+    await assertCallerAccess(cloud.database(), cloud.getWXContext().OPENID);
+  } catch (err) {
+    return error(err.message);
+  }
+
   const { action, phone, password, role } = event;
   const { OPENID } = cloud.getWXContext();
 
@@ -351,6 +360,7 @@ exports.main = async (event, context) => {
         }
 
         const phone = phoneData.data.phoneNumber;
+        assertPhoneAccess(phone);
 
         if (role === 'warehouse') {
           return error('接单员请使用账号密码登录');
@@ -371,6 +381,7 @@ exports.main = async (event, context) => {
       }
 
       case 'createAdmin': {
+        assertPhoneAccess(phone);
         // 首次部署时可手动调用；已有管理员后，仅管理员可继续创建
         // 用法：{ action: 'createAdmin', phone: '138xxxx', password: 'your_password', name: '管理员姓名' }
         if (!phone || !password) return paramError('缺少手机号或密码');

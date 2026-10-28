@@ -16,6 +16,7 @@ Page({
     routeEditForm: {},
     isEditingMeasurement: false,
     measurementEditForm: {},
+    canViewPriceDetails: false,
     paymentTypeNameMap: {
       monthly: '萌恒月结',
       spot: '供应商现结',
@@ -46,7 +47,11 @@ Page({
   checkEditPermission() {
     const role = wx.getStorageSync('userRole') || '';
     const canEdit = role === 'warehouse' || role === 'admin';
-    this.setData({ canEdit, role });
+    this.setData({ canEdit, role, canViewPriceDetails: this.canViewPriceDetails(role) });
+  },
+
+  canViewPriceDetails(role = this.data.role) {
+    return role === 'warehouse' || role === 'admin';
   },
 
   async fetchDetail(shipmentId, shareToken) {
@@ -99,6 +104,7 @@ Page({
 
         this.setData({
           shipment,
+          canViewPriceDetails: this.canViewPriceDetails(role),
           statusIcon: statusCard.icon,
           statusMainTitle: statusCard.mainTitle,
           statusSubTitle: statusCard.subTitle,
@@ -123,7 +129,7 @@ Page({
   },
 
   decorateAdminPriceDetails(shipment) {
-    if (!shipment || this.data.role !== 'admin') {
+    if (!shipment || !this.canViewPriceDetails()) {
       if (shipment) shipment.adminPriceItems = [];
       return;
     }
