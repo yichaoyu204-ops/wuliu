@@ -43,7 +43,7 @@
         <text class="detail-row">
           计费方式：{{item.calculationType}}
           {{item.basePrice != null ? '  固定 ¥' + item.basePrice : ''}}
-          {{item.unitPrice != null ? '  单价 ¥' + item.unitPrice + '/' + item.unit : ''}}
+          {{item.unitPrice != null ? '  单价 ' + item.unitPrice + '（单位：' + item.unit + '）' : ''}}
           {{item.freeDays != null ? '  免费 ' + item.freeDays + ' 天' : ''}}
         </text>
         <text wx:if="{{item.description}}" class="detail-row desc">{{item.description}}</text>
@@ -110,8 +110,8 @@
         </view>
 
         <view class="field">
-          <text class="label">单位显示文字</text>
-          <input class="input" placeholder="如：元/件" data-field="unit" bindinput="onFormInput" value="{{form.unit}}" maxlength="10" />
+          <text class="label">{{form.calculationType === 'per_weight' ? '每公斤、每磅或每公吨的费率单位' : '单位显示文字'}}</text>
+          <input class="input" placeholder="{{form.calculationType === 'per_weight' ? '元/kg、元/lb 或元/吨' : '如：元/件'}}" data-field="unit" bindinput="onFormInput" value="{{form.unit}}" maxlength="50" />
         </view>
 
         <view class="field" wx:if="{{form.calculationType === 'per_volume_per_day'}}">

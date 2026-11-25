@@ -1,3 +1,4 @@
+const { weightInUnit } = require('../../../utils/weight');
 const app = getApp();
 
 Page({
@@ -104,13 +105,14 @@ Page({
         // 已有实测数据则回填，否则用进仓单数据做参考
         const a = s.measurement?.actual;
         const c = s.cargoInfo || {};
+        const hasMeasuredWeight = a?.weight != null && a.weight !== '';
         this.setData({
           shipment: s,
           routeFeeProfile: this.getRouteFeeProfile(s),
           'form.pieces': a?.pieces != null ? String(a.pieces) : (c.pieces != null ? String(c.pieces) : ''),
-          'form.weight': a?.weight != null ? String(a.weight) : (c.grossWeight != null ? String(c.grossWeight) : ''),
+          'form.weight': hasMeasuredWeight ? String(a.weight) : (c.grossWeight != null ? String(c.grossWeight) : ''),
           'form.volume': a?.volume != null ? String(a.volume) : (c.volume != null ? String(c.volume) : ''),
-          'form.weightUnit': a?.weightUnit || c.weightUnit || 'KGS',
+          'form.weightUnit': (hasMeasuredWeight && a.weightUnit) || c.weightUnit || 'KGS',
           'form.volumeUnit': a?.volumeUnit || c.volumeUnit || 'CBM',
           'form.note': s.measurement?.note || ''
         }, () => {
@@ -193,7 +195,7 @@ Page({
   // 计算所有费用
   calculateAllFees() {
     const { form, shipment, extraFees, collectionItems } = this.data;
-    const weightKg = parseFloat(form.weight) || 0;
+    const weightTons = weightInUnit(form.weight, form.weightUnit, 't');
     const volume = parseFloat(form.volume) || 0;
     const billableVolume = this.getBillableVolume(volume);
     const profile = this.data.routeFeeProfile || this.getRouteFeeProfile(shipment);
@@ -201,8 +203,7 @@ Page({
     // 1. 进仓运费
     let transportFee = 0;
     let transportDetail = '';
-    if (weightKg > 0 && billableVolume > 0) {
-      const weightTons = weightKg / 1000; // 公斤 → 吨
+    if (weightTons > 0 && billableVolume > 0) {
       const ratio = billableVolume / weightTons;  // 每吨货物占多少计费立方
       const volumeText = this.getVolumeText(volume, billableVolume);
       if (ratio >= 4) {
@@ -210,7 +211,8 @@ Page({
         transportDetail = `${profile.lineName}：${volumeText} × ${profile.volumeRate}元/立方（每吨${ratio.toFixed(2)}计费立方，≥4按立方）`;
       } else {
         transportFee = weightTons * profile.weightRate;
-        transportDetail = `${profile.lineName}：${weightTons.toFixed(3)}吨 × ${profile.weightRate}元/吨（每吨${ratio.toFixed(2)}计费立方，<4按重量）`;
+        const billedTons = Number(weightTons.toPrecision(12));
+        transportDetail = `${profile.lineName}：${form.weight} ${form.weightUnit || 'KGS'}，折合${billedTons}公吨 × ${profile.weightRate}元/公吨（每吨${ratio.toFixed(2)}计费立方，<4按重量）`;
       }
     }
 
@@ -432,8 +434,8 @@ Page({
   validate() {
     const { form } = this.data;
 
-    if (!form.weight || isNaN(parseFloat(form.weight))) {
-      wx.showToast({ title: '请填写实测重量', icon: 'none' }); return false;
+    if (weightInUnit(form.weight, form.weightUnit, 't') == null) {
+      wx.showToast({ title: '请核对实测重量和单位', icon: 'none' }); return false;
     }
     if (!form.volume || isNaN(parseFloat(form.volume))) {
       wx.showToast({ title: '请填写实测体积', icon: 'none' }); return false;

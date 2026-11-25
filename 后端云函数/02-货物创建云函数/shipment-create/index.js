@@ -247,7 +247,7 @@ exports.main = async (event, context) => {
           pieces: null,
           weight: null,
           volume: null,
-          weightUnit: 'KGS',
+          weightUnit: cargoInfo.weightUnit || 'KGS',
           volumeUnit: 'CBM'
         },
         note: ''

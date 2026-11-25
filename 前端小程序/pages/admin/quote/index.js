@@ -1,3 +1,4 @@
+const { weightInUnit, weightRateUnit } = require('../../../utils/weight');
 const app = getApp();
 
 Page({
@@ -12,7 +13,8 @@ Page({
     otherFees: [],
     unitWarning: '',
     note: '',
-    subtotal: 0
+    subtotalText: '0.00',
+    hasPendingWeightFee: false
   },
 
   onLoad(options) {
@@ -149,12 +151,22 @@ Page({
           detail = `${category.unitPrice} 元/${actual.volumeUnit || 'm³'} × ${actual.volume} ${actual.volumeUnit || 'm³'}`;
         }
         break;
-      case 'per_weight':
-        if (actual.weight != null && category.unitPrice != null) {
-          amount = Math.round(category.unitPrice * actual.weight * 100) / 100;
-          detail = `${category.unitPrice} 元/${actual.weightUnit || 'KGS'} × ${actual.weight} ${actual.weightUnit || 'KGS'}`;
+      case 'per_weight': {
+        const rateUnit = weightRateUnit(category.unit);
+        const quantity = rateUnit ? weightInUnit(actual.weight, actual.weightUnit, rateUnit) : null;
+        if (!rateUnit) {
+          detail = `费率单位“${category.unit || '未填写'}”待核，请确认每公斤、每磅或每公吨的单价，或手填金额`;
+        } else if (quantity == null || category.unitPrice == null || category.unitPrice === '' || !Number.isFinite(Number(category.unitPrice))) {
+          detail = '实测重量、单位或单价待核，请人工核定金额';
+        } else {
+          amount = Math.round(category.unitPrice * quantity * 100) / 100;
+          detail = `${category.unitPrice} 元/${rateUnit} × ${Number(quantity.toPrecision(12))} ${rateUnit}`;
+          if (quantity !== Number(actual.weight)) {
+            detail += `（实测 ${actual.weight} ${actual.weightUnit || 'kg'}）`;
+          }
         }
         break;
+      }
       case 'per_volume_per_day':
         detail = `${category.unitPrice || '-'} 元/${actual.volumeUnit || 'm³'}/天 × ${actual.volume || '-'} ${actual.volumeUnit || 'm³'}（待填天数）`;
         break;
@@ -167,6 +179,7 @@ Page({
       name: category.name,
       calculationDetail: detail,
       amount: amount,
+      isWeightBased: category.calculationType === 'per_weight',
       isIncluded: category.isRequired !== false
     };
   },
@@ -180,7 +193,11 @@ Page({
   },
 
   setSubtotal() {
-    this.setData({ subtotal: this.getSubtotal() });
+    this.setData({
+      subtotalText: this.getSubtotal().toFixed(2),
+      hasPendingWeightFee: this.data.quoteItems.some(item =>
+        item.isWeightBased && item.isIncluded && !Number.isFinite(item.amount))
+    });
   },
 
   // 修改金额（手动类目或需要修正时）
@@ -246,7 +263,8 @@ Page({
         categoryId: item.categoryId,
         name: item.name,
         calculationDetail: item.calculationDetail || '',
-        amount: item.amount != null ? Math.round(item.amount * 100) / 100 : 0,
+        amount: item.amount != null ? Math.round(item.amount * 100) / 100 :
+          (item.isWeightBased && item.isIncluded ? null : 0),
         isIncluded: item.isIncluded
       });
     });

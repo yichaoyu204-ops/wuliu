@@ -97,8 +97,8 @@
   <!-- 底部提交栏 -->
   <view class="footer">
     <view class="footer-info">
-      <text class="footer-label">小计</text>
-      <text class="footer-amount">¥{{subtotal.toFixed(2)}}</text>
+      <text class="footer-label">{{hasPendingWeightFee ? '已知小计（按重费用待核）' : '小计'}}</text>
+      <text class="footer-amount">¥{{subtotalText}}</text>
     </view>
     <view
       class="submit-btn {{submitting || sending ? 'btn-disabled' : ''}}"

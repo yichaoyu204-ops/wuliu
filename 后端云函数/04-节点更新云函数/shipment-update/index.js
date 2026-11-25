@@ -28,6 +28,17 @@ const _ = db.command;
 
 const BILL_VISIBLE_ROLES = ['admin', 'warehouse', 'salesman'];
 
+// 重量和体积按原始精度保存，金额才舍入到分。
+function parseCargoQuantity(value, label) {
+  if (value == null) return null;
+  const quantity = Number(value);
+  if ((typeof value !== 'number' && typeof value !== 'string') ||
+      !Number.isFinite(quantity) || quantity < 0) {
+    throw new Error(`${label}必须是非负的有效数值`);
+  }
+  return quantity;
+}
+
 function isMonthlyPayment(paymentType) {
   return paymentType === 'monthly' || paymentType === 'supplier_monthly';
 }
@@ -176,6 +187,8 @@ async function submitMeasurement(shipmentId, data, operatorOpenId) {
   if (volume == null || weight == null) throw new Error('实测重量和体积为必填项');
 
   const now = new Date().toISOString();
+  const measuredWeight = parseCargoQuantity(weight, '实测重量');
+  const measuredVolume = parseCargoQuantity(volume, '实测体积');
 
   // 保存实测数据和费用
   const updateData = {
@@ -184,8 +197,8 @@ async function submitMeasurement(shipmentId, data, operatorOpenId) {
     'measurement.measuredBy': operatorOpenId,
     'measurement.actual': {
       pieces: pieces != null ? Number(pieces) : null,
-      weight: formatMoney(weight),
-      volume: formatMoney(volume),
+      weight: measuredWeight,
+      volume: measuredVolume,
       weightUnit: weightUnit || 'KGS',
       volumeUnit: volumeUnit || 'CBM'
     },
@@ -210,9 +223,9 @@ async function submitMeasurement(shipmentId, data, operatorOpenId) {
     if (cargoInfo.warehouseEntryNo !== undefined) updateData['cargoInfo.warehouseEntryNo'] = cargoInfo.warehouseEntryNo;
     if (cargoInfo.waybillNo !== undefined) updateData['cargoInfo.waybillNo'] = cargoInfo.waybillNo;
     if (cargoInfo.pieces !== undefined) updateData['cargoInfo.pieces'] = Number(cargoInfo.pieces) || 0;
-    if (cargoInfo.grossWeight !== undefined) updateData['cargoInfo.grossWeight'] = formatMoney(cargoInfo.grossWeight);
+    if (cargoInfo.grossWeight !== undefined) updateData['cargoInfo.grossWeight'] = parseCargoQuantity(cargoInfo.grossWeight, '申报重量');
     if (cargoInfo.weightUnit !== undefined) updateData['cargoInfo.weightUnit'] = cargoInfo.weightUnit;
-    if (cargoInfo.volume !== undefined) updateData['cargoInfo.volume'] = formatMoney(cargoInfo.volume);
+    if (cargoInfo.volume !== undefined) updateData['cargoInfo.volume'] = parseCargoQuantity(cargoInfo.volume, '申报体积');
     if (cargoInfo.volumeUnit !== undefined) updateData['cargoInfo.volumeUnit'] = cargoInfo.volumeUnit;
     if (cargoInfo.marks !== undefined) updateData['cargoInfo.marks'] = cargoInfo.marks;
   }
@@ -307,7 +320,7 @@ async function submitMeasurement(shipmentId, data, operatorOpenId) {
 
   return {
     status: 'measured',
-    actual: { pieces, weight: formatMoney(weight), volume: formatMoney(volume), weightUnit: weightUnit || 'KGS', volumeUnit: volumeUnit || 'CBM' },
+    actual: { pieces, weight: measuredWeight, volume: measuredVolume, weightUnit: weightUnit || 'KGS', volumeUnit: volumeUnit || 'CBM' },
     oaAdvanced
   };
 }
@@ -676,9 +689,9 @@ async function updateInfo(shipmentId, data, operatorOpenId) {
     if (cargoInfo.warehouseEntryNo !== undefined) updateData['cargoInfo.warehouseEntryNo'] = cargoInfo.warehouseEntryNo;
     if (cargoInfo.waybillNo !== undefined) updateData['cargoInfo.waybillNo'] = cargoInfo.waybillNo;
     if (cargoInfo.pieces !== undefined) updateData['cargoInfo.pieces'] = Number(cargoInfo.pieces) || 0;
-    if (cargoInfo.grossWeight !== undefined) updateData['cargoInfo.grossWeight'] = formatMoney(cargoInfo.grossWeight);
+    if (cargoInfo.grossWeight !== undefined) updateData['cargoInfo.grossWeight'] = parseCargoQuantity(cargoInfo.grossWeight, '申报重量');
     if (cargoInfo.weightUnit !== undefined) updateData['cargoInfo.weightUnit'] = cargoInfo.weightUnit;
-    if (cargoInfo.volume !== undefined) updateData['cargoInfo.volume'] = formatMoney(cargoInfo.volume);
+    if (cargoInfo.volume !== undefined) updateData['cargoInfo.volume'] = parseCargoQuantity(cargoInfo.volume, '申报体积');
     if (cargoInfo.volumeUnit !== undefined) updateData['cargoInfo.volumeUnit'] = cargoInfo.volumeUnit;
     if (cargoInfo.marks !== undefined) updateData['cargoInfo.marks'] = cargoInfo.marks;
   }
@@ -735,8 +748,8 @@ async function updateInfo(shipmentId, data, operatorOpenId) {
     const m = data.measurement;
     if (m.actual) {
       if (m.actual.pieces !== undefined) updateData['measurement.actual.pieces'] = Number(m.actual.pieces) || 0;
-      if (m.actual.weight !== undefined) updateData['measurement.actual.weight'] = formatMoney(m.actual.weight);
-      if (m.actual.volume !== undefined) updateData['measurement.actual.volume'] = formatMoney(m.actual.volume);
+      if (m.actual.weight !== undefined) updateData['measurement.actual.weight'] = parseCargoQuantity(m.actual.weight, '实测重量');
+      if (m.actual.volume !== undefined) updateData['measurement.actual.volume'] = parseCargoQuantity(m.actual.volume, '实测体积');
       if (m.actual.weightUnit !== undefined) updateData['measurement.actual.weightUnit'] = m.actual.weightUnit;
       if (m.actual.volumeUnit !== undefined) updateData['measurement.actual.volumeUnit'] = m.actual.volumeUnit;
     }

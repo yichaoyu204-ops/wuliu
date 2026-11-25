@@ -129,9 +129,11 @@ Page({
 
   onCalcTypeChange(e) {
     const calcType = this.data.calcTypeOptions[e.detail.value].value;
+    const unit = (this.data.form.unit || '').trim();
     this.setData({
       'form.calculationType': calcType,
       'form.allowManualAmount': calcType === 'manual',
+      'form.unit': calcType === 'per_weight' && (!unit || unit === '元') ? '元/kg' : this.data.form.unit,
       calcTypeLabel: this.getCalcTypeLabel(calcType)
     });
   },

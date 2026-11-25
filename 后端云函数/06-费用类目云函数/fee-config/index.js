@@ -14,6 +14,7 @@ const cloud = require('wx-server-sdk');
 const { assertCallerAccess } = require('./revoked-access');
 const { success, error, paramError } = require('./utils/response');
 const { formatMoney } = require('./utils/formatMoney');
+const { weightInUnit, weightRateUnit } = require('./utils/weight');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
@@ -153,6 +154,14 @@ function safeMultiply(a, b) {
   return Math.round((a || 0) * (b || 0) * 100) / 100;
 }
 
+// 按重单价可能不足一分钱，仅对最终金额取两位小数。
+function unitPriceFor(calculationType, value) {
+  if (calculationType !== 'per_weight') return formatMoney(value);
+  if (value == null || value === '') return null;
+  const price = Number(value);
+  return Number.isFinite(price) ? price : null;
+}
+
 // 根据类目配置 + 实测数据自动预算金额
 function calculateAmount(category, measurement) {
   const actual = measurement?.actual || {};
@@ -163,8 +172,12 @@ function calculateAmount(category, measurement) {
       return actual.pieces != null ? formatMoney(safeMultiply(category.unitPrice, actual.pieces)) : null;
     case 'per_volume':
       return actual.volume != null ? formatMoney(safeMultiply(category.unitPrice, actual.volume)) : null;
-    case 'per_weight':
-      return actual.weight != null ? formatMoney(safeMultiply(category.unitPrice, actual.weight)) : null;
+    case 'per_weight': {
+      const unit = weightRateUnit(category.unit);
+      const price = unitPriceFor('per_weight', category.unitPrice);
+      const quantity = unit ? weightInUnit(actual.weight, actual.weightUnit, unit) : null;
+      return quantity == null || price == null ? null : formatMoney(price * quantity);
+    }
     // 需要业务补充数量、天数或单独报价的类目，由前端实测页录入后再保存
     case 'per_volume_per_day':
     case 'manual':
@@ -269,13 +282,14 @@ async function createCategory(data) {
     throw new Error(`费用类型 "${typeTrimmed}" 已存在，请直接修改原类目`);
   }
 
+  const displayUnit = String(unit || '').trim() || '元';
   const doc = {
     name: name.trim().substring(0, 20),              // 限制长度
     type: type.trim().substring(0, 30),
     calculationType: calcType,
     basePrice: formatMoney(basePrice),               // 统一精度处理
-    unitPrice: formatMoney(unitPrice),
-    unit: (unit || '元').substring(0, 10),
+    unitPrice: unitPriceFor(calcType, unitPrice),
+    unit: calcType === 'per_weight' && displayUnit === '元' ? '元/kg' : displayUnit.substring(0, 50),
     freeDays: freeDays != null ? Math.max(0, parseInt(freeDays) || 0) : null,
     isRequired: isRequired === true,
     isEnabled: true,
@@ -311,7 +325,9 @@ async function updateCategory(id, data, operatorOpenId) {
   ALLOWED.forEach(field => {
     if (data[field] === undefined) return;
     if (['basePrice', 'unitPrice'].includes(field)) {
-      const newVal = formatMoney(data[field]);
+      const newVal = field === 'unitPrice'
+        ? unitPriceFor(data.calculationType || old.calculationType, data[field])
+        : formatMoney(data[field]);
       if (old[field] != newVal) {
         priceChanges.push({ field, from: old[field] ?? null, to: newVal });
       }
