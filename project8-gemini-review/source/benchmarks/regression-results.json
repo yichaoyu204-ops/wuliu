@@ -1,0 +1,932 @@
+{
+  "evidence": "Synthetic fixtures only. Local Chromium HTTPS interception; no live hosting or real person.",
+  "totals": {
+    "pairs": 20,
+    "passed": 20,
+    "normalLayouts": 18,
+    "documentLevelReview": 2,
+    "fieldsChecked": 276,
+    "sourceReferencesPresent": 276,
+    "pdfFieldsMarkedForReview": 54,
+    "formats": {
+      "csv": 16,
+      "xlsx": 15,
+      "pdf": 9
+    }
+  },
+  "cases": [
+    {
+      "id": "SIM01",
+      "expected": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "match",
+          0
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM02",
+      "expected": [
+        [
+          "over",
+          1245
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "over",
+          1245
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "over",
+          1245
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM03",
+      "expected": [
+        [
+          "under",
+          -259
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "pdf",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 6,
+      "raw": [
+        [
+          "pending",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "under",
+          -259
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM04",
+      "expected": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "pdf",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 6,
+      "raw": [
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "match",
+          0
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM05",
+      "expected": [
+        [
+          "duplicate",
+          null
+        ],
+        [
+          "duplicate",
+          null
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "xlsx",
+          "importedRows": 2,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 18,
+      "referenced": 18,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "duplicate",
+          null
+        ],
+        [
+          "duplicate",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "duplicate",
+          null
+        ],
+        [
+          "invoice:2",
+          "duplicate",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM06",
+      "expected": [
+        [
+          "duplicate",
+          null
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 2,
+          "issues": []
+        }
+      },
+      "checked": 18,
+      "referenced": 18,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "duplicate",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "duplicate",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM07",
+      "expected": [
+        [
+          "mismatch",
+          null
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "mismatch",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "mismatch",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM08",
+      "expected": [
+        [
+          "mismatch",
+          null
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "pdf",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 6,
+      "raw": [
+        [
+          "mismatch",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "mismatch",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM09",
+      "expected": [
+        [
+          "missing",
+          null
+        ],
+        [
+          "unbilled",
+          null
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "pdf",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "pdf",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 12,
+      "raw": [
+        [
+          "pending",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "missing",
+          null
+        ],
+        [
+          "baseline:1",
+          "unbilled",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM10",
+      "expected": [
+        [
+          "under",
+          -150
+        ],
+        [
+          "match",
+          0
+        ],
+        [
+          "over",
+          400
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 3,
+          "issues": []
+        },
+        "baseline": {
+          "format": "csv",
+          "importedRows": 3,
+          "issues": []
+        }
+      },
+      "checked": 36,
+      "referenced": 36,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "under",
+          -150
+        ],
+        [
+          "match",
+          0
+        ],
+        [
+          "over",
+          400
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "under",
+          -150
+        ],
+        [
+          "invoice:2",
+          "match",
+          0
+        ],
+        [
+          "invoice:3",
+          "over",
+          400
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM11",
+      "expected": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "match",
+          0
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM12",
+      "expected": [
+        [
+          "under",
+          -1400
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "pdf",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 6,
+      "raw": [
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "under",
+          -1400
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM13",
+      "expected": [
+        [
+          "invalid",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "invalid",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "invalid",
+          null
+        ],
+        [
+          "baseline:1",
+          "pending",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM14",
+      "expected": [],
+      "layoutReview": true,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "pdf",
+          "importedRows": 0,
+          "issues": [
+            "第 1 页：无法按表头提取，需人工转录"
+          ]
+        },
+        "baseline": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 6,
+      "referenced": 6,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "incomplete",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "baseline:1",
+          "incomplete",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM15",
+      "expected": [],
+      "layoutReview": true,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 0,
+          "issues": [
+            "Synthetic：表头无法唯一对应六个字段，请手工核对。"
+          ]
+        }
+      },
+      "checked": 6,
+      "referenced": 6,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "incomplete",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "incomplete",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM16",
+      "expected": [
+        [
+          "over",
+          450
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "pdf",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 6,
+      "raw": [
+        [
+          "pending",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "over",
+          450
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM17",
+      "expected": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "match",
+          0
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM18",
+      "expected": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "match",
+          0
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "match",
+          0
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM19",
+      "expected": [
+        [
+          "invalid",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "csv",
+          "importedRows": 1,
+          "issues": []
+        },
+        "baseline": {
+          "format": "xlsx",
+          "importedRows": 1,
+          "issues": []
+        }
+      },
+      "checked": 12,
+      "referenced": 12,
+      "pdfPending": 0,
+      "raw": [
+        [
+          "invalid",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "invalid",
+          null
+        ],
+        [
+          "baseline:1",
+          "pending",
+          null
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    },
+    {
+      "id": "SIM20",
+      "expected": [
+        [
+          "mismatch",
+          null
+        ],
+        [
+          "over",
+          400
+        ]
+      ],
+      "layoutReview": false,
+      "passed": true,
+      "summary": {
+        "invoice": {
+          "format": "xlsx",
+          "importedRows": 2,
+          "issues": []
+        },
+        "baseline": {
+          "format": "pdf",
+          "importedRows": 2,
+          "issues": []
+        }
+      },
+      "checked": 24,
+      "referenced": 24,
+      "pdfPending": 12,
+      "raw": [
+        [
+          "mismatch",
+          null
+        ],
+        [
+          "pending",
+          null
+        ]
+      ],
+      "after": [
+        [
+          "invoice:1",
+          "mismatch",
+          null
+        ],
+        [
+          "invoice:2",
+          "over",
+          400
+        ]
+      ],
+      "problems": [],
+      "assertions": []
+    }
+  ]
+}

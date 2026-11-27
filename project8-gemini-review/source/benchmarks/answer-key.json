@@ -1,0 +1,848 @@
+[
+  {
+    "id": "SIM01",
+    "scenario": "普通相符",
+    "files": {
+      "invoice": "pairs/SIM01/SIM01_invoice.csv",
+      "baseline": "pairs/SIM01/SIM01_baseline.csv"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "match",
+        0
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM02",
+    "scenario": "明确多收",
+    "files": {
+      "invoice": "pairs/SIM02/SIM02_invoice.xlsx",
+      "baseline": "pairs/SIM02/SIM02_baseline.csv"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "52.45"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "40"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "over",
+        1245
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM03",
+    "scenario": "文字 PDF 低于采购价",
+    "files": {
+      "invoice": "pairs/SIM03/SIM03_invoice.pdf",
+      "baseline": "pairs/SIM03/SIM03_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "37.41"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "40"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "under",
+        -259
+      ]
+    ],
+    "requiresPdfConfirmation": true
+  },
+  {
+    "id": "SIM04",
+    "scenario": "采购依据为文字 PDF",
+    "files": {
+      "invoice": "pairs/SIM04/SIM04_invoice.csv",
+      "baseline": "pairs/SIM04/SIM04_baseline.pdf"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "AUD",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "AUD",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "match",
+        0
+      ]
+    ],
+    "requiresPdfConfirmation": true
+  },
+  {
+    "id": "SIM05",
+    "scenario": "供应商账单双行同键",
+    "files": {
+      "invoice": "pairs/SIM05/SIM05_invoice.xlsx",
+      "baseline": "pairs/SIM05/SIM05_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ],
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "duplicate",
+        null
+      ],
+      [
+        "duplicate",
+        null
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM06",
+    "scenario": "采购方同键两种价格",
+    "files": {
+      "invoice": "pairs/SIM06/SIM06_invoice.csv",
+      "baseline": "pairs/SIM06/SIM06_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ],
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "103"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "duplicate",
+        null
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM07",
+    "scenario": "币种不同且数额相同",
+    "files": {
+      "invoice": "pairs/SIM07/SIM07_invoice.xlsx",
+      "baseline": "pairs/SIM07/SIM07_baseline.csv"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "USD",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "mismatch",
+        null
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM08",
+    "scenario": "计重单位不同",
+    "files": {
+      "invoice": "pairs/SIM08/SIM08_invoice.csv",
+      "baseline": "pairs/SIM08/SIM08_baseline.pdf"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "kg",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "lb",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "mismatch",
+        null
+      ]
+    ],
+    "requiresPdfConfirmation": true
+  },
+  {
+    "id": "SIM09",
+    "scenario": "两方各有独有项目",
+    "files": {
+      "invoice": "pairs/SIM09/SIM09_invoice.pdf",
+      "baseline": "pairs/SIM09/SIM09_baseline.pdf"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "LIFT",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "BOX",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "missing",
+        null
+      ],
+      [
+        "unbilled",
+        null
+      ]
+    ],
+    "requiresPdfConfirmation": true
+  },
+  {
+    "id": "SIM10",
+    "scenario": "三项乱序与双向差额",
+    "files": {
+      "invoice": "pairs/SIM10/SIM10_invoice.csv",
+      "baseline": "pairs/SIM10/SIM10_baseline.csv"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "14"
+        ],
+        [
+          "DEMO-FWD",
+          "0017",
+          "HAND",
+          "CNY",
+          "shipment",
+          "13"
+        ],
+        [
+          "DEMO-FWD",
+          "0017",
+          "STOR",
+          "CNY",
+          "shipment",
+          "14"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "STOR",
+          "CNY",
+          "shipment",
+          "10"
+        ],
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "15.5"
+        ],
+        [
+          "DEMO-FWD",
+          "0017",
+          "HAND",
+          "CNY",
+          "shipment",
+          "13"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "under",
+        -150
+      ],
+      [
+        "match",
+        0
+      ],
+      [
+        "over",
+        400
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM11",
+    "scenario": "明确免收零金额",
+    "files": {
+      "invoice": "pairs/SIM11/SIM11_invoice.csv",
+      "baseline": "pairs/SIM11/SIM11_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "0"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "0"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "match",
+        0
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM12",
+    "scenario": "负数贷项",
+    "files": {
+      "invoice": "pairs/SIM12/SIM12_invoice.xlsx",
+      "baseline": "pairs/SIM12/SIM12_baseline.pdf"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "-24"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "-10"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "under",
+        -1400
+      ]
+    ],
+    "requiresPdfConfirmation": true
+  },
+  {
+    "id": "SIM13",
+    "scenario": "账单缺金额",
+    "files": {
+      "invoice": "pairs/SIM13/SIM13_invoice.csv",
+      "baseline": "pairs/SIM13/SIM13_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          ""
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "invalid",
+        null
+      ],
+      [
+        "pending",
+        null
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM14",
+    "scenario": "可选中文字但无表头的 PDF",
+    "files": {
+      "invoice": "pairs/SIM14/SIM14_invoice.pdf",
+      "baseline": "pairs/SIM14/SIM14_baseline.csv"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [
+      "invoice"
+    ],
+    "expectedAfterSourceCheck": [],
+    "requiresPdfConfirmation": true
+  },
+  {
+    "id": "SIM15",
+    "scenario": "缺费用名表头的采购 Excel",
+    "files": {
+      "invoice": "pairs/SIM15/SIM15_invoice.xlsx",
+      "baseline": "pairs/SIM15/SIM15_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [
+      "baseline"
+    ],
+    "expectedAfterSourceCheck": [],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM16",
+    "scenario": "文字 PDF 千位分隔和小数",
+    "files": {
+      "invoice": "pairs/SIM16/SIM16_invoice.pdf",
+      "baseline": "pairs/SIM16/SIM16_baseline.csv"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "1,234.50"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "1230"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "over",
+        450
+      ]
+    ],
+    "requiresPdfConfirmation": true
+  },
+  {
+    "id": "SIM17",
+    "scenario": "中文 Excel 表头和前导零运单",
+    "files": {
+      "invoice": "pairs/SIM17/SIM17_invoice.xlsx",
+      "baseline": "pairs/SIM17/SIM17_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "000019",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "000019",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "match",
+        0
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM18",
+    "scenario": "单位同义词和金额前导零",
+    "files": {
+      "invoice": "pairs/SIM18/SIM18_invoice.csv",
+      "baseline": "pairs/SIM18/SIM18_baseline.csv"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "KG",
+          "0007.20"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "公斤",
+          "7.2"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "match",
+        0
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM19",
+    "scenario": "金额精度超出两位",
+    "files": {
+      "invoice": "pairs/SIM19/SIM19_invoice.csv",
+      "baseline": "pairs/SIM19/SIM19_baseline.xlsx"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "101.235"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "0017",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "invalid",
+        null
+      ],
+      [
+        "pending",
+        null
+      ]
+    ],
+    "requiresPdfConfirmation": false
+  },
+  {
+    "id": "SIM20",
+    "scenario": "多运单币种歧义与真实可比行并列",
+    "files": {
+      "invoice": "pairs/SIM20/SIM20_invoice.xlsx",
+      "baseline": "pairs/SIM20/SIM20_baseline.pdf"
+    },
+    "cells": {
+      "invoice": [
+        [
+          "DEMO-FWD",
+          "P01",
+          "DOC",
+          "CNY",
+          "shipment",
+          "100"
+        ],
+        [
+          "DEMO-FWD",
+          "P02",
+          "DOC",
+          "CNY",
+          "shipment",
+          "34"
+        ]
+      ],
+      "baseline": [
+        [
+          "DEMO-FWD",
+          "P01",
+          "DOC",
+          "EUR",
+          "shipment",
+          "100"
+        ],
+        [
+          "DEMO-FWD",
+          "P02",
+          "DOC",
+          "CNY",
+          "shipment",
+          "30"
+        ]
+      ]
+    },
+    "unreadableSides": [],
+    "expectedAfterSourceCheck": [
+      [
+        "mismatch",
+        null
+      ],
+      [
+        "over",
+        400
+      ]
+    ],
+    "requiresPdfConfirmation": true
+  }
+]

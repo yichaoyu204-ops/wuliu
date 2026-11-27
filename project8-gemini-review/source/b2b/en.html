@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Review freight invoices against shipment-level purchase costs in your browser. Import CSV, XLSX or PDF files, inspect source evidence and export an Excel workbook.">
+<link rel="alternate" hreflang="zh-CN" href="./index.html"><link rel="alternate" hreflang="en" href="./en.html">
+<title>Freight invoice review · Shipment cost reconciliation</title><link rel="stylesheet" href="./style.css">
+<script src="./vendor/jszip.min.js" defer></script><script type="module" src="./app.mjs"></script>
+</head><body>
+<header><div class="shell nav"><div class="brand"><span class="mark" aria-hidden="true">≋</span> Freight review</div><div class="actions"><span class="privacy">● On device</span><a data-language href="./index.html" lang="zh-CN">中文</a></div></div></header>
+<main class="shell">
+<div class="hero"><div><h1>Review freight invoices</h1><p>Compare each charge with the agreed purchase cost for that shipment. Trace a difference back to the source line.</p></div><button id="demo" class="secondary">Load sample files</button></div>
+<section class="imports" aria-label="Import files">
+<div class="drop"><h2>Supplier invoices</h2><p>Charges billed by your carrier or warehouse</p><label class="upload">Select invoices<input id="invoice" type="file" accept=".csv,.xlsx,.pdf" multiple></label></div>
+<div class="drop base"><h2>Purchase baseline</h2><p>Agreed line total for the same supplier, shipment and charge</p><label class="upload">Select baselines<input id="baseline" type="file" accept=".csv,.xlsx,.pdf" multiple></label></div>
+</section>
+<p class="caption">Select one or more UTF-8 CSV, XLSX or PDF files. <a href="./samples/template-en.csv" download>Download the English template</a></p>
+<details class="guide"><summary>Input format and matching rules</summary><p>The first nonempty spreadsheet row must contain Supplier, Shipment, Charge, Currency, Unit and Amount. Chinese headers are also supported. Use an agreed total for that shipment and charge. A customer selling price or a rate per unit needs separate procurement evidence and quantities.</p><p>The reviewer checks supplier, shipment, charge, currency and billing unit. It recognizes equivalent labels such as kg and 公斤. Different units or currencies require review. Supported currencies are CNY, USD, EUR, GBP, HKD, AUD, CAD, SGD, NZD and CHF, with up to two decimals. Tax, FX conversion, tiered rates and split allocations require separate calculations.</p><p>Review every text PDF candidate against the original. For scans or irregular tables, add a line with its page or row and an evidence note. Export before refreshing or closing the page. Use HTTPS or open the local server.</p></details>
+<div role="status" aria-live="polite" id="status"></div><section id="sourcesSection" hidden><div class="sectionHead"><h2>Source documents</h2></div><div id="sources"></div></section>
+<section class="results"><div class="sectionHead"><div><h2>Review results</h2><p id="summary">Import documents to see the results.</p></div><button id="export" disabled>Export Excel</button></div>
+<div class="controls"><label>Filter <select id="filter"><option value="all">All rows</option><option value="issues">Differences and open checks</option><option value="match">Matched</option><option value="unreviewed">No decision yet</option></select></label><label>Search <input id="search" placeholder="Shipment, charge or supplier"></label></div>
+<div id="table"></div></section><footer>Freight invoice review <span>·</span> Confirm each difference against the original document, contract and supporting records.</footer></main>
+<dialog id="dialog"><div id="dialogbody"></div></dialog></body></html>

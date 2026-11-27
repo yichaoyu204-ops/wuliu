@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="本机核对供应商物流账单与逐票采购基准。导入 CSV、XLSX 和 PDF，查看差额与字段出处，导出 Excel 复核底稿。">
+<title>运费核对台 · Freight invoice review</title><link rel="alternate" hreflang="en" href="./en.html"><link rel="alternate" hreflang="zh-CN" href="./index.html">
+<link rel="stylesheet" href="./style.css">
+<script src="./vendor/jszip.min.js" defer></script><script type="module" src="./app.mjs"></script>
+</head><body>
+<header><div class="shell nav"><div class="brand"><span class="mark" aria-hidden="true">≋</span> 运费核对台</div><div class="actions"><span class="privacy">● 本机处理</span><a data-language href="./en.html" lang="en">English</a></div></div></header>
+<main class="shell">
+<div class="hero"><div><h1>供应商账单核对</h1><p>按运单与费用逐行比对实际账单和已确认的采购成本，差额可追溯到原始文件。</p></div><button id="demo" class="secondary">载入合成示例</button></div>
+<section class="imports" aria-label="文件导入">
+<div class="drop"><h2>供应商账单</h2><p>承运商或仓库实际收取的逐行费用</p><label class="upload">选择账单文件<input id="invoice" type="file" accept=".csv,.xlsx,.pdf" multiple></label></div>
+<div class="drop base"><h2>采购基准</h2><p>同票、同费用项目的已确认应付行金额</p><label class="upload">选择采购基准<input id="baseline" type="file" accept=".csv,.xlsx,.pdf" multiple></label></div>
+</section>
+<p class="caption">支持 UTF-8 CSV、XLSX 和 PDF。可一次选择多个文件。<a href="./samples/template.csv" download>下载六列表头模板</a></p>
+<details class="guide"><summary>输入格式与核对规则</summary><p>表格首个非空行须含六个字段：供应商、运单号、费用名、币种、计费单位、行金额。可使用英文表头 Supplier, Shipment, Charge, Currency, Unit, Amount。行金额指该票该项的合计。单价、通用价目表、客户销售价无法直接作逐票采购基准。</p><p>精确匹配供应商、运单、费用名、币种与单位；识别 kg/公斤、lb/磅等同义单位，跨单位或跨币种提交人工复核。支持 CNY、USD、EUR、GBP、HKD、AUD、CAD、SGD、NZD、CHF，金额最多两位小数。暂不计税、换汇、按阶梯计费或合并拆单。</p><p>文字 PDF 根据列位置提取、逐行人工确认；扫描件或未知版式可查看原件后转录。原文证据可在对账结果中展开。关闭或刷新前请导出。使用本机服务或 HTTPS 打开本页。</p></details>
+<div role="status" aria-live="polite" id="status"></div>
+<section id="sourcesSection" hidden><div class="sectionHead"><h2>来源文件</h2></div><div id="sources"></div></section>
+<section class="results"><div class="sectionHead"><div><h2>对账结果</h2><p id="summary">导入文件后即可查看。</p></div><button id="export" disabled>导出 Excel</button></div>
+<div class="controls"><label>筛选 <select id="filter"><option value="all">全部明细</option><option value="issues">有差异或待核</option><option value="match">一致</option><option value="unreviewed">尚未处理</option></select></label><label>搜索 <input id="search" placeholder="运单、费用名或供应商"></label></div>
+<div id="table"></div></section>
+<footer>Freight invoice review <span>·</span> 所有差额需结合原件、合同及业务凭证确认。</footer>
+</main><dialog id="dialog"><div id="dialogbody"></div></dialog>
+</body></html>

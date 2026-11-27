@@ -1,0 +1,44 @@
+:root{color-scheme:light;--paper:#f4f1e9;--ink:#1b302a;--line:#c5c4b8;--muted:#555e52;--red:#9b3426;--panel:#e6e3d8}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"DM Sans","Microsoft YaHei","PingFang SC",Arial,sans-serif}
+.masthead,main{margin:auto;width:min(1140px,calc(100% - 72px))}
+.masthead{height:78px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #9eaa9c}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.06em;font-size:21px}
+.brand small{font:italic 18px Georgia,serif;letter-spacing:.01em;margin-left:3px}
+.brand-mark{background:var(--ink);color:var(--paper);display:grid;place-items:center;width:31px;height:31px;font:27px Georgia,serif}
+.language{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+select,input[type=text],textarea,button{font:inherit;color:inherit}
+select,input[type=text],textarea{border:1px solid #a9afa3;background:#fffdf7;border-radius:5px}
+.language select{border:0;background:transparent;padding:7px 3px;font-weight:700}
+.intro{padding:48px 0 34px}
+h1,h2,p{margin:0}
+h1{font:600 clamp(2rem,4vw,3.5rem)/1.15 "DM Serif Text","STKaiti","KaiTi","Songti SC","SimSun",Georgia,serif;letter-spacing:-.035em}
+.intro p{color:var(--muted);margin-top:13px;line-height:1.6;font-size:15px}
+.studio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-top:1px solid var(--ink);padding-bottom:40px;}
+.editor{padding:27px 40px 18px 0;min-width:0}
+.preview{background:var(--panel);padding:27px 32px 32px;min-width:0}
+h2{margin:0 0 22px;font-size:17px;letter-spacing:.015em;font-weight:650}
+.field-row{display:grid;grid-template-columns:minmax(100px,.82fr) minmax(0,1.18fr);gap:14px;margin-bottom:24px}
+.field-row span,.transcript-label label{font-size:13px;font-weight:650;display:block;margin-bottom:7px}
+.field-row input,.field-row select{width:100%;padding:9px 10px;height:44px}
+.transcript-label{display:flex;align-items:baseline;justify-content:space-between}
+#count{font:12px monospace;color:var(--muted)}
+textarea{width:100%;min-height:148px;padding:14px;line-height:1.65;resize:vertical;font-size:16px}
+input:focus-visible,textarea:focus-visible,button:focus-visible,select:focus-visible,a:focus-visible{outline:3px solid #ad6743;outline-offset:2px}
+.check{display:flex;align-items:center;gap:7px;font-size:13px;line-height:1.45;margin-top:12px}
+.check input{accent-color:var(--ink);width:16px;height:16px;flex-shrink:0}
+.example,.feedback{color:var(--muted);font-size:13px;line-height:1.5;margin:8px 0}
+.actions{margin:22px 0 10px;display:flex;gap:8px;flex-wrap:wrap}
+button{border:1px solid var(--ink);border-radius:5px;padding:12px 19px;font-weight:700;cursor:pointer;display:flex;gap:8px;align-items:center;justify-content:center;min-height:46px}
+button:disabled{opacity:.48;cursor:not-allowed}
+button:active:not(:disabled){transform:translateY(1px)}
+.speak{background:transparent}.mic-sign{color:var(--red);font-size:13px}.export{color:#fffdf6;background:var(--ink)}
+.result{color:var(--red);font-weight:600;min-height:1.5em}
+.preview-jump{display:none}
+@media(max-width:740px){.editor-head{display:flex;justify-content:space-between;align-items:baseline}.preview-jump{display:inline-block;min-height:40px;padding:3px 2px;color:var(--red);font-weight:650;font-size:13px;text-underline-offset:3px}}
+#image-link{color:var(--ink);font-size:13px}
+.sheet{width:min(100%,400px);margin:auto}
+canvas{width:100%;height:auto;display:block;border:1px solid #bbbcb1;box-shadow:0 8px 18px #343d3020}
+@media(max-width:740px){.masthead,main{width:min(100% - 32px,640px)}.masthead{height:58px}.intro{padding:25px 0 21px}.studio{display:flex;flex-direction:column}.editor{padding:20px 0 10px}.preview{padding:18px 16px 22px}.intro p{margin-top:8px}.field-row{margin-bottom:15px}h2{margin-bottom:14px}.actions{margin-top:16px}textarea{min-height:112px}.result:empty{display:none}.language>span{display:none}}
+@media(max-width:360px){.brand small{font-size:14px}.field-row{grid-template-columns:minmax(0,.95fr) minmax(0,1fr)}button{padding:10px 11px}.editor{padding-top:16px}}
+@media(prefers-reduced-motion:reduce){button:active:not(:disabled){transform:none}}

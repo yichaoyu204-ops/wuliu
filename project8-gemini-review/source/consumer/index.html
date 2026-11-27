@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#e9e4d9">
+  <title>寄语 · Dispatch Notes</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon-192.png">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <script defer src="core.js"></script>
+  <script defer src="card.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <div class="brand"><span class="brand-mark" aria-hidden="true">↗</span><span>寄语 <small>Dispatch Notes</small></span></div>
+    <label class="language"><span data-i="language">界面语言</span><select id="lang" aria-label="Language / 界面语言"><option value="zh">中文</option><option value="en">English</option></select></label>
+  </header>
+  <main>
+    <div class="intro"><h1 data-i="headline">把口述变成一张卡片</h1><p data-i="subhead">说一段出货进度或日常随想，核对原话，存成图片。</p></div>
+    <div class="studio">
+      <section class="editor" aria-labelledby="edit-head">
+        <div class="editor-head"><h2 id="edit-head" data-i="edit">编辑原文</h2><a class="preview-jump" href="#prev-head"><span data-i="preview">卡片预览</span> ↓</a></div>
+        <div class="field-row"><label><span data-i="style">卡片样式</span><select id="style"><option value="cargo" data-i="cargo">出货简报</option><option value="journal" data-i="journal">随手记</option></select></label><label><span data-i="title">卡片标题</span><input id="title" type="text" maxlength="30"></label></div>
+        <div class="transcript-label"><label for="raw" data-i="text">口述原文</label><span id="count" aria-hidden="true"></span></div>
+        <textarea id="raw" spellcheck="false" aria-describedby="cleanup-hint status"></textarea>
+        <label class="check" id="cleanup-hint"><input type="checkbox" id="clean" checked><span data-i="clean">省略独立出现的「嗯」「呃」</span></label>
+        <p class="example" id="example"></p>
+        <div class="actions">
+          <button type="button" class="speak" id="mic"><span aria-hidden="true" class="mic-sign">●</span><span id="mic-label">开始口述</span></button>
+          <button type="button" class="export" id="export"><span aria-hidden="true">↓</span><span data-i="save">保存 PNG</span></button>
+        </div>
+        <p class="feedback" id="voice-note"></p>
+        <p class="feedback result" id="status" aria-live="polite"></p>
+        <a id="image-link" hidden target="_blank" rel="noopener" data-i="open">打开图片以保存</a>
+      </section>
+      <section class="preview" aria-labelledby="prev-head">
+        <h2 id="prev-head" tabindex="-1" data-i="preview">卡片预览</h2>
+        <div class="sheet"><canvas id="card" aria-label="成图预览" role="img"></canvas></div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

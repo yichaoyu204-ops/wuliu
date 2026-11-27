@@ -1,0 +1,23 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {keys,labels,makeRecord,audit,auditDocuments,parseCSV,cents,headerMap,readTable} from "../core.mjs";
+const data={supplier:"TEST",shipment:"S1",charge:"测试费",currency:"CNY",unit:"kg",amount:"95.10"};
+const row=(side,fields={},method="direct")=>makeRecord({id:crypto.randomUUID(),name:"test.csv",side},{...data,...fields},{},"CSV · 行 2",method);
+const compare=(i,b)=>audit([row("invoice",i),row("baseline",b)])[0];
+test("decimal point math, currency text and precision",()=>{assert.equal(cents("1,200.01"),120001);assert.equal(cents("-1.05"),-105);for(const s of ["","1,2","1.005","1e4","12元","0x12"])assert.equal(cents(s),null)});
+test("normalized units match, higher and lower amounts are exact",()=>{assert.equal(compare({unit:"公斤"},{}).status,"match");assert.equal(compare({amount:"95.21"},{}).delta,11);assert.equal(compare({amount:"94"},{}).status,"under")});
+test("different currency or unit never creates a numeric difference",()=>{for(const change of [{unit:"lb"},{currency:"USD"}]){const r=compare(change,{});assert.equal(r.status,"mismatch");assert.equal(r.delta,null)}});
+test("no supplier / shipment identity matches by fuzzy name",()=>{for(const f of [{shipment:"S2"},{supplier:"X"},{charge:"X"}])assert.equal(compare(f,{}).status,"missing")});
+test("ambiguous duplicate is held for review",()=>{const r=audit([row("invoice"),row("invoice"),row("baseline")]);assert.deepEqual(r.map(x=>x.status),["duplicate","duplicate"]);assert.ok(r.every(x=>x.delta===null))});
+test("an absent invoice is separated from malformed baseline or unresolved counterpart",()=>{
+  assert.equal(audit([row("baseline")])[0].status,"unbilled");assert.equal(audit([row("baseline",{amount:""})])[0].status,"invalid");
+  const base={side:"baseline",rows:[row("baseline")],issues:[]};
+  assert.equal(auditDocuments([base])[0].status,"incomplete");
+  const invisible={side:"invoice",rows:[],issues:["无文字层"]};
+  assert.equal(auditDocuments([base,invisible])[0].status,"incomplete");
+  invisible.resolution="人工确认本页只有封面";assert.equal(auditDocuments([base,invisible])[0].status,"unbilled");
+});
+test("pending PDF candidate cannot approve an amount",()=>{const r=audit([row("invoice",{},"candidate"),row("baseline")]);assert.ok(r.every(x=>x.status==="pending"&&x.delta===null))});
+test("formula-derived Excel fields need confirmation; unmatched rows retain field refs",()=>{const doc={id:"d",name:"a.xlsx",side:"invoice",rows:[],issues:[]};readTable(doc,[{row:4,cells:keys.map(k=>labels[k])},{row:7,cells:keys.map(k=>data[k]),formulas:["F7"]}],"采购");assert.equal(doc.rows[0].fields.amount.source_ref,"采购!F7");assert.equal(doc.rows[0].fields.amount.confidence,"待人工")});
+test("CSV quoted commas, escaped quotes and physical row references",()=>{const table=parseCSV('supplier,shipment,charge,currency,unit,amount\r\n"X, A",S1,"Word\n""two""",USD,kg,8.2\r\nA,S2,Q,USD,kg,3');assert.equal(table[1].cells[0],"X, A");assert.equal(table[1].cells[2],'Word\n"two"');assert.equal(table[2].row,4);assert.throws(()=>parseCSV('a,b\n"A'),/引号/)});
+test("ambiguous headers are refused, allowing explicit correction",()=>{assert.equal(headerMap(["金额","运单","费用名","币种","计费单位","金额"]),null);assert.equal(headerMap(["supplier","shipment","charge","currency","unit","amount"]).unit,4)});
